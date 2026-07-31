@@ -1,59 +1,68 @@
 :root {
-  /* Superficies — papel bond frío, ledger oficial, no pergamino cálido */
-  --paper: #f2f4f7;
-  --paper-raised: #fbfcfd;
-  --paper-inset: #eaedf2;
-  --paper-band: #e4e9f0;
+  /* Superficies — blanco-azulado muy claro, tarjetas blancas puras que
+     flotan encima con sombra teñida (no gris plano) */
+  --bg: #f5f7ff;
+  --surface: #ffffff;
+  --surface-muted: #f1f3fb;
+  --surface-band: #eef1fc;
 
-  /* Tinta — azul-negro de bolígrafo, no negro puro */
-  --ink: #1c2733;
-  --ink-secondary: #47566a;
-  --ink-tertiary: #6f7c8c;
-  --ink-muted: #97a1ad;
+  /* Tinta */
+  --ink: #0f172a;
+  --ink-secondary: #475569;
+  --ink-tertiary: #64748b;
+  --ink-muted: #94a3b8;
 
-  /* Reglas del papel ledger — progresión de énfasis */
-  --rule-soft: rgba(28, 39, 51, 0.08);
-  --rule-standard: rgba(28, 39, 51, 0.16);
-  --rule-emphasis: rgba(28, 39, 51, 0.28);
+  --border: #e2e8f0;
+  --border-strong: #c7d2e6;
 
-  /* Acento único — azul institucional (tinta de sello/oficio), no compite
-     con el azul eléctrico + amarillo del logo 1: misma familia, mucho
-     menos saturado y más oscuro */
-  --accent: #1a5bab;
-  --accent-dark: #123f7d;
-  --accent-wash: rgba(26, 91, 171, 0.09);
-  --accent-contrast: #f6f8fb;
+  /* Marca — índigo + violeta, en gradiente para las acciones primarias */
+  --primary: #4f46e5;
+  --primary-dark: #4338ca;
+  --secondary: #7c3aed;
+  --primary-gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+  --primary-wash: rgba(79, 70, 229, 0.08);
+  --primary-shadow: rgba(79, 70, 229, 0.22);
 
-  /* Semántica — reservada, nunca usada como acento genérico */
-  --success: #2f6b3f;
-  --success-wash: rgba(47, 107, 63, 0.09);
-  --error: #b23026;
-  --error-wash: rgba(178, 48, 38, 0.08);
-  --warning: #9a6a10;
-  --warning-wash: rgba(154, 106, 16, 0.1);
+  /* Semántica */
+  --success: #16a34a;
+  --success-wash: rgba(22, 163, 74, 0.09);
+  --error: #dc2626;
+  --error-wash: rgba(220, 38, 38, 0.08);
+  --warning: #d97706;
+  --warning-wash: rgba(217, 119, 6, 0.1);
 
-  --radius-sm: 3px;
-  --radius-md: 6px;
-  --radius-stamp: 999px;
+  /* Colores de identidad por área del conocimiento — cada uno con su
+     tono base y su versión "wash" para el fondo del chip sin marcar */
+  --area-indigo: #4f46e5;
+  --area-indigo-wash: rgba(79, 70, 229, 0.09);
+  --area-violeta: #9333ea;
+  --area-violeta-wash: rgba(147, 51, 234, 0.09);
+  --area-verde: #059669;
+  --area-verde-wash: rgba(5, 150, 105, 0.09);
+  --area-ambar: #d97706;
+  --area-ambar-wash: rgba(217, 119, 6, 0.1);
+  --area-rosa: #db2777;
+  --area-rosa-wash: rgba(219, 39, 119, 0.09);
 
-  --shadow-sm: 0 1px 2px rgba(28, 39, 51, 0.08);
-  --shadow-md: 0 6px 20px rgba(28, 39, 51, 0.1), 0 1px 3px rgba(28, 39, 51, 0.08);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
 
-  /* Una sola familia de sistema para cuerpo/etiquetas (cero descarga —
-     conectividad rural no garantizada) y una monoespaciada de sistema
-     para folios, radicados y casillas numéricas: el registro tipográfico
-     del formulario oficial / máquina de escribir. */
-  --font-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 4px 24px rgba(79, 70, 229, 0.1), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-btn: 0 8px 20px var(--primary-shadow);
+
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas, monospace;
 
-  /* Escala fija en rem, razón ~1.125-1.2 */
   --text-xs: 0.75rem;
-  --text-sm: 0.8125rem;
-  --text-base: 0.9375rem;
-  --text-md: 1.0625rem;
-  --text-lg: 1.25rem;
-  --text-xl: 1.5rem;
-  --text-2xl: 2rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
 
   --space-1: 4px;
   --space-2: 8px;
@@ -66,6 +75,7 @@
   --space-12: 48px;
 
   --sheet-max-width: 760px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -79,7 +89,10 @@ body {
 }
 
 body {
-  background: var(--paper-inset);
+  background: var(--bg);
+  background-image: radial-gradient(circle at 12% -10%, rgba(79, 70, 229, 0.08), transparent 45%),
+    radial-gradient(circle at 88% 0%, rgba(124, 58, 237, 0.06), transparent 40%);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);
@@ -105,16 +118,17 @@ textarea {
 }
 
 a {
-  color: var(--accent);
+  color: var(--primary);
 }
 
 h1,
 h2,
 h3 {
-  line-height: 1.2;
+  line-height: 1.15;
   margin: 0;
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 
 p {
@@ -132,33 +146,32 @@ legend {
 }
 
 ::selection {
-  background: var(--accent-wash);
+  background: var(--primary-wash);
   color: var(--ink);
 }
 
 :focus-visible {
-  outline: 2.5px solid var(--accent);
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ---------------------------------------------------------------------
-   La "hoja": el pliego sobre el que vive todo el formulario y el panel.
-   El carácter de ledger vive en los bordes entre secciones y en las
-   listas con regla (revisión, éxito, tabla) — no en una ruled-line de
-   fondo continua, que cruza el texto de forma impredecible según su
-   altura y se lee como tachado.
+   La "hoja": la tarjeta blanca que contiene todo el formulario y el
+   panel, flotando sobre el fondo con degradado suave.
    --------------------------------------------------------------------- */
 .hoja {
   max-width: var(--sheet-max-width);
   margin: 0 auto;
-  background: var(--paper);
-  border: 1px solid var(--rule-standard);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 
 .hoja-ancha {
-  max-width: 1080px;
+  max-width: 1120px;
 }
 
 @media (max-width: 640px) {

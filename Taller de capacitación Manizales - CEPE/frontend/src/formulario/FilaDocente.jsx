@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import Casilla from '../components/Casilla.jsx';
-import { AREAS } from '../data/catalogos.js';
+import { AREAS, AREAS_COLOR } from '../data/catalogos.js';
 
 export default function FilaDocente({ docente, index, errores = {}, tocado = {}, onChange, onToggleArea, onBlur, onRemove, canRemove, autoFocus }) {
   const nombreRef = useRef(null);
@@ -74,6 +74,7 @@ export default function FilaDocente({ docente, index, errores = {}, tocado = {},
             <Casilla
               key={area}
               etiqueta={area}
+              color={AREAS_COLOR[area]}
               checked={(docente.areas || []).includes(area)}
               onChange={(marcada) => alternarArea(area, marcada)}
             />

@@ -1,14 +1,4 @@
-import { AREAS, AREAS_ABREVIADAS, INSTITUCIONES } from '../data/catalogos.js';
-
-const FORMATO_FECHA = new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-function formatearFecha(timestamp) {
-  try {
-    return FORMATO_FECHA.format(new Date(timestamp));
-  } catch {
-    return timestamp;
-  }
-}
+import { AREAS, AREAS_ABREVIADAS, AREAS_COLOR, INSTITUCIONES } from '../data/catalogos.js';
 
 export default function TablaDocentes({
   docentes,
@@ -72,7 +62,6 @@ export default function TablaDocentes({
                 <th>Docente</th>
                 <th>Teléfono</th>
                 <th>Áreas</th>
-                <th>Fecha</th>
               </tr>
             </thead>
             <tbody>
@@ -84,13 +73,12 @@ export default function TablaDocentes({
                   <td data-etiqueta="Áreas">
                     <div className="tabla-areas">
                       {(d.areas || []).map((a) => (
-                        <span key={a} className="tabla-area-chip">
+                        <span key={a} className={`tabla-area-chip tabla-area-chip--${AREAS_COLOR[a] || 'indigo'}`}>
                           {AREAS_ABREVIADAS[a] || a}
                         </span>
                       ))}
                     </div>
                   </td>
-                  <td data-etiqueta="Fecha" className="tabla-mono tabla-fecha">{formatearFecha(d.timestamp)}</td>
                 </tr>
               ))}
             </tbody>

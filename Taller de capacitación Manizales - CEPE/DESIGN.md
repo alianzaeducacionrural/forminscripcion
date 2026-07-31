@@ -1,40 +1,40 @@
 ---
 name: Inscripción de docentes — Metodologías Activas
-description: El formulario oficial de rectoría, vivo — casillas de ledger, folio y sello de recibido para inscribir docentes al taller.
+description: Formulario dinámico y colorido — cada área del conocimiento con su propio color de identidad, tarjetas blancas con degradado índigo/violeta.
 colors:
-  paper: "#f2f4f7"
-  paper-raised: "#fbfcfd"
-  paper-inset: "#eaedf2"
-  paper-band: "#e4e9f0"
-  ink: "#1c2733"
-  ink-secondary: "#47566a"
-  ink-tertiary: "#6f7c8c"
-  ink-muted: "#97a1ad"
-  accent: "#1a5bab"
-  accent-dark: "#123f7d"
-  success: "#2f6b3f"
-  error: "#b23026"
-  warning: "#9a6a10"
+  bg: "#f5f7ff"
+  surface: "#ffffff"
+  surface-muted: "#f1f3fb"
+  surface-band: "#eef1fc"
+  ink: "#0f172a"
+  ink-secondary: "#475569"
+  ink-tertiary: "#64748b"
+  primary: "#4f46e5"
+  primary-dark: "#4338ca"
+  secondary: "#7c3aed"
+  success: "#16a34a"
+  error: "#dc2626"
+  warning: "#d97706"
+  area-indigo: "#4f46e5"
+  area-violeta: "#9333ea"
+  area-verde: "#059669"
+  area-ambar: "#d97706"
+  area-rosa: "#db2777"
 typography:
   body:
-    fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "0.9375rem"
+    fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.55
   heading:
-    fontFamily: "ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
-    fontSize: "1.5rem"
-    fontWeight: 700
-    lineHeight: 1.2
-  mono-label:
-    fontFamily: "ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas, monospace"
-    fontSize: "0.75rem"
-    fontWeight: 600
-    letterSpacing: "0.06em"
+    fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif"
+    fontWeight: 800
+    letterSpacing: "-0.01em"
 rounded:
-  sm: "3px"
-  md: "6px"
-  stamp: "999px"
+  sm: "10px"
+  md: "16px"
+  lg: "22px"
+  pill: "999px"
 spacing:
   1: "4px"
   2: "8px"
@@ -43,187 +43,191 @@ spacing:
   5: "20px"
   6: "24px"
   8: "32px"
-  10: "40px"
-  12: "48px"
 components:
   button-primary:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.paper-raised}"
-    rounded: "{rounded.sm}"
-    padding: "12px 20px"
-  button-primary-hover:
-    backgroundColor: "{colors.accent-dark}"
-  button-secondary:
-    backgroundColor: "{colors.paper-raised}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
-    padding: "12px 20px"
-  casilla:
-    backgroundColor: "{colors.paper-raised}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
-    padding: "8px 12px"
-  casilla-marcada:
-    backgroundColor: "{colors.accent}"
+    backgroundColor: "{colors.primary}"
+    textColor: "#ffffff"
+    rounded: "{rounded.pill}"
+    padding: "12px 24px"
+  chip-unmarcado:
+    backgroundColor: "transparent"
+    textColor: "{colors.primary}"
+    rounded: "{rounded.pill}"
+  chip-marcado:
+    backgroundColor: "{colors.primary}"
+    textColor: "#ffffff"
+    rounded: "{rounded.pill}"
 ---
 
 # Design System: Inscripción de docentes — Metodologías Activas
 
 ## Overview
 
-**Creative North Star: "El formulario oficial de rectoría, vivo"**
+**Creative North Star: "El colegio con color"**
 
-El producto no se viste de dashboard ni de landing page: se viste del objeto que un
-rector ya conoce de memoria — el formulario administrativo colombiano, con sus casillas
-cuadriculadas, su membrete de logos, su radicado y su sello de recibido. La diferencia con
-el papel es que aquí las casillas validan en vivo, el contador de docentes sube en tiempo
-real y el sello se estampa con una animación al confirmar. Es un mundo deliberadamente
-distinto del cluster genérico de interfaces de IA (nada de pergamino cálido + terracota +
-serif editorial, nada de negro casi puro con acento neón): papel bond frío, tinta
-azul-negro de bolígrafo, un único acento azul institucional.
+Segunda dirección visual del proyecto — la primera ("el formulario oficial de rectoría",
+ledger gris/mono) fue construida, probada, y **rechazada explícitamente** por el usuario
+tras verla en uso real: "muy plano, muy simple, quiero algo más dinámico, más colores".
+Esta versión reemplaza ese mundo por completo: tarjetas blancas limpias sobre un fondo
+azul-violeta muy claro con degradado radial, un acento índigo→violeta para toda acción
+primaria, y — la decisión más específica — **cada una de las 5 áreas del conocimiento
+tiene su propio color de identidad**, así que la lista de áreas de un docente se lee de
+un vistazo por color, no solo por texto.
 
-Rechazo confirmado durante la construcción: ninguna línea de "ruled paper" de fondo
-continua — cruzaba el texto de los encabezados como un tachado y se retiró; el carácter de
-ledger vive en los bordes entre secciones, no en una textura de fondo.
+Rechazos confirmados durante la construcción de esta segunda versión:
+- Easing tipo resorte/rebote (`cubic-bezier(0.34, 1.56, 0.64, 1)` y keyframes con
+  overshoot) — el detector de patrones de IA lo marca como "dated and tacky"; se
+  reemplazó por una curva de desaceleración exponencial en toda entrada animada.
+  Los usos previos y su reemplazo están documentados en el token `--ease-out`.
+- Fondo de tarjeta y campos del mismo tono lavanda — el usuario reportó que la fila de
+  docente, sus inputs y los chips sin marcar "casi no se diferencian". Se corrigió
+  invirtiendo la jerarquía: tarjeta = blanco puro + borde, campos internos = gris claro
+  con borde real (no transparente), chips = borde de su propio color siempre visible,
+  marcado o no.
 
 **Key Characteristics:**
-- Registro de "formulario oficial vivo": casillas, radicado, sello — nunca tarjetas de dashboard genéricas.
-- Una sola familia sans de sistema para todo el cuerpo; una mono de sistema reservada para códigos, folios, teléfonos y etiquetas de campo — cero descarga de fuentes (conectividad rural).
-- Acento único, azul institucional, usado solo en acción primaria, selección y foco.
-- Sin kickers/eyebrows sobre encabezados en ningún punto: el heading siempre lidera, el contexto va debajo en mono minúsculo.
+- Una sola familia (Plus Jakarta Sans, autoalojada) para todo — sin fuente monoespaciada,
+  sin registro "de máquina de escribir".
+- Botones y CTA primario en degradado índigo→violeta, radio píldora, sombra teñida del
+  mismo color (nunca gris).
+- Selección de institución: `<select>` nativo estilizado — no una rejilla de opciones.
+- Selección de áreas: chips de color, uno por área, alternables con transform+opacity
+  (nunca animando `width`).
+- Confirmación de envío: modal (no una sección en línea), con botón de cerrar visible.
 
 ## Colors
 
-Paleta Restrained: neutros de papel bond frío más un único acento azul institucional.
-Reservada — nunca decorativa fuera de acción primaria, selección y estados.
+Estrategia "Full palette": índigo/violeta como marca, más 5 colores de identidad para las
+áreas del conocimiento — deliberadamente más saturados que un sistema Restrained, porque
+el usuario pidió explícitamente más color.
 
 ### Primary
-- **Azul institucional** (`#1a5bab`): acción primaria (botón "Revisar inscripción", "Confirmar y enviar"), casilla marcada, folio, barra de cobertura y de volumen, sello de "recibido". Deliberadamente menos saturado que el azul eléctrico del logo 1 (misma familia, mucho más oscuro) para no competir con el membrete.
-- **Azul institucional oscuro** (`#123f7d`): hover de botón primario, texto de institución en la revisión.
+- **Índigo** (`#4f46e5`): toda acción primaria — botón "Inscribir docentes", "Confirmar y
+  enviar", foco de campos, folio, barra de cobertura y de volumen, insignia del sello.
+- **Violeta** (`#7c3aed`): pareja del degradado primario (`linear-gradient(135deg, índigo,
+  violeta)`); nunca se usa sola fuera del degradado.
+
+### Colores de área (Full palette, con propósito — no decoración suelta)
+- **Índigo** — Matemáticas
+- **Violeta** (`#9333ea`, distinto del secundario de marca) — Lenguaje
+- **Verde** (`#059669`) — Ciencias Naturales
+- **Ámbar** (`#d97706`) — Ciencias Sociales
+- **Rosa** (`#db2777`) — Docente líder La Universidad en el Campo
+
+Cada color tiene una versión "wash" (fondo al 9-10% de opacidad) para el estado sin
+marcar y el color sólido para el estado marcado. Se repiten exactamente en tres lugares:
+el chip del formulario, la etiqueta de la tabla del admin, y el chip del desglose "por
+área" — un área siempre es el mismo color en todo el producto.
 
 ### Neutral
-- **Papel** (`#f2f4f7`): fondo de la hoja principal.
-- **Papel elevado** (`#fbfcfd`): inputs, filas de docente, casillas sin marcar.
-- **Papel hundido** (`#eaedf2`): fondo de fila vacía, chips de área, avisos informativos.
-- **Franja de membrete** (`#e4e9f0`): banda que aloja los 3 logos.
-- **Tinta** (`#1c2733`): texto principal — azul-negro de bolígrafo, nunca negro puro.
-- **Tinta secundaria** (`#47566a`): subtítulos, etiquetas de campo.
-- **Tinta terciaria** (`#6f7c8c`): notas, placeholders, columnas secundarias de tabla.
-- **Tinta apagada** (`#97a1ad`): instituciones en cero, texto deshabilitado.
-
-### Semántica
-- **Éxito** (`#2f6b3f`): estado "cobertura completa" en el panel.
-- **Error** (`#b23026`): validación de campo, error de envío. Reservado — el sello de confirmación usa el azul, no el rojo, para no cargar dos significados sobre el mismo color.
-- **Advertencia** (`#9a6a10`): aviso de conexión no confirmada.
+- **Fondo** (`#f5f7ff`): página, con degradado radial índigo/violeta muy sutil.
+- **Superficie** (`#ffffff`): tarjetas, filas de docente — blanco puro para que los
+  campos y chips de color tengan de qué destacar.
+- **Superficie apagada** (`#f1f3fb`): inputs, selects, filas alternas de tabla —
+  siempre un nivel más oscuro que la tarjeta que la contiene, nunca el mismo tono.
 
 ### Named Rules
-**The One Accent Rule.** El azul institucional es el único color que puede marcar
-acción o selección. El verde y el rojo son semánticos y exclusivos de sus estados — nunca
-se usan como acento decorativo.
+**The Card-Is-White Rule.** Toda tarjeta o fila contenedora es blanco puro con borde
+real (`--border`); los campos y controles dentro de ella usan `--surface-muted`. Nunca al
+revés — fue exactamente el error que hizo que los inputs "se perdieran" en la primera
+iteración de esta paleta.
+
+**The One Color, One Meaning Rule.** El sello de confirmación exitosa usa índigo, no
+rojo ni verde — el rojo es exclusivo de error, el verde exclusivo de "cobertura
+completa". Ningún color de área se reutiliza como semántico.
 
 ## Typography
 
-**Body/Heading Font:** system-ui sans stack (`ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`)
-**Label/Mono Font:** system mono stack (`ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas, monospace`)
-
-**Character:** una sola familia sans hace todo el trabajo de cuerpo y encabezados —
-Operate mode no necesita un par display/body. La mono aparece únicamente donde el
-formulario oficial la usaría: códigos de institución (IE01…IE13), folios, teléfonos,
-fechas y etiquetas de campo en mayúscula — nunca como decoración "técnica".
+**Familia única:** Plus Jakarta Sans (autoalojada vía `@fontsource`, pesos 400/500/600/
+700/800) — headings y cuerpo comparten familia; la jerarquía viene de peso y tamaño, no
+de un segundo tipo de letra.
 
 ### Hierarchy
-- **Heading** (700, 1.5rem/1.25rem según contexto, line-height 1.2): título de la página (`h1`, `h2`). Siempre lidera — nunca precedido por un kicker.
-- **Subtítulo mono** (600, 0.75rem, letter-spacing 0.06em, mayúsculas): contexto inmediatamente debajo del heading (p. ej. "Formulario de inscripción de docentes" bajo el h1). Nunca arriba del heading.
-- **Body** (400, 0.9375rem, line-height 1.55): texto corrido, instrucciones, notas.
-- **Label** (600, 0.75rem, letter-spacing 0.06em, mayúsculas, mono): etiquetas de campo ("NOMBRE COMPLETO", "TELÉFONO DE CONTACTO").
-
-### Named Rules
-**The No-Kicker Rule.** Ningún encabezado lleva una etiqueta de una línea encima. El
-heading dice lo que es; el contexto adicional va debajo, en mono minúsculo. (Este es un
-ban explícito descubierto por el detector de patrones de IA durante la construcción —
-había tres instancias y las tres se invirtieron.)
+- **Heading** (800, `-0.01em` tracking): títulos de página y de sección.
+- **Subtítulo** (600, `--text-sm`, `--ink-tertiary`): contexto inmediatamente debajo del
+  heading — nunca un kicker encima.
+- **Body** (400, 1rem, line-height 1.55): texto corrido.
+- **Label de campo** (700, `--text-sm`, sentence case): etiquetas de formulario — ya no
+  van en mayúscula/mono como en la primera versión.
 
 ## Layout
 
-Contenedor único (`.hoja`), máximo 760px en el formulario y 1080px en el panel admin,
-centrado, con borde de 1px y esquinas de 6px. Las secciones se separan con bordes
-horizontales de 1px (`--rule-standard`), nunca con espacio en blanco solo — el carácter de
-ledger viene de esas reglas entre secciones.
-
-Responsive: estructural, no tipográfico. El selector de instituciones pasa de 2 columnas a
-1 por debajo de 560px; la tabla del panel se convierte en tarjetas por debajo de 780px
-(`data-etiqueta` como pseudo-encabezado por celda); los dos bloques del panel (cobertura +
-volumen) se apilan por debajo de 780px.
+Contenedor único (`.hoja`), 760px en el formulario / 1120px en el admin, blanco, radio
+22px, `overflow: hidden`, flotando sobre el fondo con `box-shadow` teñida de índigo
+(nunca gris). Responsive estructural: el select de institución y las filas de docente se
+apilan solas por ser ya de ancho completo; la tabla del admin pasa a tarjetas por debajo
+de 780px; los chips de área hacen wrap libremente.
 
 ## Elevation & Depth
 
-Sistema mayormente plano con una sola sombra suave (`0 4px 16px rgba(28,39,51,.08)`) en el
-contenedor `.hoja`, que ancla la hoja sobre el fondo `--paper-inset`. Todo lo demás dentro
-de la hoja se distingue por borde de 1.5px, no por sombra — evita el "ghost card" (borde
-fino bajo sombra ancha).
+Sombras siempre teñidas del color del elemento que las proyecta (`--shadow-btn` en
+índigo, `--shadow-card` en índigo tenue) — nunca `rgba(0,0,0,...)` plano. El botón
+primario y el sello de éxito llevan la sombra más marcada del sistema; todo lo demás usa
+`--shadow-sm`.
 
 ### Named Rules
-**The Border-Not-Shadow Rule.** Dentro de la hoja, la jerarquía entre fila de docente,
-input y casilla se resuelve con `border` de 1.5px, nunca con sombra adicional.
+**The Tinted Shadow Rule.** Ninguna sombra es gris neutro; toma el matiz del elemento
+que la proyecta.
 
 ## Shapes
 
-Radios pequeños y consistentes: 3px en casillas/inputs/chips, 6px en contenedores mayores
-(`.hoja`, fila de docente), circular (`999px`) solo en el anillo del sello y en las barras
-de progreso. Sin esquinas grandes tipo "app card" — el radio pequeño sostiene el registro
-de formulario impreso.
+Radio píldora (`999px`) en botones, chips, selects, folio y barras de progreso — es el
+lenguaje de forma dominante del sistema, reforzando el registro "app", no "documento".
+Tarjetas y modal en 16-22px. Nada en ángulo recto salvo la tabla del admin.
 
 ## Components
 
 ### Botones
-- **Shape:** radio 3px, padding 12px 20px.
-- **Primario:** fondo `--accent`, texto `--accent-contrast`; hover `--accent-dark`; activo se desplaza 1px.
-- **Secundario:** fondo `--paper-raised`, borde 1.5px `--rule-emphasis`; hover borda en `--accent`.
-- **Agregar (+):** borde punteado, sin relleno; hover llena con `--accent-wash`.
+- **Primario:** degradado índigo→violeta, texto blanco, radio píldora, sombra teñida;
+  hover levanta 1px y intensifica la sombra; activo escala a 0.97.
+- **Secundario:** fondo `--surface-muted`, sin borde; hover pasa a wash de índigo.
+- **Agregar (+):** borde punteado, transparente; hover llena con wash de índigo.
 
-### Casilla (componente de firma)
-Cuadro de 19×19px con borde 1.5px; marcado invierte a fondo `--accent` con check SVG
-animado (180ms). `type="radio"` usa esquina circular; `type="checkbox"` esquina de 2px.
-Cada casilla puede llevar un código mono a la izquierda (p. ej. `IE01`). Es el control que
-más se repite en el producto — selector de institución y grupo de áreas comparten el mismo
-componente, con distinto `type`.
+### Chip de área (componente de firma)
+Botón píldora con borde de su propio color siempre visible (35% de opacidad sin marcar),
+fondo wash del mismo color; marcado invierte a fondo sólido + texto blanco + check que
+entra con `transform: scale()` + `opacity` (nunca `width`, evita layout thrash). Un mismo
+componente (`Casilla.jsx`) sirve para las 5 áreas, parametrizado por `color`.
 
-### Sello (componente de firma)
-Anillo SVG + check trazado a mano, con texto "RECIBIDO" y fecha en mono **debajo** del
-anillo (nunca superpuesto: la primera versión ponía el texto encima con margen negativo y
-quedaba ilegible). Animación de estampado: escala 1.6→1, rotación -8°→-3°, 480ms.
+### Select de institución
+`<select>` nativo con `appearance: none`, flecha propia dibujada en CSS, fondo
+`--surface-muted`, foco con anillo de índigo (`box-shadow` de 4px). Reemplazó la rejilla
+de opciones tipo casilla de la primera versión.
 
-### Inputs / Campos
-- **Style:** borde 1.5px `--rule-standard`, fondo `--paper-raised`, radio 3px.
-- **Focus:** borde pasa a `--accent`.
-- **Error:** borde y fondo `--error`/`--error-wash`, mensaje en línea debajo del campo.
+### Modal
+Fondo oscuro con blur, panel blanco centrado (hoja abajo en móvil), botón de cerrar (✕)
+siempre visible en la esquina — no depende solo de clic-afuera o Escape. Contiene la
+revisión antes de enviar; se abre desde el botón "Inscribir docentes".
+
+### Sello de confirmación
+Círculo con degradado de marca y check blanco, con un anillo de pulso que se expande y
+desvanece una sola vez. Entrada en un solo arco (`scale(0.4)→scale(1)` con
+`--ease-out`) — la versión anterior tenía un keyframe de rebote (overshoot a 1.08) que
+se eliminó junto con el resto del easing tipo resorte.
 
 ### Tabla (panel admin)
-Encabezado sticky en `--paper-band`, filas con hover `--accent-wash`. Por debajo de 780px
-se transforma en tarjetas apiladas vía `data-etiqueta` en cada celda — no hay una vista
-separada para móvil.
-
-### Barras de progreso/volumen
-`transform: scaleX()` desde `transform-origin: left`, nunca `width` animado (layout
-thrash confirmado por el detector y corregido).
+Encabezado sticky, filas con hover en wash de índigo, chips de área con su color de
+identidad en cada celda. Sin columna de fecha — se quitó a pedido explícito. Por debajo
+de 780px se convierte en tarjetas vía `data-etiqueta`.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** usar la mono de sistema solo para códigos, folios, teléfonos, fechas y
-  etiquetas de campo — nunca como decoración de "look técnico".
-- **Do** animar barras de progreso con `transform: scaleX()`, nunca con `width`.
-- **Do** mantener el heading como primer elemento de cada bloque; cualquier contexto
-  adicional va debajo, en mono minúsculo.
-- **Do** reservar el azul institucional para acción primaria, selección y foco —
-  cualquier otro uso es decoración y se retira.
+- **Do** dar a cada área del conocimiento su propio color y mantenerlo idéntico en
+  formulario, tabla y desglose del admin.
+- **Do** usar `transform`/`opacity` para toda animación de estado (chips, barras de
+  progreso) — nunca `width` ni `height`.
+- **Do** usar la curva `--ease-out` (`cubic-bezier(0.16, 1, 0.3, 1)`) para toda entrada
+  animada — desaceleración exponencial, sin rebote.
+- **Do** dar a toda tarjeta contenedora un fondo más claro que los campos/chips que
+  contiene, nunca el mismo tono.
 
 ### Don't:
-- **Don't** poner un kicker/eyebrow encima de un heading, bajo ninguna circunstancia
-  (ban absoluto, no un default con excepción de marca).
-- **Don't** usar `border-left`/`border-right` de color como acento de tarjeta o callout;
-  el borde de sección es siempre `--rule-standard` neutro.
-- **Don't** reintroducir la ruled-line de fondo continua en `.hoja` — cruza texto de
-  altura variable de forma impredecible.
-- **Don't** usar el rojo de error para el sello de confirmación exitosa; el sello es
-  siempre azul institucional.
+- **Don't** usar easing elástico o de resorte (`cubic-bezier` con overshoot, keyframes
+  con un paso intermedio que exceda el valor final) — se probó, el detector lo marcó, se
+  retiró.
+- **Don't** reintroducir un kicker/eyebrow encima de un heading (ban heredado de la
+  primera versión, sigue vigente).
+- **Don't** dejar un borde transparente en un input o select que se apoya solo en el
+  color de fondo para notarse — siempre un borde real (`--border` en reposo, `--primary`
+  en foco).

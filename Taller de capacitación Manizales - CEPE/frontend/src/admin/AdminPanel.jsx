@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import Membrete from '../components/Membrete.jsx';
+import Estadisticas from './Estadisticas.jsx';
 import Cobertura from './Cobertura.jsx';
 import VolumenPorIE from './VolumenPorIE.jsx';
 import TablaDocentes from './TablaDocentes.jsx';
@@ -76,6 +77,8 @@ export default function AdminPanel() {
           </div>
         ) : (
           <>
+            <Estadisticas resumen={resumen} />
+
             <div className="admin-bloques">
               <Cobertura resumen={resumen} />
               <VolumenPorIE resumen={resumen} />

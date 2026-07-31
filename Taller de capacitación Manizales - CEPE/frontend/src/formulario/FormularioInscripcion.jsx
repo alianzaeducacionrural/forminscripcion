@@ -3,7 +3,7 @@ import Encabezado from './Encabezado.jsx';
 import FilaDocente from './FilaDocente.jsx';
 import RevisionEnvio from './RevisionEnvio.jsx';
 import PantallaExito from './PantallaExito.jsx';
-import Casilla from '../components/Casilla.jsx';
+import Modal from '../components/Modal.jsx';
 import { INSTITUCIONES } from '../data/catalogos.js';
 import { validarFormulario, formularioEsValido, normalizarTelefono } from './validar.js';
 import { loadDraft, saveDraft, clearDraft } from './storage.js';
@@ -20,7 +20,7 @@ export default function FormularioInscripcion() {
   const [tocados, setTocados] = useState([{}]);
   const [institucionTocada, setInstitucionTocada] = useState(false);
   const [nuevoIndice, setNuevoIndice] = useState(null);
-  const [mostrarRevision, setMostrarRevision] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState(null);
   const [resultado, setResultado] = useState(null);
@@ -87,7 +87,7 @@ export default function FormularioInscripcion() {
     setTocados((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function irARevision() {
+  function abrirModalInscripcion() {
     setInstitucionTocada(true);
     setTocados(docentes.map(() => ({ nombre: true, telefono: true, areas: true })));
 
@@ -96,8 +96,7 @@ export default function FormularioInscripcion() {
       if (primerError) primerError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    setMostrarRevision(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setMostrarModal(true);
   }
 
   async function confirmarEnvio() {
@@ -115,7 +114,7 @@ export default function FormularioInscripcion() {
       await submitInscripcion(payload);
       clearDraft();
       setResultado({ institucion, docentes: payload.docentes });
-      setMostrarRevision(false);
+      setMostrarModal(false);
     } catch (err) {
       setErrorEnvio(err.message || 'Error desconocido. Intente de nuevo.');
     } finally {
@@ -123,19 +122,11 @@ export default function FormularioInscripcion() {
     }
   }
 
-  function inscribirMas() {
-    setResultado(null);
-    setDocentes([docenteVacio()]);
-    setTocados([{}]);
-    setInstitucionTocada(false);
-    setMostrarRevision(false);
-  }
-
   if (resultado) {
     return (
       <div className="pagina">
         <div className="hoja">
-          <PantallaExito institucion={resultado.institucion} docentes={resultado.docentes} onInscribirMas={inscribirMas} />
+          <PantallaExito institucion={resultado.institucion} docentes={resultado.docentes} />
         </div>
       </div>
     );
@@ -157,76 +148,82 @@ export default function FormularioInscripcion() {
           )}
         </div>
 
-        {!mostrarRevision ? (
-          <>
-            <section className="campo campo--institucion">
-              <span className="campo-etiqueta" id="institucion-label">
-                Institución educativa
-              </span>
-              <div className="grupo-instituciones" role="radiogroup" aria-labelledby="institucion-label">
-                {INSTITUCIONES.map((nombre, i) => (
-                  <Casilla
-                    key={nombre}
-                    type="radio"
-                    codigo={`IE${String(i + 1).padStart(2, '0')}`}
-                    etiqueta={nombre}
-                    checked={institucion === nombre}
-                    onChange={() => {
-                      setInstitucion(nombre);
-                      setInstitucionTocada(true);
-                    }}
-                  />
-                ))}
-              </div>
-              {errores.institucion && institucionTocada && <p className="campo-error">{errores.institucion}</p>}
-            </section>
-
-            <section className="seccion-docentes">
-              <div className="seccion-docentes-cabecera">
-                <h2>Docentes participantes</h2>
-                <span className="folio">
-                  {docentes.length} {docentes.length === 1 ? 'docente' : 'docentes'}
-                </span>
-              </div>
-
-              {docentes.map((docente, i) => (
-                <FilaDocente
-                  key={i}
-                  index={i}
-                  docente={docente}
-                  errores={errores.docentes ? errores.docentes[i] : {}}
-                  tocado={tocados[i] || {}}
-                  onChange={(campo, valor) => actualizarDocente(i, campo, valor)}
-                  onToggleArea={(area, marcada) => alternarAreaDocente(i, area, marcada)}
-                  onBlur={(campo) => tocarCampo(i, campo)}
-                  onRemove={() => quitarDocente(i)}
-                  canRemove={docentes.length > 1}
-                  autoFocus={i === nuevoIndice}
-                />
+        <section className="campo campo--institucion">
+          <label className="campo-etiqueta" htmlFor="institucion-select">
+            Institución educativa
+          </label>
+          <div className="select-envoltura">
+            <select
+              id="institucion-select"
+              className={`select-institucion ${errores.institucion && institucionTocada ? 'select-institucion--error' : ''}`}
+              value={institucion}
+              onChange={(e) => {
+                setInstitucion(e.target.value);
+                setInstitucionTocada(true);
+              }}
+              onBlur={() => setInstitucionTocada(true)}
+            >
+              <option value="" disabled>
+                Seleccione su institución…
+              </option>
+              {INSTITUCIONES.map((nombre) => (
+                <option key={nombre} value={nombre}>
+                  {nombre}
+                </option>
               ))}
+            </select>
+          </div>
+          {errores.institucion && institucionTocada && <p className="campo-error">{errores.institucion}</p>}
+        </section>
 
-              <button type="button" className="boton boton--agregar" onClick={agregarDocente}>
-                + Agregar otro docente
-              </button>
-            </section>
+        <section className="seccion-docentes">
+          <div className="seccion-docentes-cabecera">
+            <h2>Docentes participantes</h2>
+            <span className="folio">
+              {docentes.length} {docentes.length === 1 ? 'docente' : 'docentes'}
+            </span>
+          </div>
 
-            <div className="acciones-finales">
-              <button type="button" className="boton boton--primario" onClick={irARevision}>
-                Revisar inscripción
-              </button>
-            </div>
-          </>
-        ) : (
+          {docentes.map((docente, i) => (
+            <FilaDocente
+              key={i}
+              index={i}
+              docente={docente}
+              errores={errores.docentes ? errores.docentes[i] : {}}
+              tocado={tocados[i] || {}}
+              onChange={(campo, valor) => actualizarDocente(i, campo, valor)}
+              onToggleArea={(area, marcada) => alternarAreaDocente(i, area, marcada)}
+              onBlur={(campo) => tocarCampo(i, campo)}
+              onRemove={() => quitarDocente(i)}
+              canRemove={docentes.length > 1}
+              autoFocus={i === nuevoIndice}
+            />
+          ))}
+
+          <button type="button" className="boton boton--agregar" onClick={agregarDocente}>
+            + Agregar otro docente
+          </button>
+        </section>
+
+        <div className="acciones-finales">
+          <button type="button" className="boton boton--primario" onClick={abrirModalInscripcion}>
+            Inscribir docentes
+          </button>
+        </div>
+      </div>
+
+      {mostrarModal && (
+        <Modal titulo="Revise antes de enviar" onCerrar={() => setMostrarModal(false)}>
           <RevisionEnvio
             institucion={institucion}
             docentes={docentes}
             enviando={enviando}
             errorEnvio={errorEnvio}
-            onEditar={() => setMostrarRevision(false)}
+            onEditar={() => setMostrarModal(false)}
             onConfirmar={confirmarEnvio}
           />
-        )}
-      </div>
+        </Modal>
+      )}
     </div>
   );
 }

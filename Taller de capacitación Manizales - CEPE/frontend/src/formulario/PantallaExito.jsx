@@ -3,7 +3,7 @@ import { AREAS_ABREVIADAS } from '../data/catalogos.js';
 
 const FORMATO_FECHA = new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 
-export default function PantallaExito({ institucion, docentes, onInscribirMas }) {
+export default function PantallaExito({ institucion, docentes }) {
   return (
     <div className="pantalla-exito entra">
       <Sello texto="RECIBIDO" fecha={FORMATO_FECHA.format(new Date())} />
@@ -26,9 +26,6 @@ export default function PantallaExito({ institucion, docentes, onInscribirMas })
         ))}
       </ul>
 
-      <button type="button" className="boton boton--secundario" onClick={onInscribirMas}>
-        Inscribir más docentes de {institucion}
-      </button>
       <p className="pantalla-exito-nota">
         ¿Olvidó a algún docente? Puede volver a abrir este mismo enlace cuando quiera: los
         nuevos docentes se agregan, no se pierde lo ya registrado.

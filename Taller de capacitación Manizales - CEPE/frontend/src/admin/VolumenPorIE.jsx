@@ -1,4 +1,4 @@
-import { AREAS_ABREVIADAS } from '../data/catalogos.js';
+import { AREAS_ABREVIADAS, AREAS_COLOR } from '../data/catalogos.js';
 import { institucionesOrdenadasPorVolumen } from './calculos.js';
 
 export default function VolumenPorIE({ resumen }) {
@@ -29,7 +29,7 @@ export default function VolumenPorIE({ resumen }) {
       </p>
       <ul className="volumen-areas">
         {Object.entries(resumen.docentes_por_area).map(([area, cantidad]) => (
-          <li key={area} className="volumen-area-chip">
+          <li key={area} className={`volumen-area-chip volumen-area-chip--${AREAS_COLOR[area] || 'indigo'}`}>
             <span>{AREAS_ABREVIADAS[area] || area}</span>
             <strong>{cantidad}</strong>
           </li>

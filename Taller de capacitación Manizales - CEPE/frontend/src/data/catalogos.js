@@ -33,5 +33,17 @@ export const AREAS_ABREVIADAS = {
   Lenguaje: 'Leng',
   'Ciencias Naturales': 'C. Nat',
   'Ciencias Sociales': 'C. Soc',
-  'Docente líder La Universidad en el Campo': 'Líder UEC',
+  'Docente líder La Universidad en el Campo': 'Líder UC',
+};
+
+// Cada área tiene su propio color de identidad — se usa en los chips
+// seleccionables del formulario, en las etiquetas de la tabla del admin y
+// en el desglose "por área" del panel. Codificar por color ayuda a
+// reconocer un área de un vistazo, no es decoración suelta.
+export const AREAS_COLOR = {
+  Matemáticas: 'indigo',
+  Lenguaje: 'violeta',
+  'Ciencias Naturales': 'verde',
+  'Ciencias Sociales': 'ambar',
+  'Docente líder La Universidad en el Campo': 'rosa',
 };
