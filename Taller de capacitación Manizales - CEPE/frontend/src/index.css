@@ -1,0 +1,178 @@
+:root {
+  /* Superficies — papel bond frío, ledger oficial, no pergamino cálido */
+  --paper: #f2f4f7;
+  --paper-raised: #fbfcfd;
+  --paper-inset: #eaedf2;
+  --paper-band: #e4e9f0;
+
+  /* Tinta — azul-negro de bolígrafo, no negro puro */
+  --ink: #1c2733;
+  --ink-secondary: #47566a;
+  --ink-tertiary: #6f7c8c;
+  --ink-muted: #97a1ad;
+
+  /* Reglas del papel ledger — progresión de énfasis */
+  --rule-soft: rgba(28, 39, 51, 0.08);
+  --rule-standard: rgba(28, 39, 51, 0.16);
+  --rule-emphasis: rgba(28, 39, 51, 0.28);
+
+  /* Acento único — azul institucional (tinta de sello/oficio), no compite
+     con el azul eléctrico + amarillo del logo 1: misma familia, mucho
+     menos saturado y más oscuro */
+  --accent: #1a5bab;
+  --accent-dark: #123f7d;
+  --accent-wash: rgba(26, 91, 171, 0.09);
+  --accent-contrast: #f6f8fb;
+
+  /* Semántica — reservada, nunca usada como acento genérico */
+  --success: #2f6b3f;
+  --success-wash: rgba(47, 107, 63, 0.09);
+  --error: #b23026;
+  --error-wash: rgba(178, 48, 38, 0.08);
+  --warning: #9a6a10;
+  --warning-wash: rgba(154, 106, 16, 0.1);
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-stamp: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(28, 39, 51, 0.08);
+  --shadow-md: 0 6px 20px rgba(28, 39, 51, 0.1), 0 1px 3px rgba(28, 39, 51, 0.08);
+
+  /* Una sola familia de sistema para cuerpo/etiquetas (cero descarga —
+     conectividad rural no garantizada) y una monoespaciada de sistema
+     para folios, radicados y casillas numéricas: el registro tipográfico
+     del formulario oficial / máquina de escribir. */
+  --font-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  /* Escala fija en rem, razón ~1.125-1.2 */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --sheet-max-width: 760px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--paper-inset);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+p {
+  margin: 0;
+}
+
+fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+legend {
+  padding: 0;
+}
+
+::selection {
+  background: var(--accent-wash);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+   La "hoja": el pliego sobre el que vive todo el formulario y el panel.
+   El carácter de ledger vive en los bordes entre secciones y en las
+   listas con regla (revisión, éxito, tabla) — no en una ruled-line de
+   fondo continua, que cruza el texto de forma impredecible según su
+   altura y se lee como tachado.
+   --------------------------------------------------------------------- */
+.hoja {
+  max-width: var(--sheet-max-width);
+  margin: 0 auto;
+  background: var(--paper);
+  border: 1px solid var(--rule-standard);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.hoja-ancha {
+  max-width: 1080px;
+}
+
+@media (max-width: 640px) {
+  .hoja {
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

@@ -1,0 +1,49 @@
+.membrete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-6);
+  background: var(--paper-band);
+  border-bottom: 1px solid var(--rule-standard);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.membrete-logo {
+  height: 28px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  display: block;
+}
+
+.membrete-logo--evidencia {
+  height: 34px;
+}
+
+.membrete-separador {
+  width: 1px;
+  height: 24px;
+  background: var(--rule-emphasis);
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .membrete {
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .membrete-logo {
+    height: 22px;
+  }
+
+  .membrete-logo--evidencia {
+    height: 26px;
+  }
+
+  .membrete-separador {
+    height: 18px;
+  }
+}

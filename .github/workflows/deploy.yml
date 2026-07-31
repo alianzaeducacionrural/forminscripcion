@@ -1,0 +1,70 @@
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Taller de capacitación Manizales - CEPE/frontend/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  PROJECT_DIR: 'Taller de capacitación Manizales - CEPE/frontend'
+  SITE_SLUG: metodologias-activas-manizales
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: '${{ env.PROJECT_DIR }}/package-lock.json'
+
+      - name: Instalar dependencias
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: npm ci
+
+      - name: Build
+        working-directory: ${{ env.PROJECT_DIR }}
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+        run: npm run build
+
+      - name: Ensamblar sitio en /${{ env.SITE_SLUG }}
+        run: |
+          mkdir -p "site/${SITE_SLUG}"
+          cp -r "${PROJECT_DIR}/dist/." "site/${SITE_SLUG}/"
+
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+
+      - name: Subir artefacto
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Desplegar a GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
