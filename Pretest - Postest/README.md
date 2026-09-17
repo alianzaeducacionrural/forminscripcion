@@ -97,13 +97,21 @@ npm run preview
 El `base` de `frontend/vite.config.js` y el `SITE_SLUG_2` del workflow deben coincidir
 siempre.
 
-## Rutas
+## Enlaces (independientes, sin router compartido)
 
-- `/#/` — landing con elección Pretest / Postest.
-- `/#/pretest` — formulario público del Pretest.
-- `/#/postest` — formulario público del Postest, con recuperación de datos del docente
-  desde su registro de Pretest (por institución, con salida manual).
-- `/#/admin` — panel de coordinación, enlace no listado, sin login.
+App multi-página de Vite (sin react-router): cada enlace es un HTML propio con su propio
+punto de entrada, no una ruta de cliente detrás de un `#` compartido. Cargar directamente
+cualquiera de estos enlaces funciona igual que cargarlo desde la landing — ninguno
+depende de los otros ni de un estado de navegación:
+
+- `https://alianzaeducacionrural.github.io/forminscripcion/pretest-postest-metodologias-activas/`
+  — landing con elección Pretest / Postest (opcional, solo de cortesía).
+- `.../pretest/` — formulario público del Pretest. **Este es el enlace para compartir antes del taller.**
+- `.../postest/` — formulario público del Postest, con recuperación de datos del docente
+  desde su registro de Pretest (por institución, con salida manual). **Enlace para
+  compartir después del taller.**
+- `.../admin/` — panel de coordinación. Enlace no listado (sin login, `noindex`), solo
+  para el coordinador.
 
 ## Catálogos
 

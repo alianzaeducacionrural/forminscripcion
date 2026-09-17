@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './fonts.js'
-import Landing from './Landing.jsx'
+import PretestForm from './pretest/PretestForm.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Landing />
+    <PretestForm />
   </StrictMode>,
 )
