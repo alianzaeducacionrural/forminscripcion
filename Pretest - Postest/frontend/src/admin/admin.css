@@ -1,0 +1,337 @@
+.pagina--admin {
+  align-items: stretch;
+}
+
+.pagina--admin .hoja {
+  width: 100%;
+}
+
+.admin-encabezado {
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-encabezado h1 {
+  font-size: var(--text-lg);
+  margin-bottom: var(--space-1);
+}
+
+.admin-encabezado-subtitulo {
+  font-size: var(--text-sm);
+  color: var(--ink-tertiary);
+  font-weight: 600;
+}
+
+.admin-error,
+.admin-cargando {
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  color: var(--ink-tertiary);
+}
+
+.admin-error {
+  color: var(--error);
+}
+
+.admin-error .boton {
+  margin-top: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------
+   Tira de estadísticas (participación)
+   --------------------------------------------------------------------- */
+
+.stats-fila {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-tarjeta {
+  --stat-color: var(--primary);
+  --stat-wash: var(--primary-wash);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--stat-wash);
+}
+
+.stat-tarjeta-valor {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--stat-color);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-tarjeta-etiqueta {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--ink-secondary);
+}
+
+.stat-tarjeta--pre {
+  --stat-color: var(--pre);
+  --stat-wash: var(--pre-wash);
+}
+
+.stat-tarjeta--post {
+  --stat-color: var(--post);
+  --stat-wash: var(--post-wash);
+}
+
+.stat-tarjeta--violeta {
+  --stat-color: var(--area-violeta);
+  --stat-wash: var(--area-violeta-wash);
+}
+
+@media (max-width: 560px) {
+  .stats-fila {
+    grid-template-columns: 1fr;
+    padding: var(--space-4);
+  }
+}
+
+/* ---------------------------------------------------------------------
+   Bloques genéricos (evolución, pretest, postest)
+   --------------------------------------------------------------------- */
+
+.bloque {
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.bloque-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.bloque-titulo {
+  font-size: var(--text-sm);
+  color: var(--ink-secondary);
+  font-weight: 800;
+}
+
+.bloque--test .bloque-titulo,
+.bloque--evolucion .bloque-titulo {
+  font-size: var(--text-md);
+  color: var(--ink);
+  margin-bottom: 0;
+}
+
+.bloque-acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--ink-secondary);
+  background: var(--surface-muted);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+}
+
+.stat-chip--primario {
+  color: var(--primary-dark);
+  background: var(--primary-wash);
+}
+
+/* ---------------------------------------------------------------------
+   Distribución de respuestas (barra horizontal genérica)
+   --------------------------------------------------------------------- */
+
+.pregunta-resumen {
+  margin-bottom: var(--space-5);
+}
+
+.pregunta-resumen:last-child {
+  margin-bottom: 0;
+}
+
+.pregunta-resumen-texto {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--ink-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.distribucion-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.distribucion-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) 2fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+}
+
+.distribucion-fila-etiqueta {
+  font-size: var(--text-xs);
+  color: var(--ink-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.distribucion-fila-barra-pista {
+  display: block;
+  height: 8px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.distribucion-fila-barra {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--primary-gradient);
+  border-radius: var(--radius-pill);
+  transform-origin: left center;
+  transform: scaleX(var(--pct, 0));
+  transition: transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.distribucion-fila-numero {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--ink-tertiary);
+  text-align: right;
+  min-width: 1.5ch;
+}
+
+/* ---------------------------------------------------------------------
+   Evolución (Recharts)
+   --------------------------------------------------------------------- */
+
+.evolucion-grafico {
+  margin-top: var(--space-2);
+}
+
+.volumen-nota {
+  font-size: var(--text-xs);
+  color: var(--ink-tertiary);
+  margin-bottom: var(--space-3);
+  max-width: 68ch;
+}
+
+/* ---------------------------------------------------------------------
+   Filtros y estados vacíos (compartidos)
+   --------------------------------------------------------------------- */
+
+.tabla-seccion {
+  padding: var(--space-5) var(--space-6) var(--space-8);
+}
+
+.tabla-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.filtro-input,
+.filtro-select {
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  font-size: var(--text-sm);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.filtro-input {
+  flex: 1 1 200px;
+}
+
+.filtro-input:focus,
+.filtro-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-wash);
+}
+
+.tabla-vacia {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--ink-tertiary);
+  font-size: var(--text-sm);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+}
+
+/* ---------------------------------------------------------------------
+   Respuestas abiertas
+   --------------------------------------------------------------------- */
+
+.abiertas-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.abiertas-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+}
+
+.abiertas-item-cabecera {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-1);
+}
+
+.abiertas-item-nombre {
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+
+.abiertas-item-institucion {
+  font-size: var(--text-xs);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.abiertas-item-texto {
+  font-size: var(--text-sm);
+  color: var(--ink-secondary);
+}
+
+@media (max-width: 780px) {
+  .bloque,
+  .tabla-seccion {
+    padding: var(--space-4);
+  }
+
+  .distribucion-fila {
+    grid-template-columns: minmax(0, 1fr) 1.4fr auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .distribucion-fila-barra {
+    transition: none;
+  }
+}
