@@ -102,6 +102,34 @@ export function calcularParticipacion(pretest, postest) {
   };
 }
 
+/** Una fila por institución con lo necesario para la grilla del panel: estado
+ * de participación, % alineado pre/post, y qué áreas tiene representadas —
+ * la unidad de datos detrás de cada tarjeta de institución. */
+export function calcularResumenPorInstitucion(pretest, postest) {
+  return INSTITUCIONES.map((institucion) => {
+    const filasPre = pretest.filter((f) => f.institucion === institucion);
+    const filasPost = postest.filter((f) => f.institucion === institucion);
+
+    const areas = new Set();
+    filasPre.concat(filasPost).forEach((f) => (f.areas || []).forEach((a) => areas.add(a)));
+
+    let estado = 'sin-datos';
+    if (filasPre.length > 0 && filasPost.length > 0) estado = 'completo';
+    else if (filasPre.length > 0) estado = 'solo-pre';
+    else if (filasPost.length > 0) estado = 'solo-post';
+
+    return {
+      institucion,
+      estado,
+      totalPretest: filasPre.length,
+      totalPostest: filasPost.length,
+      areas: Array.from(areas),
+      alineadoPre: porcentajeAlineadoPromedio(filasPre, PRETEST_ALINEACION_CAMPOS),
+      alineadoPost: porcentajeAlineadoPromedio(filasPost, POSTEST_ALINEACION_CAMPOS),
+    };
+  });
+}
+
 /** Comparación agregada (no pregunta-a-pregunta) del % de alineación
  * promedio, global y por institución. */
 export function calcularEvolucion(pretest, postest) {

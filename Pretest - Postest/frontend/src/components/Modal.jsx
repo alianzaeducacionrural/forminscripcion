@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import './Modal.css';
 
-export default function Modal({ titulo, onCerrar, children }) {
+export default function Modal({ titulo, onCerrar, children, ancho = 'normal' }) {
   const panelRef = useRef(null);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function Modal({ titulo, onCerrar, children }) {
   return (
     <div className="modal-fondo" onMouseDown={(e) => e.target === e.currentTarget && onCerrar()}>
       <div
-        className="modal-panel entra"
+        className={`modal-panel entra ${ancho === 'grande' ? 'modal-panel--grande' : ''}`}
         role="dialog"
         aria-modal="true"
         aria-label={titulo}

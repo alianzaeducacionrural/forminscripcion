@@ -1,7 +1,7 @@
 import { PRETEST_PREGUNTAS, PRETEST_P4_TEXTO, INSTITUCIONES } from '../data/catalogos.js';
 import DistribucionBarra from './DistribucionBarra.jsx';
 
-export default function EstadisticasPretest({ resumen, onDescargarCSV }) {
+export default function EstadisticasPretest({ resumen, onDescargarCSV, mostrarPorInstitucion = true }) {
   const preguntasOpcion = [
     { id: 'p1', numero: 1, ...resumen.p1, texto: PRETEST_PREGUNTAS.p1.texto, opciones: PRETEST_PREGUNTAS.p1.opciones },
     { id: 'p2', numero: 2, ...resumen.p2, texto: PRETEST_PREGUNTAS.p2.texto, opciones: PRETEST_PREGUNTAS.p2.opciones },
@@ -54,14 +54,16 @@ export default function EstadisticasPretest({ resumen, onDescargarCSV }) {
             </ul>
           </div>
 
-          <div className="pregunta-resumen">
-            <p className="pregunta-resumen-texto">Respuestas por institución</p>
-            <ul className="distribucion-lista">
-              {INSTITUCIONES.map((institucion) => (
-                <DistribucionBarra key={institucion} etiqueta={institucion} valor={resumen.porInstitucion[institucion] || 0} maximo={maximoInstitucion} />
-              ))}
-            </ul>
-          </div>
+          {mostrarPorInstitucion && (
+            <div className="pregunta-resumen">
+              <p className="pregunta-resumen-texto">Respuestas por institución</p>
+              <ul className="distribucion-lista">
+                {INSTITUCIONES.map((institucion) => (
+                  <DistribucionBarra key={institucion} etiqueta={institucion} valor={resumen.porInstitucion[institucion] || 0} maximo={maximoInstitucion} />
+                ))}
+              </ul>
+            </div>
+          )}
         </>
       )}
     </section>

@@ -148,8 +148,18 @@ Heredada sin cambios: Plus Jakarta Sans única familia, jerarquía por peso/tama
   indicador de progreso ("3 de 6 respondidas") en la cabecera se actualiza en vivo — esto
   es lo que responde a "muy dinámico" sin el riesgo de un wizard paginado que le esconda
   al docente cuánto falta o le impida corregir algo ya contestado.
-- **Admin (`/admin`):** contenedor de 1120px como el hermano, con una sección adicional
-  (`Evolución`) debajo de las de Pretest/Postest.
+- **Admin (`/admin`):** contenedor de 1120px como el hermano. Rediseñado (segunda
+  versión, tras feedback explícito del usuario: "no me llama la atención, quiero que sea
+  más dinámico, más interactivo... que se pueda ver por institución") como una **grilla
+  de tarjetas de institución** en vez de una lista de bloques que solo se lee de arriba a
+  abajo: cabecera con cifras globales (participación + delta de alineación) → gráfico
+  `EvolucionAgregada` (comparación cross-institución) → **grilla de 15 tarjetas
+  clicables** (14 instituciones + una tarjeta fija "Todas las instituciones") → lista
+  global de respuestas abiertas. Cada tarjeta abre el mismo modal de detalle
+  (`InstitucionDetalle`, un solo componente reutilizado para cualquiera de las 15
+  vistas) con el desglose completo de Pretest/Postest y respuestas abiertas ya filtrado
+  a esa institución — así "ver por institución" es la forma primaria de navegar el
+  panel, no una lista plana enterrada al final de cada sección.
 
 ## Components
 
@@ -181,6 +191,33 @@ solo-lectura) debajo en línea — así el docente reconoce su propio registro p
 de leer el texto. Botón secundario fijo al final de la lista: "No estoy en la lista /
 continuar manualmente".
 
+### Grilla de instituciones (nuevo — `InstitucionCard`/`TarjetaGlobal`/`GridInstituciones`)
+Tarjeta blanca con borde real y sombra `--shadow-sm` (nunca las 15 con el mismo peso: la
+tarjeta "sin datos" es punteada, sin sombra, sin métricas — una ausencia se ve como
+ausencia, no como una tarjeta idéntica con un cero adentro). Cada tarjeta con datos
+muestra: nombre, una etiqueta de estado (`Pre + Post` en índigo/`--post`, `Solo Pretest`
+en slate/`--pre`, `Solo Postest` en ámbar/`--warning` — nunca rojo/verde), una mini
+comparación de barras pre/post (`MiniAlineacion`, mismo lenguaje de barra por `--pct` que
+el resto del panel, nunca un gráfico de librería para una sola tarjeta), conteo de
+respuestas, y puntos de color por área representada (mismos 5 tonos de `Casilla`). Entra
+con `entra-arriba` escalonado por tarjeta (20ms de diferencia entre las primeras, tope en
+120ms) — el único lugar del panel con una entrada escalonada, porque es la única lista
+donde "varias cosas aparecen a la vez" es el efecto que se busca. La tarjeta "Todas las
+instituciones" (`TarjetaGlobal`) va fija primero, con fondo `--primary-wash` en vez de
+blanco, para leerse como la vista por defecto/agregada, no como institución #15.
+Buscador + selector de orden + toggle "solo con datos" encima de la grilla — todo
+client-side sobre el arreglo ya cargado, mismo criterio de "sin filtro de servidor" que
+el resto del panel.
+
+### Detalle de institución (nuevo — `InstitucionDetalle`, dentro de `Modal` ancho)
+Modal con la nueva variante `ancho="grande"` (880px, el modal base de 560px se sentía
+apretado para dos desgloses completos + respuestas abiertas) — extensión aditiva de
+`Modal.jsx`, no un segundo componente de modal. Reutiliza `EstadisticasPretest`/
+`EstadisticasPostest`/`RespuestasAbiertas` tal cual, con un prop para ocultar el
+desglose "por institución" y el selector de institución de esos componentes cuando ya
+están filtrados a una sola — un solo componente de detalle sirve tanto para una
+institución puntual como para "Todas las instituciones".
+
 ### Panel de evolución (nuevo — `EvolucionAgregada`, Recharts)
 Gráfico de barras agrupadas (Recharts `BarChart`), una barra `--pre` y una `--post` por
 institución más una barra "Global" al final, mismo radio de esquina superior (`4px`) que
@@ -201,7 +238,9 @@ gráficos — los de una sola métrica siguen el patrón de barra CSS por `--pct
 
 ### Don't
 - **Don't** usar rojo/verde semántico en el panel de evolución — no es un
-  aprobado/reprobado.
+  aprobado/reprobado. Incluye la tarjeta de "cambio en alineación" (delta post−pre):
+  positivo usa `--post` (índigo de marca), negativo usa `--warning` (ámbar), nunca
+  `--success`/`--error`.
 - **Don't** exponer, ni siquiera en el código fuente del bundle del panel, cuál opción de
   cada pregunta es la "alineada" — esa clave vive solo en el backend.
 - **Don't** inventar un segundo lenguaje visual para el checklist o el radio-card; ambos

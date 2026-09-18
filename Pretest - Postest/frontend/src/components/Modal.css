@@ -23,6 +23,11 @@
   outline: none;
 }
 
+.modal-panel--grande {
+  max-width: 880px;
+  max-height: min(760px, 90vh);
+}
+
 .modal-cerrar {
   position: absolute;
   top: var(--space-3);

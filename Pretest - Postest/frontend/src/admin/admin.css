@@ -43,7 +43,7 @@
 
 .stats-fila {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: var(--space-3);
   padding: var(--space-5) var(--space-6);
   border-bottom: 1px solid var(--border);
@@ -87,6 +87,20 @@
 .stat-tarjeta--violeta {
   --stat-color: var(--area-violeta);
   --stat-wash: var(--area-violeta-wash);
+}
+
+/* Nunca rojo/verde semántico aquí (ver DESIGN.md): esto no es un
+   aprobado/reprobado, es una fotografía de antes/después. Positivo usa el
+   índigo de marca (mismo criterio que --post); negativo usa ámbar
+   ("atención"), no error. */
+.stat-tarjeta--delta-positivo {
+  --stat-color: var(--post);
+  --stat-wash: var(--post-wash);
+}
+
+.stat-tarjeta--delta-negativo {
+  --stat-color: var(--warning);
+  --stat-wash: var(--warning-wash);
 }
 
 @media (max-width: 560px) {
@@ -319,6 +333,281 @@
   color: var(--ink-secondary);
 }
 
+/* ---------------------------------------------------------------------
+   Grilla de instituciones (la pieza central del panel)
+   --------------------------------------------------------------------- */
+
+.grid-controles {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.grid-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--ink-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.grid-instituciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-3);
+}
+
+@keyframes entra-arriba {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.entra {
+  animation: entra-arriba 320ms var(--ease-out) both;
+}
+
+.institucion-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 150ms var(--ease-out), box-shadow 150ms ease, border-color 150ms ease;
+  animation: entra-arriba 320ms var(--ease-out) both;
+}
+
+.institucion-card:hover,
+.institucion-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px var(--primary-wash);
+  border-color: var(--border-strong);
+}
+
+.institucion-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.institucion-card--completo {
+  border-color: color-mix(in srgb, var(--post) 30%, var(--border));
+}
+
+.institucion-card--sin-datos {
+  border-style: dashed;
+  box-shadow: none;
+  background: var(--surface-muted);
+}
+
+.institucion-card--sin-datos:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.institucion-card--global {
+  border-color: transparent;
+  background: var(--primary-wash);
+}
+
+.institucion-card--global:hover {
+  box-shadow: 0 10px 24px var(--primary-wash);
+}
+
+.institucion-card-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.institucion-card-nombre {
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.institucion-card-estado {
+  flex-shrink: 0;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  color: var(--ink-tertiary);
+  background: var(--surface-muted);
+}
+
+.institucion-card-estado--completo {
+  color: var(--post);
+  background: var(--post-wash);
+}
+
+.institucion-card-estado--solo-pre {
+  color: var(--pre);
+  background: var(--pre-wash);
+}
+
+.institucion-card-estado--solo-post {
+  color: var(--warning);
+  background: var(--warning-wash);
+}
+
+.institucion-card-estado--global {
+  color: var(--primary-dark);
+  background: #ffffff;
+}
+
+.institucion-card-vacio {
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
+}
+
+.institucion-card-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.institucion-card-conteo {
+  font-size: var(--text-xs);
+  color: var(--ink-tertiary);
+  font-weight: 600;
+}
+
+.institucion-card-areas {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.institucion-card-punto {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--area-indigo);
+}
+
+.institucion-card-punto--indigo {
+  background: var(--area-indigo);
+}
+.institucion-card-punto--violeta {
+  background: var(--area-violeta);
+}
+.institucion-card-punto--verde {
+  background: var(--area-verde);
+}
+.institucion-card-punto--ambar {
+  background: var(--area-ambar);
+}
+.institucion-card-punto--rosa {
+  background: var(--area-rosa);
+}
+
+/* Escalonado: cada tarjeta entra un poco después que la anterior. */
+.grid-instituciones .institucion-card:nth-child(1) { animation-delay: 0ms; }
+.grid-instituciones .institucion-card:nth-child(2) { animation-delay: 20ms; }
+.grid-instituciones .institucion-card:nth-child(3) { animation-delay: 40ms; }
+.grid-instituciones .institucion-card:nth-child(4) { animation-delay: 60ms; }
+.grid-instituciones .institucion-card:nth-child(5) { animation-delay: 80ms; }
+.grid-instituciones .institucion-card:nth-child(6) { animation-delay: 100ms; }
+.grid-instituciones .institucion-card:nth-child(n+7) { animation-delay: 120ms; }
+
+/* ---------------------------------------------------------------------
+   Mini comparación de alineación (dentro de la tarjeta)
+   --------------------------------------------------------------------- */
+
+.mini-alineacion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mini-alineacion-fila {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr 2.4rem;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.mini-alineacion-etiqueta {
+  font-size: 0.6875rem;
+  color: var(--ink-tertiary);
+  font-weight: 600;
+}
+
+.mini-alineacion-pista {
+  display: block;
+  height: 6px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.mini-alineacion-relleno {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transform-origin: left center;
+  transform: scaleX(var(--pct, 0));
+  transition: transform 500ms var(--ease-out);
+}
+
+.mini-alineacion-relleno--pre {
+  background: var(--pre);
+}
+
+.mini-alineacion-relleno--post {
+  background: var(--post);
+}
+
+.mini-alineacion-valor {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--ink-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------
+   Detalle de institución (dentro del modal ancho)
+   --------------------------------------------------------------------- */
+
+.institucion-detalle {
+  padding: var(--space-6) 0 var(--space-2);
+}
+
+.institucion-detalle h2 {
+  font-size: var(--text-lg);
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-4);
+  padding-right: var(--space-10);
+}
+
+.institucion-detalle .bloque,
+.institucion-detalle .tabla-seccion {
+  border-bottom: 1px solid var(--border);
+}
+
+.institucion-detalle .bloque:last-child,
+.institucion-detalle .tabla-seccion:last-child {
+  border-bottom: none;
+}
+
 @media (max-width: 780px) {
   .bloque,
   .tabla-seccion {
@@ -328,10 +617,23 @@
   .distribucion-fila {
     grid-template-columns: minmax(0, 1fr) 1.4fr auto;
   }
+
+  .grid-instituciones {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .institucion-detalle h2 {
+    padding: 0 var(--space-4);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .distribucion-fila-barra {
+  .distribucion-fila-barra,
+  .mini-alineacion-relleno {
     transition: none;
+  }
+
+  .institucion-card {
+    animation: none;
   }
 }

@@ -1,7 +1,7 @@
 import { POSTEST_PREGUNTAS, POSTEST_Q3_TEXTO, POSTEST_Q4_TEXTO, INSTITUCIONES } from '../data/catalogos.js';
 import DistribucionBarra from './DistribucionBarra.jsx';
 
-export default function EstadisticasPostest({ resumen, onDescargarCSV }) {
+export default function EstadisticasPostest({ resumen, onDescargarCSV, mostrarPorInstitucion = true }) {
   const preguntasOpcion = [
     { id: 'q1', numero: 1, ...resumen.q1, texto: POSTEST_PREGUNTAS.q1.texto, opciones: POSTEST_PREGUNTAS.q1.opciones },
     { id: 'q2', numero: 2, ...resumen.q2, texto: POSTEST_PREGUNTAS.q2.texto, opciones: POSTEST_PREGUNTAS.q2.opciones },
@@ -66,14 +66,16 @@ export default function EstadisticasPostest({ resumen, onDescargarCSV }) {
             </ul>
           </div>
 
-          <div className="pregunta-resumen">
-            <p className="pregunta-resumen-texto">Respuestas por institución</p>
-            <ul className="distribucion-lista">
-              {INSTITUCIONES.map((institucion) => (
-                <DistribucionBarra key={institucion} etiqueta={institucion} valor={resumen.porInstitucion[institucion] || 0} maximo={maximoInstitucion} />
-              ))}
-            </ul>
-          </div>
+          {mostrarPorInstitucion && (
+            <div className="pregunta-resumen">
+              <p className="pregunta-resumen-texto">Respuestas por institución</p>
+              <ul className="distribucion-lista">
+                {INSTITUCIONES.map((institucion) => (
+                  <DistribucionBarra key={institucion} etiqueta={institucion} valor={resumen.porInstitucion[institucion] || 0} maximo={maximoInstitucion} />
+                ))}
+              </ul>
+            </div>
+          )}
         </>
       )}
     </section>
