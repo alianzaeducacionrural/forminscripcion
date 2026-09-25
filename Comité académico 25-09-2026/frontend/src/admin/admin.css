@@ -700,6 +700,13 @@
   }
 }
 
+/* Modal ancho en pantallas grandes: tres columnas por ficha */
+@media (min-width: 1200px) {
+  .ficha-campos {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 640px) {
   .bloque,
   .detalle-seccion {
