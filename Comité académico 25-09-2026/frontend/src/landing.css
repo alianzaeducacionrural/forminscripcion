@@ -1,0 +1,23 @@
+.landing-opcion--m1 {
+  --acento: var(--m1);
+  --acento-wash: var(--m1-wash);
+}
+
+.landing-opcion--m2 {
+  --acento: var(--m2);
+  --acento-wash: var(--m2-wash);
+}
+
+.landing-opcion {
+  text-decoration: none;
+  border-left: 5px solid var(--acento);
+}
+
+.landing-opcion:hover {
+  border-color: var(--acento);
+  box-shadow: 0 8px 22px var(--acento-wash);
+}
+
+.landing-opcion-etiqueta {
+  color: var(--acento);
+}

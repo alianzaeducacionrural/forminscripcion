@@ -6,6 +6,7 @@ on:
     paths:
       - 'Taller de capacitación Manizales - CEPE/frontend/**'
       - 'Pretest - Postest/frontend/**'
+      - 'Comité académico 25-09-2026/frontend/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -23,6 +24,8 @@ env:
   SITE_SLUG: metodologias-activas-manizales
   PROJECT_DIR_2: 'Pretest - Postest/frontend'
   SITE_SLUG_2: pretest-postest-metodologias-activas
+  PROJECT_DIR_3: 'Comité académico 25-09-2026/frontend'
+  SITE_SLUG_3: comite-academico-matrices
 
 jobs:
   build:
@@ -39,6 +42,7 @@ jobs:
           cache-dependency-path: |
             ${{ env.PROJECT_DIR }}/package-lock.json
             ${{ env.PROJECT_DIR_2 }}/package-lock.json
+            ${{ env.PROJECT_DIR_3 }}/package-lock.json
 
       - name: Instalar dependencias — Metodologías Activas (CEPE)
         working-directory: ${{ env.PROJECT_DIR }}
@@ -60,12 +64,24 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL_PRETEST_POSTEST }}
         run: npm run build
 
+      - name: Instalar dependencias — Comité Académico (matrices)
+        working-directory: ${{ env.PROJECT_DIR_3 }}
+        run: npm ci
+
+      - name: Build — Comité Académico (matrices)
+        working-directory: ${{ env.PROJECT_DIR_3 }}
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_COMITE_ACADEMICO }}
+        run: npm run build
+
       - name: Ensamblar sitio
         run: |
           mkdir -p "site/${SITE_SLUG}"
           cp -r "${PROJECT_DIR}/dist/." "site/${SITE_SLUG}/"
           mkdir -p "site/${SITE_SLUG_2}"
           cp -r "${PROJECT_DIR_2}/dist/." "site/${SITE_SLUG_2}/"
+          mkdir -p "site/${SITE_SLUG_3}"
+          cp -r "${PROJECT_DIR_3}/dist/." "site/${SITE_SLUG_3}/"
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
