@@ -9,7 +9,7 @@
  *   GET  ?action=getMatriz1            (uso del panel admin)
  *   GET  ?action=getMatriz2            (uso del panel admin)
  *   POST { action: "submitMatriz1", idEnvio (opcional), institucion, nombre,
- *          filas: [{ categoria, accion, dirigidaA, comoSeDesarrolla, aliados,
+ *          filas: [{ categoria, categoriaOtra (obligatoria si categoria = "Otra"), accion, dirigidaA, comoSeDesarrolla, aliados,
  *                    periodicidad, recursos, resultado }] }
  *   POST { action: "submitMatriz2", idEnvio (opcional), institucion, nombre,
  *          filas: [{ aspecto, personalizado, situacion, accionMejora,
@@ -86,7 +86,8 @@ var MATRIZ2_CAMPOS = ['situacion', 'accionMejora', 'responsable', 'apoyo', 'tiem
 
 var MATRIZ1_HEADERS = [
   'timestamp', 'id_envio', 'institucion', 'nombre', 'orden', 'categoria',
-  'accion', 'dirigida_a', 'como_se_desarrollaria', 'aliados', 'periodicidad', 'recursos', 'resultado_esperado'
+  'accion', 'dirigida_a', 'como_se_desarrollaria', 'aliados', 'periodicidad', 'recursos', 'resultado_esperado',
+  'categoria_otra'
 ];
 
 var MATRIZ2_HEADERS = [
@@ -218,12 +219,21 @@ function submitMatriz1_(body) {
     if (categoria && MATRIZ1_CATEGORIAS.indexOf(categoria) === -1) {
       errors.push(nombre + ': categoría no reconocida: ' + categoria);
     }
+    // "Otra" exige decir cuál; con cualquier otra categoría el texto libre se ignora.
+    var otra = limpiarTexto_(fila.categoriaOtra);
+    if (categoria === 'Otra') {
+      if (!otra) errors.push(nombre + ': categoriaOtra es requerida cuando la categoría es "Otra"');
+      else if (otra.length > MAX_CARACTERES_CORTO) errors.push(nombre + ': categoriaOtra supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+    }
   });
 
   if (errors.length > 0) throw new Error(errors.join('; '));
 
   var datos = filas.map(function (fila) {
-    return [fila.categoria ? String(fila.categoria) : ''].concat(textos_(fila, MATRIZ1_CAMPOS));
+    var categoria = fila.categoria ? String(fila.categoria) : '';
+    var categoriaOtra = categoria === 'Otra' ? limpiarTexto_(fila.categoriaOtra) : '';
+    // 'categoria_otra' va al final de la fila (columna agregada después: no mueve las anteriores).
+    return [categoria].concat(textos_(fila, MATRIZ1_CAMPOS), [categoriaOtra]);
   });
 
   // 'categoria' es la 6.ª columna: desde ahí todo es texto plano.
@@ -412,25 +422,36 @@ function leerFilas_(sheetName, headersEsperados) {
 // ---------------------------------------------------------------------------
 
 /**
- * `headers` (opcional) es el encabezado esperado del tab. Si el tab existe con
- * otro encabezado y todavía no tiene filas de datos (caso: se agregó una
- * columna después del setup), se reescribe solo, para no obligar a volver a
- * ejecutar setup() a mano. Si ya tiene datos, falla con un mensaje claro en
- * vez de desalinear columnas.
+ * `headers` (opcional) es el encabezado esperado del tab. Casos:
+ *  - Igual: no hace nada.
+ *  - El actual es un PREFIJO del esperado (se agregaron columnas al final, aunque
+ *    ya haya datos): agrega solo los encabezados que faltan; los datos no se tocan
+ *    y las filas viejas quedan con esas columnas vacías.
+ *  - Distinto y sin filas de datos: se reescribe solo, para no obligar a volver
+ *    a ejecutar setup() a mano.
+ *  - Distinto y con datos: falla con un mensaje claro en vez de desalinear columnas.
  */
 function getSheet_(name, headers) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
   if (!sheet) throw new Error('No existe el tab "' + name + '". Ejecuta setup() primero.');
   if (headers) {
-    var actuales = sheet.getLastRow() >= 1 ? sheet.getRange(1, 1, 1, headers.length).getValues()[0] : [];
-    var iguales = actuales.length === headers.length && actuales.every(function (h, i) { return h === headers[i]; });
-    if (!iguales) {
-      if (sheet.getLastRow() > 1) {
+    var ancho = Math.min(sheet.getLastColumn(), headers.length);
+    var actuales = sheet.getLastRow() >= 1 && ancho > 0 ? sheet.getRange(1, 1, 1, ancho).getValues()[0] : [];
+    var esPrefijo = actuales.length > 0 && actuales.every(function (h, i) { return h === headers[i]; });
+    var completo = esPrefijo && actuales.length === headers.length && sheet.getLastColumn() === headers.length;
+
+    if (!completo) {
+      if (esPrefijo && sheet.getLastColumn() <= headers.length) {
+        // Columnas nuevas al final: completar el encabezado, sin tocar los datos.
+        sheet.getRange(1, actuales.length + 1, 1, headers.length - actuales.length)
+          .setValues([headers.slice(actuales.length)]);
+      } else if (sheet.getLastRow() > 1) {
         throw new Error('El tab "' + name + '" tiene datos con encabezados antiguos. Migra las columnas o ejecuta setup() (borra los datos).');
+      } else {
+        sheet.clear();
+        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+        sheet.setFrozenRows(1);
       }
-      sheet.clear();
-      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-      sheet.setFrozenRows(1);
     }
   }
   return sheet;

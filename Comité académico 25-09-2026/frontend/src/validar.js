@@ -9,7 +9,10 @@ function nuevoId() {
 /** Una fila de la matriz: una acción (Matriz 1) o un aspecto a fortalecer (Matriz 2). */
 export function filaVacia(config, aspectoFijo = null) {
   const fila = { id: nuevoId(), fija: aspectoFijo !== null, aspecto: aspectoFijo || '' };
-  if (config.categorias.length > 0) fila.categoria = '';
+  if (config.categorias.length > 0) {
+    fila.categoria = '';
+    fila.categoriaOtra = '';
+  }
   config.campos.forEach((c) => {
     fila[c.clave] = '';
   });
@@ -43,6 +46,11 @@ export function restaurarBorrador(config, borrador) {
   };
 }
 
+/** Recorta y colapsa espacios internos (igual que el backend): "  Sur   Sur " -> "Sur Sur". */
+export function limpiarTexto(valor) {
+  return String(valor ?? '').trim().replace(/\s+/g, ' ');
+}
+
 function vacio(valor) {
   return !valor || !String(valor).trim();
 }
@@ -70,6 +78,10 @@ export function validarMatriz(config, datos) {
         aspectosVistos.add(clave);
       }
     }
+    if (fila.categoria === 'Otra') {
+      if (vacio(fila.categoriaOtra)) e.categoriaOtra = 'Escriba cuál es la categoría.';
+      else if (fila.categoriaOtra.trim().length > MAX_CORTO) e.categoriaOtra = `Máximo ${MAX_CORTO} caracteres.`;
+    }
     config.campos.forEach((c) => {
       if (vacio(fila[c.clave])) e[c.clave] = 'Este campo es obligatorio.';
       else if (String(fila[c.clave]).length > MAX_CARACTERES) e[c.clave] = `Máximo ${MAX_CARACTERES} caracteres.`;
@@ -93,6 +105,10 @@ export function calcularProgreso(config, datos) {
       total += 1;
       if (!vacio(fila.aspecto)) listos += 1;
     }
+    if (fila.categoria === 'Otra') {
+      total += 1;
+      if (!vacio(fila.categoriaOtra)) listos += 1;
+    }
     config.campos.forEach((c) => {
       total += 1;
       if (!vacio(fila[c.clave])) listos += 1;
@@ -110,15 +126,18 @@ export function nuevoIdEnvio() {
 /** Lo que viaja al backend: sin ids internos, con texto recortado. */
 export function armarPayload(config, datos) {
   return {
-    nombre: datos.nombre.trim(),
-    institucion: datos.institucion.trim(),
+    nombre: limpiarTexto(datos.nombre),
+    institucion: limpiarTexto(datos.institucion),
     filas: datos.filas.map((fila) => {
       const salida = {};
       if (config.filasFijas.length > 0) {
         salida.aspecto = String(fila.aspecto).trim();
         salida.personalizado = !fila.fija;
       }
-      if (config.categorias.length > 0) salida.categoria = fila.categoria || '';
+      if (config.categorias.length > 0) {
+        salida.categoria = fila.categoria || '';
+        salida.categoriaOtra = fila.categoria === 'Otra' ? limpiarTexto(fila.categoriaOtra) : '';
+      }
       config.campos.forEach((c) => {
         salida[c.clave] = String(fila[c.clave]).trim();
       });

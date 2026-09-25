@@ -17,8 +17,12 @@ export default function CategoriasBarra({ distribucion }) {
         <ul className="distribucion-lista">
           {distribucion.map((d) => (
             <li key={d.categoria} className={`distribucion-fila ${d.total === 0 ? 'distribucion-fila--cero' : ''}`}>
-              <span className="distribucion-fila-etiqueta" title={d.categoria}>
+              <span
+                className="distribucion-fila-etiqueta"
+                title={d.detalle.length ? `${d.categoria}: ${d.detalle.join(', ')}` : d.categoria}
+              >
                 {d.categoria}
+                {d.detalle.length > 0 && <span className="distribucion-fila-detalle"> — {d.detalle.join(', ')}</span>}
               </span>
               <span className="distribucion-fila-pista">
                 <span className="distribucion-fila-barra" style={{ '--pct': d.total / max }} />

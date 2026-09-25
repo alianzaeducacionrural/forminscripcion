@@ -77,7 +77,7 @@
   --sombra: 5px 5px 0 var(--ink);
   --sombra-chica: 3px 3px 0 var(--ink);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ancho: 880px;
+  --ancho: 1040px;
 }
 
 /* Matriz 2: verde cafetal + naranja */

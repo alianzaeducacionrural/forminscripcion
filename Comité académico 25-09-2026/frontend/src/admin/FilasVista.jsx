@@ -12,7 +12,11 @@ export default function FilasVista({ config, filas }) {
               {config === MATRIZ_2 ? fila.aspecto : `${config.etiquetaFila} ${fila.orden}`}
             </span>
             {fila.personalizado && <span className="ficha-chip">Aspecto agregado</span>}
-            {fila.categoria && <span className="ficha-chip">{fila.categoria}</span>}
+            {fila.categoria && (
+              <span className="ficha-chip">
+                {fila.categoria === 'Otra' && fila.categoria_otra ? `Otra: ${fila.categoria_otra}` : fila.categoria}
+              </span>
+            )}
           </div>
           <dl className="ficha-campos">
             {config.campos.map((c) => (

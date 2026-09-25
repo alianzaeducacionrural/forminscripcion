@@ -86,6 +86,7 @@ export function calcularTotales(resumenes) {
 export function distribucionCategorias(resumenes) {
   const conteo = new Map(MATRIZ_1.categorias.map((c) => [c, 0]));
   conteo.set('Otra', 0);
+  const otras = new Set(); // lo que escribieron bajo "Otra"
   let sinCategoria = 0;
 
   resumenes.forEach((r) => {
@@ -93,12 +94,17 @@ export function distribucionCategorias(resumenes) {
       envio.filas.forEach((fila) => {
         if (!fila.categoria) sinCategoria += 1;
         else conteo.set(fila.categoria, (conteo.get(fila.categoria) || 0) + 1);
+        if (fila.categoria === 'Otra' && fila.categoria_otra) otras.add(String(fila.categoria_otra).trim());
       })
     );
   });
 
-  const lista = [...conteo.entries()].map(([categoria, total]) => ({ categoria, total }));
-  if (sinCategoria > 0) lista.push({ categoria: 'Sin categoría', total: sinCategoria });
+  const lista = [...conteo.entries()].map(([categoria, total]) => ({
+    categoria,
+    total,
+    detalle: categoria === 'Otra' ? [...otras] : [],
+  }));
+  if (sinCategoria > 0) lista.push({ categoria: 'Sin categoría', total: sinCategoria, detalle: [] });
   return lista.sort((a, b) => b.total - a.total);
 }
 
@@ -113,7 +119,10 @@ export function filasParaCSV(config, envios) {
         orden: fila.orden,
       };
       if (config === MATRIZ_2) salida.aspecto = fila.aspecto;
-      if (config.categorias.length > 0) salida.categoria = fila.categoria || '';
+      if (config.categorias.length > 0) {
+        salida.categoria = fila.categoria || '';
+        salida.categoria_otra = fila.categoria === 'Otra' ? fila.categoria_otra || '' : '';
+      }
       config.campos.forEach((c) => {
         salida[c.etiqueta] = fila[c.columna];
       });

@@ -1,3 +1,5 @@
+import { limpiarTexto } from '../validar.js';
+
 export default function RevisionMatriz({ config, datos, enviando, errorEnvio, onEditar, onConfirmar }) {
   const tituloFila = (fila, i) =>
     config.filasFijas.length > 0 ? fila.aspecto.trim() : `${config.etiquetaFila} ${i + 1}`;
@@ -17,7 +19,7 @@ export default function RevisionMatriz({ config, datos, enviando, errorEnvio, on
     <section className="revision entra" aria-label="Confirmar envío">
       <h2>¿Confirma el envío?</h2>
       <p className="revision-quien">
-        <strong>{datos.nombre.trim()}</strong> · {datos.institucion.trim()}
+        <strong>{limpiarTexto(datos.nombre)}</strong> · {limpiarTexto(datos.institucion)}
       </p>
       <p className="revision-ayuda">Revise que todo esté correcto antes de confirmar.</p>
 
@@ -27,7 +29,11 @@ export default function RevisionMatriz({ config, datos, enviando, errorEnvio, on
             <span className="revision-item-titulo">
               <span className="revision-item-numero">{i + 1}</span>
               {tituloFila(fila, i)}
-              {fila.categoria ? <em className="revision-item-categoria">{fila.categoria}</em> : null}
+              {fila.categoria ? (
+                <em className="revision-item-categoria">
+                  {fila.categoria === 'Otra' ? `Otra: ${limpiarTexto(fila.categoriaOtra)}` : fila.categoria}
+                </em>
+              ) : null}
             </span>
             <dl className="revision-campos">
               {config.campos.map((c) => (

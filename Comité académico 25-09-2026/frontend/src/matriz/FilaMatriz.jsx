@@ -83,6 +83,25 @@ export default function FilaMatriz({
           </div>
         )}
 
+        {config.categorias.length > 0 && fila.categoria === 'Otra' && (
+          <div className="fila-campo fila-campo--ancho fila-campo--otra entra">
+            <label className="campo-etiqueta" htmlFor={`${idBase}-categoria-otra`}>
+              ¿Cuál categoría o acción?
+            </label>
+            <input
+              id={`${idBase}-categoria-otra`}
+              type="text"
+              className={`campo-input ${mensaje('categoriaOtra') ? 'campo-input--error' : ''}`}
+              value={fila.categoriaOtra}
+              maxLength={200}
+              placeholder="Escríbala aquí"
+              onChange={(e) => onCambiar('categoriaOtra', e.target.value)}
+              onBlur={() => onTocar('categoriaOtra')}
+            />
+            {mensaje('categoriaOtra') && <p className="campo-error">{errores.categoriaOtra}</p>}
+          </div>
+        )}
+
         {config.campos.map((c, i) => (
           <div key={c.clave} className={`fila-campo ${i === 0 && config.categorias.length > 0 ? 'fila-campo--ancho' : ''}`}>
             <label className="campo-etiqueta" htmlFor={`${idBase}-${c.clave}`}>

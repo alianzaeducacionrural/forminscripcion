@@ -416,6 +416,11 @@
   white-space: nowrap;
 }
 
+.distribucion-fila-detalle {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
 .distribucion-fila-pista {
   display: block;
   height: 18px;
