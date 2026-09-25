@@ -8,10 +8,10 @@
  *   GET  ?action=listInstituciones
  *   GET  ?action=getMatriz1            (uso del panel admin)
  *   GET  ?action=getMatriz2            (uso del panel admin)
- *   POST { action: "submitMatriz1", institucion, nombre,
+ *   POST { action: "submitMatriz1", idEnvio (opcional), institucion, nombre,
  *          filas: [{ categoria, accion, dirigidaA, comoSeDesarrolla, aliados,
  *                    periodicidad, recursos, resultado }] }
- *   POST { action: "submitMatriz2", institucion, nombre,
+ *   POST { action: "submitMatriz2", idEnvio (opcional), institucion, nombre,
  *          filas: [{ aspecto, personalizado, situacion, accionMejora,
  *                    responsable, apoyo, tiempo, evidencia }] }
  *
@@ -22,6 +22,10 @@
  * Una persona puede volver a enviar para corregir: los envíos anteriores NO se
  * borran (quedan como historial en la Sheet); el panel toma como vigente el
  * `id_envio` más reciente de cada pareja institución + nombre.
+ *
+ * Idempotencia: el frontend manda un `idEnvio` (UUID) por intento de envío. Si
+ * ese id ya existe en la Sheet, el backend responde éxito SIN volver a escribir,
+ * así un doble clic o un reintento tras un corte de red no duplica filas.
  *
  * Sin protección por clave: el panel admin se protege únicamente por ser un
  * enlace no listado, igual que en los demás formularios de la organización.
@@ -204,6 +208,7 @@ function listInstituciones_() {
 function submitMatriz1_(body) {
   var errors = [];
   var quien = validarIdentificacion_(body, errors);
+  var idEnvio = validarIdEnvio_(body.idEnvio, errors);
   var filas = validarListaFilas_(body.filas, errors);
 
   filas.forEach(function (fila, i) {
@@ -222,12 +227,13 @@ function submitMatriz1_(body) {
   });
 
   // 'categoria' es la 6.ª columna: desde ahí todo es texto plano.
-  return guardarEnvio_(SHEET_MATRIZ1, MATRIZ1_HEADERS, quien, datos, 6);
+  return guardarEnvio_(SHEET_MATRIZ1, MATRIZ1_HEADERS, quien, datos, 6, idEnvio);
 }
 
 function submitMatriz2_(body) {
   var errors = [];
   var quien = validarIdentificacion_(body, errors);
+  var idEnvio = validarIdEnvio_(body.idEnvio, errors);
   var filas = validarListaFilas_(body.filas, errors);
 
   var aspectosVistos = {};
@@ -261,30 +267,37 @@ function submitMatriz2_(body) {
   });
 
   // 'personalizado' (col. 6) es booleano; el texto plano empieza en 'aspecto' (col. 7).
-  return guardarEnvio_(SHEET_MATRIZ2, MATRIZ2_HEADERS, quien, datos, 7);
+  return guardarEnvio_(SHEET_MATRIZ2, MATRIZ2_HEADERS, quien, datos, 7, idEnvio);
 }
 
 /**
  * Escribe todas las filas de un envío de una sola vez, bajo bloqueo, para que
  * dos envíos simultáneos no intercalen sus filas. Se les pone formato "texto
- * plano" a institución/nombre (columnas 3-4) y a las columnas de texto libre
- * (desde `colTextoDesde`, 1-based) antes de escribir, para que ningún valor
- * que empiece con "=" o "+" se ejecute como fórmula en la Sheet.
+ * plano" al id, institución y nombre (columnas 2-4) y a las columnas de texto
+ * libre (desde `colTextoDesde`, 1-based) antes de escribir, para que ningún
+ * valor que empiece con "=" o "+" se ejecute como fórmula en la Sheet.
+ *
+ * Si `idEnvio` ya existe en la Sheet, no escribe nada y devuelve ese mismo id
+ * (el envío ya se había guardado: doble clic o reintento). La comprobación va
+ * dentro del bloqueo, así dos peticiones simultáneas con el mismo id tampoco
+ * duplican.
  */
-function guardarEnvio_(sheetName, headers, quien, filasDatos, colTextoDesde) {
+function guardarEnvio_(sheetName, headers, quien, filasDatos, colTextoDesde, idEnvio) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    var id = Utilities.getUuid();
+    var sheet = getSheet_(sheetName, headers);
+    if (idEnvio && existeEnvio_(sheet, idEnvio)) return idEnvio;
+
+    var id = idEnvio || Utilities.getUuid();
     var timestamp = new Date();
     var numColumnas = headers.length;
     var filas = filasDatos.map(function (datos, i) {
       return [timestamp, id, quien.institucion, quien.nombre, i + 1].concat(datos);
     });
 
-    var sheet = getSheet_(sheetName, headers);
     var primeraFila = sheet.getLastRow() + 1;
-    sheet.getRange(primeraFila, 3, filas.length, 2).setNumberFormat('@');
+    sheet.getRange(primeraFila, 2, filas.length, 3).setNumberFormat('@');
     sheet
       .getRange(primeraFila, colTextoDesde, filas.length, numColumnas - colTextoDesde + 1)
       .setNumberFormat('@');
@@ -294,6 +307,13 @@ function guardarEnvio_(sheetName, headers, quien, filasDatos, colTextoDesde) {
   } finally {
     lock.releaseLock();
   }
+}
+
+function existeEnvio_(sheet, idEnvio) {
+  var ultimaFila = sheet.getLastRow();
+  if (ultimaFila <= 1) return false;
+  var ids = sheet.getRange(2, 2, ultimaFila - 1, 1).getValues();
+  return ids.some(function (fila) { return String(fila[0]) === idEnvio; });
 }
 
 // ---------------------------------------------------------------------------
@@ -309,6 +329,17 @@ function validarIdentificacion_(body, errors) {
   if (!nombre) errors.push('nombre es requerido');
   else if (nombre.length > MAX_CARACTERES_CORTO) errors.push('nombre supera ' + MAX_CARACTERES_CORTO + ' caracteres');
   return { institucion: institucion, nombre: nombre };
+}
+
+/** `idEnvio` es opcional; si viene debe ser un identificador simple (letras, dígitos y guiones). */
+function validarIdEnvio_(idEnvio, errors) {
+  if (idEnvio === undefined || idEnvio === null || idEnvio === '') return '';
+  var id = String(idEnvio);
+  if (!/^[A-Za-z0-9-]{8,64}$/.test(id)) {
+    errors.push('idEnvio no es válido');
+    return '';
+  }
+  return id;
 }
 
 /** Recorta y colapsa espacios internos: "  Univ.   de   Caldas " -> "Univ. de Caldas". */

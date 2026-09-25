@@ -11,6 +11,7 @@ import {
   esValido,
   estadoInicial,
   filaVacia,
+  nuevoIdEnvio,
   restaurarBorrador,
   validarMatriz,
 } from '../validar.js';
@@ -48,6 +49,12 @@ export default function MatrizForm({ config, enviar }) {
   const [avisoConexion, setAvisoConexion] = useState(false);
   const ultimaFila = useRef(null);
   const agregoFila = useRef(false);
+  // Candado síncrono contra doble clic: `enviando` (estado) se actualiza en el
+  // siguiente render, y dos clics muy seguidos entrarían antes de eso.
+  const enviandoRef = useRef(false);
+  // Un mismo contenido = un mismo idEnvio, también entre reintentos tras un
+  // error de red; si el contenido cambia, es un envío nuevo y se genera otro id.
+  const intentoRef = useRef(null);
 
   useEffect(() => {
     listInstituciones().catch(() => setAvisoConexion(true));
@@ -65,6 +72,17 @@ export default function MatrizForm({ config, enviar }) {
     }
     agregoFila.current = false;
   }, [datos.filas.length]);
+
+  // Mientras se envía, avisar si intentan cerrar o recargar la pestaña.
+  useEffect(() => {
+    if (!enviando) return undefined;
+    const avisar = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', avisar);
+    return () => window.removeEventListener('beforeunload', avisar);
+  }, [enviando]);
 
   const errores = useMemo(() => validarMatriz(config, datos), [config, datos]);
   const progreso = useMemo(() => calcularProgreso(config, datos), [config, datos]);
@@ -93,7 +111,16 @@ export default function MatrizForm({ config, enviar }) {
     setDatos((prev) => ({ ...prev, filas: prev.filas.filter((f) => f.id !== idFila) }));
   }
 
+  function idParaEnvio(payload) {
+    const firma = JSON.stringify(payload);
+    if (!intentoRef.current || intentoRef.current.firma !== firma) {
+      intentoRef.current = { firma, id: nuevoIdEnvio() };
+    }
+    return intentoRef.current.id;
+  }
+
   function abrirRevision() {
+    if (enviandoRef.current) return;
     setIntentado(true);
     if (!esValido(errores)) {
       // Esperar al render con los errores visibles antes de buscar el primero.
@@ -107,16 +134,21 @@ export default function MatrizForm({ config, enviar }) {
   }
 
   async function confirmarEnvio() {
+    if (enviandoRef.current) return;
+    enviandoRef.current = true;
     setEnviando(true);
     setErrorEnvio(null);
     try {
-      await enviar(armarPayload(config, datos));
+      const payload = armarPayload(config, datos);
+      await enviar({ ...payload, idEnvio: idParaEnvio(payload) });
+      intentoRef.current = null;
       store.clearDraft();
       setResultado({ nombre: datos.nombre.trim(), institucion: datos.institucion.trim(), totalFilas: datos.filas.length });
       setMostrarModal(false);
     } catch (err) {
       setErrorEnvio(err.message || 'Error desconocido. Intente de nuevo.');
     } finally {
+      enviandoRef.current = false;
       setEnviando(false);
     }
   }
@@ -281,13 +313,17 @@ export default function MatrizForm({ config, enviar }) {
       </main>
 
       {mostrarModal && (
-        <Modal titulo="Revise antes de enviar" onCerrar={() => setMostrarModal(false)}>
+        <Modal
+          titulo="Confirmar envío"
+          bloqueado={enviando}
+          onCerrar={() => !enviandoRef.current && setMostrarModal(false)}
+        >
           <RevisionMatriz
             config={config}
             datos={datos}
             enviando={enviando}
             errorEnvio={errorEnvio}
-            onEditar={() => setMostrarModal(false)}
+            onEditar={() => !enviandoRef.current && setMostrarModal(false)}
             onConfirmar={confirmarEnvio}
           />
         </Modal>

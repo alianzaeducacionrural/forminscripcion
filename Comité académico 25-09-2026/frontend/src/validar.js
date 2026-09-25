@@ -101,6 +101,12 @@ export function calcularProgreso(config, datos) {
   return { listos, total };
 }
 
+/** Identificador único de un intento de envío: el backend lo usa para no guardar dos veces lo mismo. */
+export function nuevoIdEnvio() {
+  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+  return `e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 12)}`;
+}
+
 /** Lo que viaja al backend: sin ids internos, con texto recortado. */
 export function armarPayload(config, datos) {
   return {

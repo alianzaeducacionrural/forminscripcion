@@ -431,9 +431,16 @@
 }
 
 .revision-quien {
-  margin: var(--space-2) 0 var(--space-4);
+  margin: var(--space-2) 0 var(--space-1);
   font-weight: 600;
   color: var(--ink-2);
+}
+
+.revision-ayuda {
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+  font-weight: 600;
 }
 
 .revision-lista {
@@ -523,6 +530,13 @@
   display: flex;
   gap: var(--space-3);
   justify-content: flex-end;
+  /* Fijos al fondo del modal: Confirmar siempre a la vista, aunque haya mucho contenido */
+  position: sticky;
+  bottom: 0;
+  margin: 0 calc(-1 * var(--space-5)) calc(-1 * var(--space-5));
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  background: var(--card);
+  border-top: 2.5px solid var(--ink);
 }
 
 @media (max-width: 560px) {
@@ -573,4 +587,58 @@
   color: var(--ink-2);
   font-weight: 500;
   margin-bottom: var(--space-3);
+}
+
+/* ---------------------------------------------------------------------
+   Enviando (modal con spinner)
+   --------------------------------------------------------------------- */
+
+.enviando {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 300px;
+  padding: var(--space-7) var(--space-5);
+  text-align: center;
+}
+
+.enviando h2 {
+  font-size: var(--text-lg);
+}
+
+.enviando p {
+  max-width: 34ch;
+  color: var(--ink-2);
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.spinner {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 8px solid var(--acc-soft);
+  border-top-color: var(--acc);
+  border-right-color: var(--acc2);
+  outline: 3px solid var(--ink);
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px var(--ink) inset;
+  margin-bottom: var(--space-3);
+  animation: gira-spinner 900ms linear infinite;
+}
+
+@keyframes gira-spinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* El spinner es la señal de "trabajando": se mantiene aunque el sistema pida menos movimiento, pero más lento */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: gira-spinner 2400ms linear infinite !important;
+    animation-duration: 2400ms !important;
+  }
 }
