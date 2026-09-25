@@ -265,7 +265,7 @@
 
 .ies-card-estado {
   flex-shrink: 0;
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   font-weight: 800;
   padding: 1px var(--space-3);
   border: 2px solid var(--ink);
@@ -310,7 +310,7 @@
 }
 
 .linea-nombre {
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -656,7 +656,7 @@
 }
 
 .ficha-chip {
-  font-size: 0.72rem;
+  font-size: 0.875rem;
   font-weight: 800;
   background: var(--card);
   border: 2px solid var(--ink);

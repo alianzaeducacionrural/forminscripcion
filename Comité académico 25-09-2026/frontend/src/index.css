@@ -51,12 +51,13 @@
   --font-display: 'Bricolage Grotesque Variable', 'Arial Black', system-ui, sans-serif;
   --font-body: 'Figtree Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  --text-xs: 0.78rem;
-  --text-sm: 0.9rem;
-  --text-base: 1rem;
-  --text-md: 1.15rem;
-  --text-lg: 1.5rem;
-  --text-xl: 2rem;
+  /* Escala de texto: mínimo 14px (antes 12.5px) para que se lea bien en pantalla y en móvil */
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.0625rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.625rem;
+  --text-xl: 2.125rem;
 
   --space-1: 4px;
   --space-2: 8px;
