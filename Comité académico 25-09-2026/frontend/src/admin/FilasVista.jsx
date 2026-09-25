@@ -1,7 +1,7 @@
 import { MATRIZ_2 } from '../data/catalogos.js';
 
 /** Las filas de un envío como fichas de solo lectura (una por acción / aspecto). */
-export default function FilasVista({ config, filas, mostrarIES }) {
+export default function FilasVista({ config, filas }) {
   return (
     <ol className="fichas">
       {filas.map((fila) => (
@@ -11,9 +11,8 @@ export default function FilasVista({ config, filas, mostrarIES }) {
             <span className="ficha-titulo">
               {config === MATRIZ_2 ? fila.aspecto : `${config.etiquetaFila} ${fila.orden}`}
             </span>
-            {fila.personalizado && <span className="ficha-chip">Aspecto agregado por la IES</span>}
+            {fila.personalizado && <span className="ficha-chip">Aspecto agregado</span>}
             {fila.categoria && <span className="ficha-chip">{fila.categoria}</span>}
-            {mostrarIES && <span className="ficha-ies">{fila.institucion}</span>}
           </div>
           <dl className="ficha-campos">
             {config.campos.map((c) => (

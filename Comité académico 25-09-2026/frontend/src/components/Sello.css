@@ -1,81 +1,48 @@
 .sello {
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  padding-top: var(--space-2);
+  gap: var(--space-2);
 }
 
-.sello-insignia {
-  position: relative;
-  width: 84px;
-  height: 84px;
-  border-radius: var(--radius-pill);
-  background: var(--primary-gradient);
+.sello-estrella {
+  width: 132px;
+  height: 132px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 12px 28px var(--primary-shadow);
-  transform: scale(0.4);
-  opacity: 0;
-  animation: sello-entra 420ms 100ms var(--ease-out) forwards;
-}
-
-.sello-pulso {
-  position: absolute;
-  top: var(--space-2);
-  width: 84px;
-  height: 84px;
-  border-radius: var(--radius-pill);
-  background: var(--primary);
-  opacity: 0;
-  animation: sello-pulso 1100ms 500ms ease-out;
+  color: var(--ink);
+  background: var(--acc2);
+  /* Estrella de 12 puntas */
+  clip-path: polygon(
+    50% 0%, 60% 12%, 75% 6.7%, 79% 21%, 93.3% 25%, 88% 40%, 100% 50%, 88% 60%,
+    93.3% 75%, 79% 79%, 75% 93.3%, 60% 88%, 50% 100%, 40% 88%, 25% 93.3%, 21% 79%,
+    6.7% 75%, 12% 60%, 0% 50%, 12% 40%, 6.7% 25%, 21% 21%, 25% 6.7%, 40% 12%
+  );
+  animation: sello-entra 800ms 80ms var(--ease-out) both;
 }
 
 .sello-texto {
-  font-size: var(--text-sm);
+  font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: 0.06em;
-  color: var(--primary);
+  font-size: var(--text-md);
+  letter-spacing: 0.12em;
+  margin-top: var(--space-2);
 }
 
 .sello-fecha {
-  font-size: var(--text-xs);
-  color: var(--ink-tertiary);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+  font-weight: 600;
 }
 
 @keyframes sello-entra {
   from {
-    transform: scale(0.4);
+    transform: scale(0.2) rotate(-120deg);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
     opacity: 1;
-  }
-}
-
-@keyframes sello-pulso {
-  0% {
-    transform: scale(1);
-    opacity: 0.35;
-  }
-  100% {
-    transform: scale(1.6);
-    opacity: 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sello-insignia {
-    animation: none;
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  .sello-pulso {
-    display: none;
   }
 }

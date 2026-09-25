@@ -1,17 +1,18 @@
 export default function ResumenStats({ totales }) {
-  const tarjetas = [
-    { clase: 'm1', valor: `${totales.iesM1} de ${totales.totalIES}`, etiqueta: 'IES con Matriz 1 enviada' },
-    { clase: 'm2', valor: `${totales.iesM2} de ${totales.totalIES}`, etiqueta: 'IES con Matriz 2 enviada' },
-    { clase: 'm1', valor: totales.acciones, etiqueta: 'Acciones de internacionalización propuestas' },
-    { clase: 'm2', valor: totales.aspectos, etiqueta: 'Aspectos a fortalecer registrados' },
+  const bloques = [
+    { clase: 'sol', valor: totales.instituciones, etiqueta: 'Instituciones registradas', nota: 'han enviado al menos una matriz' },
+    { clase: 'm1', valor: totales.iesM1, etiqueta: 'con Matriz 1', nota: `${totales.acciones} ${totales.acciones === 1 ? 'acción propuesta' : 'acciones propuestas'}` },
+    { clase: 'm2', valor: totales.iesM2, etiqueta: 'con Matriz 2', nota: `${totales.aspectos} ${totales.aspectos === 1 ? 'aspecto registrado' : 'aspectos registrados'}` },
+    { clase: 'naranja', valor: totales.completas, etiqueta: 'con las dos matrices', nota: 'cobertura completa' },
   ];
 
   return (
     <div className="stats-fila">
-      {tarjetas.map((t) => (
-        <div key={t.etiqueta} className={`stat-tarjeta stat-tarjeta--${t.clase}`}>
-          <span className="stat-tarjeta-valor">{t.valor}</span>
-          <span className="stat-tarjeta-etiqueta">{t.etiqueta}</span>
+      {bloques.map((b, i) => (
+        <div key={b.etiqueta} className={`stat stat--${b.clase}`} style={{ '--i': i }}>
+          <span className="stat-valor">{b.valor}</span>
+          <span className="stat-etiqueta">{b.etiqueta}</span>
+          <span className="stat-nota">{b.nota}</span>
         </div>
       ))}
     </div>

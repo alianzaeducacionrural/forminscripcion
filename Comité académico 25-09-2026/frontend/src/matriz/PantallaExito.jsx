@@ -2,20 +2,23 @@ import Sello from '../components/Sello.jsx';
 
 const FORMATO_FECHA = new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
 
-export default function PantallaExito({ config, institucion, totalFilas, onEnviarOtra }) {
+export default function PantallaExito({ config, resultado, onEnviarOtra }) {
+  const { nombre, institucion, totalFilas } = resultado;
+  const unidad = config.filasFijas.length > 0 ? ['aspecto', 'aspectos'] : ['acción', 'acciones'];
+
   return (
-    <div className="pantalla-exito entra">
+    <section className="tarjeta exito entra">
       <Sello texto="RECIBIDO" fecha={FORMATO_FECHA.format(new Date())} />
-      <h2>¡Gracias!</h2>
-      <p className="pantalla-exito-institucion">{institucion}</p>
-      <p className="pantalla-exito-resumen">
-        Registramos su propuesta para la {config.titulo.split('.')[0]} ({totalFilas}{' '}
-        {totalFilas === 1 ? 'fila' : 'filas'}). Si necesita corregir algo, puede volver a enviar
-        el formulario: el Comité tomará como vigente el envío más reciente de su institución.
+      <h1>¡Gracias, {nombre.split(' ')[0]}!</h1>
+      <p className="exito-institucion">{institucion}</p>
+      <p className="exito-resumen">
+        Registramos su Matriz {config.numero} con {totalFilas} {totalFilas === 1 ? unidad[0] : unidad[1]}.
+        Si necesita corregir algo, puede volver a enviarla: el Comité tomará como vigente su envío más
+        reciente.
       </p>
-      <button type="button" className="boton boton--secundario" onClick={onEnviarOtra}>
+      <button type="button" className="boton" onClick={onEnviarOtra}>
         Enviar una versión corregida
       </button>
-    </div>
+    </section>
   );
 }

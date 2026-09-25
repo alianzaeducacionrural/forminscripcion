@@ -6,21 +6,21 @@ export default function CategoriasBarra({ distribucion }) {
   return (
     <section className="bloque">
       <div className="bloque-cabecera">
-        <h2 className="bloque-titulo">Categorías de las acciones propuestas (Matriz 1)</h2>
-        <span className="stat-chip">
+        <h2 className="bloque-titulo">Acciones por categoría · Matriz 1</h2>
+        <span className="chip chip--m1">
           {total} {total === 1 ? 'acción' : 'acciones'}
         </span>
       </div>
       {total === 0 ? (
-        <p className="tabla-vacia">Todavía no hay acciones registradas.</p>
+        <p className="vacio">Todavía no hay acciones registradas.</p>
       ) : (
         <ul className="distribucion-lista">
           {distribucion.map((d) => (
-            <li key={d.categoria} className="distribucion-fila">
+            <li key={d.categoria} className={`distribucion-fila ${d.total === 0 ? 'distribucion-fila--cero' : ''}`}>
               <span className="distribucion-fila-etiqueta" title={d.categoria}>
                 {d.categoria}
               </span>
-              <span className="distribucion-fila-barra-pista">
+              <span className="distribucion-fila-pista">
                 <span className="distribucion-fila-barra" style={{ '--pct': d.total / max }} />
               </span>
               <span className="distribucion-fila-numero">{d.total}</span>

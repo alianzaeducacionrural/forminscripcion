@@ -1,4 +1,4 @@
-import { INSTITUCIONES, MAX_CARACTERES } from './data/catalogos.js';
+import { MAX_CARACTERES, MAX_CORTO } from './data/catalogos.js';
 
 let contador = 0;
 function nuevoId() {
@@ -18,7 +18,7 @@ export function filaVacia(config, aspectoFijo = null) {
 
 export function estadoInicial(config) {
   const fijas = config.filasFijas.map((aspecto) => filaVacia(config, aspecto));
-  return { institucion: '', filas: fijas.length > 0 ? fijas : [filaVacia(config)] };
+  return { nombre: '', institucion: '', filas: fijas.length > 0 ? fijas : [filaVacia(config)] };
 }
 
 /** Combina un borrador guardado con la configuración actual: garantiza que
@@ -37,7 +37,8 @@ export function restaurarBorrador(config, borrador) {
     .forEach((f) => filas.push({ ...filaVacia(config), ...f }));
 
   return {
-    institucion: INSTITUCIONES.includes(borrador.institucion) ? borrador.institucion : '',
+    nombre: typeof borrador.nombre === 'string' ? borrador.nombre : '',
+    institucion: typeof borrador.institucion === 'string' ? borrador.institucion : '',
     filas: filas.length > 0 ? filas : base.filas,
   };
 }
@@ -50,9 +51,11 @@ function vacio(valor) {
 export function validarMatriz(config, datos) {
   const errores = { filas: {} };
 
-  if (!datos.institucion || !INSTITUCIONES.includes(datos.institucion)) {
-    errores.institucion = 'Seleccione la institución de educación superior.';
-  }
+  if (vacio(datos.nombre)) errores.nombre = 'Escriba su nombre.';
+  else if (datos.nombre.trim().length > MAX_CORTO) errores.nombre = `Máximo ${MAX_CORTO} caracteres.`;
+
+  if (vacio(datos.institucion)) errores.institucion = 'Escriba el nombre de su institución.';
+  else if (datos.institucion.trim().length > MAX_CORTO) errores.institucion = `Máximo ${MAX_CORTO} caracteres.`;
 
   const aspectosVistos = new Set(config.filasFijas.map((a) => a.trim().toLowerCase()));
 
@@ -78,13 +81,13 @@ export function validarMatriz(config, datos) {
 }
 
 export function esValido(errores) {
-  return !errores.institucion && Object.keys(errores.filas).length === 0;
+  return !errores.nombre && !errores.institucion && Object.keys(errores.filas).length === 0;
 }
 
 /** Progreso: campos obligatorios con contenido / campos obligatorios totales. */
 export function calcularProgreso(config, datos) {
-  let total = 1;
-  let listos = datos.institucion ? 1 : 0;
+  let total = 2;
+  let listos = (vacio(datos.nombre) ? 0 : 1) + (vacio(datos.institucion) ? 0 : 1);
   datos.filas.forEach((fila) => {
     if (!fila.fija && config.filasFijas.length > 0) {
       total += 1;
@@ -101,7 +104,8 @@ export function calcularProgreso(config, datos) {
 /** Lo que viaja al backend: sin ids internos, con texto recortado. */
 export function armarPayload(config, datos) {
   return {
-    institucion: datos.institucion,
+    nombre: datos.nombre.trim(),
+    institucion: datos.institucion.trim(),
     filas: datos.filas.map((fila) => {
       const salida = {};
       if (config.filasFijas.length > 0) {

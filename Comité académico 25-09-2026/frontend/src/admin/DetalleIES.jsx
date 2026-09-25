@@ -1,107 +1,99 @@
 import { useMemo, useState } from 'react';
 import FilasVista from './FilasVista.jsx';
-import { MATRIZ_1, MATRIZ_2, INSTITUCIONES } from '../data/catalogos.js';
-import { filasParaCSV, filasVigentes, formatearFecha } from './calculos.js';
+import { MATRIZ_1, MATRIZ_2 } from '../data/catalogos.js';
+import { filasParaCSV, formatearFecha } from './calculos.js';
 import { descargarCSV } from './csv.js';
 
-function Seccion({ config, titulo, filas, envio, mostrarIES, nombreArchivo }) {
+function Envio({ config, envio, mostrarInstitucion }) {
+  return (
+    <div className="envio">
+      <div className="envio-cabecera">
+        <span className="envio-nombre">{envio.nombre}</span>
+        {mostrarInstitucion && <span className="envio-institucion">{envio.institucion}</span>}
+        <span className="envio-fecha">
+          {formatearFecha(envio.fecha)}
+          {envio.totalEnvios > 1 ? ` · ${envio.totalEnvios} envíos (vigente: el más reciente)` : ''}
+        </span>
+      </div>
+      <FilasVista config={config} filas={envio.filas} />
+    </div>
+  );
+}
+
+function Seccion({ config, titulo, envios, mostrarInstitucion, nombreArchivo }) {
   return (
     <section className={`detalle-seccion detalle-seccion--${config.tema}`}>
       <div className="bloque-cabecera">
-        <div>
-          <h3 className="detalle-seccion-titulo">{titulo}</h3>
-          {envio && <p className="detalle-seccion-fecha">Enviada el {formatearFecha(envio.fecha)}</p>}
-        </div>
-        {filas.length > 0 && (
+        <h3 className="detalle-seccion-titulo">{titulo}</h3>
+        {envios.length > 0 && (
           <button
             type="button"
-            className="boton boton--secundario boton--chico"
-            onClick={() => descargarCSV(nombreArchivo, filasParaCSV(config, filas))}
+            className="boton boton--chico"
+            onClick={() => descargarCSV(nombreArchivo, filasParaCSV(config, envios))}
           >
             Descargar CSV
           </button>
         )}
       </div>
-      {filas.length === 0 ? (
-        <p className="tabla-vacia">Todavía no hay envíos de esta matriz.</p>
+      {envios.length === 0 ? (
+        <p className="vacio">Todavía no hay envíos de esta matriz.</p>
       ) : (
-        <FilasVista config={config} filas={filas} mostrarIES={mostrarIES} />
+        <div className="envios">
+          {envios.map((envio) => (
+            <Envio key={envio.idEnvio} config={config} envio={envio} mostrarInstitucion={mostrarInstitucion} />
+          ))}
+        </div>
       )}
     </section>
   );
 }
 
-const conFecha = (envio) => (envio ? envio.filas.map((f) => ({ ...f, fechaEnvio: envio.fecha })) : []);
+const TITULO_1 = 'Matriz 1 · Internacionalización';
+const TITULO_2 = 'Matriz 2 · Fortalecimiento de la implementación del modelo';
 
-/** Detalle de una IES: las dos matrices con su envío vigente. */
+/** Detalle de una institución: las dos matrices con los envíos vigentes de cada persona. */
 export function DetalleIES({ resumen }) {
-  const { institucion, m1, m2 } = resumen;
-
   return (
     <div className="institucion-detalle entra">
-      <h2>{institucion}</h2>
-      <Seccion
-        config={MATRIZ_1}
-        titulo="Matriz 1 · Internacionalización"
-        filas={conFecha(m1)}
-        envio={m1}
-        nombreArchivo={`matriz1-${institucion}.csv`}
-      />
-      <Seccion
-        config={MATRIZ_2}
-        titulo="Matriz 2 · Fortalecimiento de la implementación del modelo"
-        filas={conFecha(m2)}
-        envio={m2}
-        nombreArchivo={`matriz2-${institucion}.csv`}
-      />
+      <h2>{resumen.institucion}</h2>
+      <Seccion config={MATRIZ_1} titulo={TITULO_1} envios={resumen.m1} nombreArchivo={`matriz1-${resumen.institucion}.csv`} />
+      <Seccion config={MATRIZ_2} titulo={TITULO_2} envios={resumen.m2} nombreArchivo={`matriz2-${resumen.institucion}.csv`} />
     </div>
   );
 }
 
-/** Consolidado de todas las IES, con filtro por institución. */
+/** Consolidado de todas las instituciones, con filtro. */
 export function DetalleGlobal({ resumenes }) {
   const [filtro, setFiltro] = useState('');
 
-  const { filas1, filas2 } = useMemo(() => {
-    const visibles = filtro ? resumenes.filter((r) => r.institucion === filtro) : resumenes;
-    return { filas1: filasVigentes(visibles, 'm1'), filas2: filasVigentes(visibles, 'm2') };
+  const { envios1, envios2 } = useMemo(() => {
+    const visibles = filtro ? resumenes.filter((r) => r.clave === filtro) : resumenes;
+    return { envios1: visibles.flatMap((r) => r.m1), envios2: visibles.flatMap((r) => r.m2) };
   }, [resumenes, filtro]);
 
-  const sufijo = filtro || 'todas-las-IES';
+  const sufijo = filtro ? resumenes.find((r) => r.clave === filtro)?.institucion : 'todas';
 
   return (
     <div className="institucion-detalle entra">
-      <h2>Todas las IES</h2>
+      <h2>Todas las instituciones</h2>
       <div className="detalle-filtro">
         <select
-          className="filtro-select"
+          className="campo-select filtro-select"
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
           aria-label="Filtrar por institución"
         >
           <option value="">Todas las instituciones</option>
-          {INSTITUCIONES.map((n) => (
-            <option key={n} value={n}>
-              {n}
+          {resumenes.map((r) => (
+            <option key={r.clave} value={r.clave}>
+              {r.institucion}
             </option>
           ))}
         </select>
-        <span className="detalle-filtro-nota">Se muestra el envío más reciente de cada institución.</span>
+        <span className="detalle-filtro-nota">Se muestra el envío más reciente de cada persona.</span>
       </div>
-      <Seccion
-        config={MATRIZ_1}
-        titulo="Matriz 1 · Internacionalización"
-        filas={filas1}
-        mostrarIES
-        nombreArchivo={`matriz1-${sufijo}.csv`}
-      />
-      <Seccion
-        config={MATRIZ_2}
-        titulo="Matriz 2 · Fortalecimiento de la implementación del modelo"
-        filas={filas2}
-        mostrarIES
-        nombreArchivo={`matriz2-${sufijo}.csv`}
-      />
+      <Seccion config={MATRIZ_1} titulo={TITULO_1} envios={envios1} mostrarInstitucion nombreArchivo={`matriz1-${sufijo}.csv`} />
+      <Seccion config={MATRIZ_2} titulo={TITULO_2} envios={envios2} mostrarInstitucion nombreArchivo={`matriz2-${sufijo}.csv`} />
     </div>
   );
 }

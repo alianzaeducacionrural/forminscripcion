@@ -8,18 +8,20 @@
  *   GET  ?action=listInstituciones
  *   GET  ?action=getMatriz1            (uso del panel admin)
  *   GET  ?action=getMatriz2            (uso del panel admin)
- *   POST { action: "submitMatriz1", institucion,
+ *   POST { action: "submitMatriz1", institucion, nombre,
  *          filas: [{ categoria, accion, dirigidaA, comoSeDesarrolla, aliados,
  *                    periodicidad, recursos, resultado }] }
- *   POST { action: "submitMatriz2", institucion,
+ *   POST { action: "submitMatriz2", institucion, nombre,
  *          filas: [{ aspecto, personalizado, situacion, accionMejora,
  *                    responsable, apoyo, tiempo, evidencia }] }
  *
  * Modelo de datos: cada envío es un conjunto de filas (una por acción en la
  * Matriz 1, una por aspecto en la Matriz 2) que comparten `id_envio` y
- * `timestamp`. Una institución puede volver a enviar para corregir: los envíos
- * anteriores NO se borran (quedan como historial en la Sheet); el panel toma
- * como vigente el `id_envio` más reciente de cada institución.
+ * `timestamp`. `institucion` y `nombre` (quien diligencia) son TEXTO LIBRE:
+ * participan también representantes de entidades que no son universidades.
+ * Una persona puede volver a enviar para corregir: los envíos anteriores NO se
+ * borran (quedan como historial en la Sheet); el panel toma como vigente el
+ * `id_envio` más reciente de cada pareja institución + nombre.
  *
  * Sin protección por clave: el panel admin se protege únicamente por ser un
  * enlace no listado, igual que en los demás formularios de la organización.
@@ -41,8 +43,11 @@ var SHEET_MATRIZ2 = 'Matriz2';
 
 var MAX_FILAS = 60;
 var MAX_CARACTERES = 2000;
+var MAX_CARACTERES_CORTO = 200;
 
-// Duplicado a propósito en frontend/src/data/catalogos.js (INSTITUCIONES).
+// Solo SUGERENCIAS para el campo Institución (el frontend las ofrece como
+// autocompletado; el campo acepta cualquier texto). Duplicado en
+// frontend/src/data/catalogos.js (INSTITUCIONES_SUGERIDAS).
 var INSTITUCIONES_SEED = [
   ['IES01', 'IES CINOC'],
   ['IES02', 'Universidad Autónoma de Manizales'],
@@ -76,12 +81,12 @@ var MATRIZ1_CAMPOS = ['accion', 'dirigidaA', 'comoSeDesarrolla', 'aliados', 'per
 var MATRIZ2_CAMPOS = ['situacion', 'accionMejora', 'responsable', 'apoyo', 'tiempo', 'evidencia'];
 
 var MATRIZ1_HEADERS = [
-  'timestamp', 'id_envio', 'institucion', 'orden', 'categoria',
+  'timestamp', 'id_envio', 'institucion', 'nombre', 'orden', 'categoria',
   'accion', 'dirigida_a', 'como_se_desarrollaria', 'aliados', 'periodicidad', 'recursos', 'resultado_esperado'
 ];
 
 var MATRIZ2_HEADERS = [
-  'timestamp', 'id_envio', 'institucion', 'orden', 'personalizado', 'aspecto',
+  'timestamp', 'id_envio', 'institucion', 'nombre', 'orden', 'personalizado', 'aspecto',
   'situacion', 'accion_mejora', 'responsable', 'apoyo', 'tiempo', 'evidencia'
 ];
 
@@ -147,11 +152,11 @@ function doGet(e) {
     }
 
     if (action === 'getMatriz1') {
-      return jsonResponse_({ success: true, data: leerFilas_(SHEET_MATRIZ1) });
+      return jsonResponse_({ success: true, data: leerFilas_(SHEET_MATRIZ1, MATRIZ1_HEADERS) });
     }
 
     if (action === 'getMatriz2') {
-      return jsonResponse_({ success: true, data: leerFilas_(SHEET_MATRIZ2) });
+      return jsonResponse_({ success: true, data: leerFilas_(SHEET_MATRIZ2, MATRIZ2_HEADERS) });
     }
 
     return jsonResponse_({ success: false, error: 'Acción no reconocida: ' + action });
@@ -198,7 +203,7 @@ function listInstituciones_() {
 
 function submitMatriz1_(body) {
   var errors = [];
-  validarInstitucion_(body.institucion, errors);
+  var quien = validarIdentificacion_(body, errors);
   var filas = validarListaFilas_(body.filas, errors);
 
   filas.forEach(function (fila, i) {
@@ -216,13 +221,13 @@ function submitMatriz1_(body) {
     return [fila.categoria ? String(fila.categoria) : ''].concat(textos_(fila, MATRIZ1_CAMPOS));
   });
 
-  // 'categoria' es la 5.ª columna: desde ahí todo es texto plano.
-  return guardarEnvio_(SHEET_MATRIZ1, MATRIZ1_HEADERS.length, body.institucion, datos, 5);
+  // 'categoria' es la 6.ª columna: desde ahí todo es texto plano.
+  return guardarEnvio_(SHEET_MATRIZ1, MATRIZ1_HEADERS, quien, datos, 6);
 }
 
 function submitMatriz2_(body) {
   var errors = [];
-  validarInstitucion_(body.institucion, errors);
+  var quien = validarIdentificacion_(body, errors);
   var filas = validarListaFilas_(body.filas, errors);
 
   var aspectosVistos = {};
@@ -255,29 +260,31 @@ function submitMatriz2_(body) {
     return [personalizado, aspecto].concat(textos_(fila, MATRIZ2_CAMPOS));
   });
 
-  // 'personalizado' (col. 5) es booleano; el texto plano empieza en 'aspecto' (col. 6).
-  return guardarEnvio_(SHEET_MATRIZ2, MATRIZ2_HEADERS.length, body.institucion, datos, 6);
+  // 'personalizado' (col. 6) es booleano; el texto plano empieza en 'aspecto' (col. 7).
+  return guardarEnvio_(SHEET_MATRIZ2, MATRIZ2_HEADERS, quien, datos, 7);
 }
 
 /**
  * Escribe todas las filas de un envío de una sola vez, bajo bloqueo, para que
- * dos envíos simultáneos no intercalen sus filas. `colTextoDesde` (1-based) es
- * la primera columna de texto libre: se le pone formato "texto plano" antes de
- * escribir para que ningún valor que empiece con "=" o "+" se ejecute como
- * fórmula en la Sheet.
+ * dos envíos simultáneos no intercalen sus filas. Se les pone formato "texto
+ * plano" a institución/nombre (columnas 3-4) y a las columnas de texto libre
+ * (desde `colTextoDesde`, 1-based) antes de escribir, para que ningún valor
+ * que empiece con "=" o "+" se ejecute como fórmula en la Sheet.
  */
-function guardarEnvio_(sheetName, numColumnas, institucion, filasDatos, colTextoDesde) {
+function guardarEnvio_(sheetName, headers, quien, filasDatos, colTextoDesde) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
     var id = Utilities.getUuid();
     var timestamp = new Date();
+    var numColumnas = headers.length;
     var filas = filasDatos.map(function (datos, i) {
-      return [timestamp, id, institucion, i + 1].concat(datos);
+      return [timestamp, id, quien.institucion, quien.nombre, i + 1].concat(datos);
     });
 
-    var sheet = getSheet_(sheetName);
+    var sheet = getSheet_(sheetName, headers);
     var primeraFila = sheet.getLastRow() + 1;
+    sheet.getRange(primeraFila, 3, filas.length, 2).setNumberFormat('@');
     sheet
       .getRange(primeraFila, colTextoDesde, filas.length, numColumnas - colTextoDesde + 1)
       .setNumberFormat('@');
@@ -293,13 +300,20 @@ function guardarEnvio_(sheetName, numColumnas, institucion, filasDatos, colTexto
 // Validación (funciones puras, sin librería externa)
 // ---------------------------------------------------------------------------
 
-function validarInstitucion_(institucion, errors) {
-  var nombres = INSTITUCIONES_SEED.map(function (row) { return row[1]; });
-  if (!institucion) {
-    errors.push('institucion es requerida');
-  } else if (nombres.indexOf(institucion) === -1) {
-    errors.push('institucion no reconocida: ' + institucion);
-  }
+/** Institución y nombre son texto libre (no hay catálogo cerrado). Devuelve los valores limpios. */
+function validarIdentificacion_(body, errors) {
+  var institucion = limpiarTexto_(body.institucion);
+  var nombre = limpiarTexto_(body.nombre);
+  if (!institucion) errors.push('institucion es requerida');
+  else if (institucion.length > MAX_CARACTERES_CORTO) errors.push('institucion supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+  if (!nombre) errors.push('nombre es requerido');
+  else if (nombre.length > MAX_CARACTERES_CORTO) errors.push('nombre supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+  return { institucion: institucion, nombre: nombre };
+}
+
+/** Recorta y colapsa espacios internos: "  Univ.   de   Caldas " -> "Univ. de Caldas". */
+function limpiarTexto_(valor) {
+  return String(valor === undefined || valor === null ? '' : valor).trim().replace(/\s+/g, ' ');
 }
 
 function validarListaFilas_(filas, errors) {
@@ -337,8 +351,8 @@ function normalizarClave_(valor) {
 // Lectura genérica (usada por getMatriz1/getMatriz2)
 // ---------------------------------------------------------------------------
 
-function leerFilas_(sheetName) {
-  var sheet = getSheet_(sheetName);
+function leerFilas_(sheetName, headersEsperados) {
+  var sheet = getSheet_(sheetName, headersEsperados);
   var values = sheet.getDataRange().getValues();
   var headers = values[0];
   var idxIdEnvio = headers.indexOf('id_envio');
@@ -366,9 +380,28 @@ function leerFilas_(sheetName) {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function getSheet_(name) {
+/**
+ * `headers` (opcional) es el encabezado esperado del tab. Si el tab existe con
+ * otro encabezado y todavía no tiene filas de datos (caso: se agregó una
+ * columna después del setup), se reescribe solo, para no obligar a volver a
+ * ejecutar setup() a mano. Si ya tiene datos, falla con un mensaje claro en
+ * vez de desalinear columnas.
+ */
+function getSheet_(name, headers) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
   if (!sheet) throw new Error('No existe el tab "' + name + '". Ejecuta setup() primero.');
+  if (headers) {
+    var actuales = sheet.getLastRow() >= 1 ? sheet.getRange(1, 1, 1, headers.length).getValues()[0] : [];
+    var iguales = actuales.length === headers.length && actuales.every(function (h, i) { return h === headers[i]; });
+    if (!iguales) {
+      if (sheet.getLastRow() > 1) {
+        throw new Error('El tab "' + name + '" tiene datos con encabezados antiguos. Migra las columnas o ejecuta setup() (borra los datos).');
+      }
+      sheet.clear();
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+      sheet.setFrozenRows(1);
+    }
+  }
   return sheet;
 }
 

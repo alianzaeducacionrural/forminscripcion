@@ -1,17 +1,21 @@
 export default function RevisionMatriz({ config, datos, enviando, errorEnvio, onEditar, onConfirmar }) {
+  const tituloFila = (fila, i) =>
+    config.filasFijas.length > 0 ? fila.aspecto.trim() : `${config.etiquetaFila} ${i + 1}`;
+
   return (
     <section className="revision entra" aria-label="Revise antes de enviar">
       <h2>Revise antes de enviar</h2>
-      <p className="revision-institucion">
-        {datos.institucion} — {datos.filas.length} {datos.filas.length === 1 ? 'fila' : 'filas'}
+      <p className="revision-quien">
+        <strong>{datos.nombre.trim()}</strong> · {datos.institucion.trim()}
       </p>
 
       <ol className="revision-lista">
         {datos.filas.map((fila, i) => (
           <li key={fila.id} className="revision-item">
-            <span className="revision-item-pregunta">
-              {fila.fija ? fila.aspecto : config.filasFijas.length > 0 ? fila.aspecto : `${config.etiquetaFila} ${i + 1}`}
-              {fila.categoria ? ` · ${fila.categoria}` : ''}
+            <span className="revision-item-titulo">
+              <span className="revision-item-numero">{i + 1}</span>
+              {tituloFila(fila, i)}
+              {fila.categoria ? <em className="revision-item-categoria">{fila.categoria}</em> : null}
             </span>
             <dl className="revision-campos">
               {config.campos.map((c) => (
@@ -32,7 +36,7 @@ export default function RevisionMatriz({ config, datos, enviando, errorEnvio, on
       )}
 
       <div className="revision-acciones">
-        <button type="button" className="boton boton--secundario" onClick={onEditar} disabled={enviando}>
+        <button type="button" className="boton" onClick={onEditar} disabled={enviando}>
           Editar
         </button>
         <button type="button" className="boton boton--primario" onClick={onConfirmar} disabled={enviando}>

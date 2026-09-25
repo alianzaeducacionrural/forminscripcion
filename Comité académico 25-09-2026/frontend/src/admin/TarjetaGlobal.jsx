@@ -1,16 +1,12 @@
 export default function TarjetaGlobal({ totales, onAbrir }) {
   return (
-    <button type="button" className="ies-card ies-card--global" onClick={onAbrir} aria-label="Ver todas las IES">
-      <div className="ies-card-cabecera">
-        <span className="ies-card-nombre">Todas las IES</span>
-        <span className="ies-card-estado ies-card-estado--global">Consolidado</span>
-      </div>
-      <p className="ies-card-global-texto">
+    <button type="button" className="ies-card ies-card--global" style={{ '--i': 0 }} onClick={onAbrir} aria-label="Ver todas las instituciones">
+      <span className="ies-card-global-rotulo">Consolidado</span>
+      <span className="ies-card-global-titulo">Todas las instituciones</span>
+      <span className="ies-card-global-texto">
         {totales.acciones} acciones · {totales.aspectos} aspectos
-      </p>
-      <span className="ies-card-nota">
-        {totales.iesCompletas} de {totales.totalIES} IES con las dos matrices
       </span>
+      <span className="ies-card-global-cta">Ver todo →</span>
     </button>
   );
 }

@@ -1,108 +1,91 @@
+/* =====================================================================
+   Sistema visual — "Comité Académico"
+   Papel cálido + tinta, bordes gruesos, sombras duras (sin blur) y color
+   pleno. Cada matriz tiene su propio acento: Matriz 1 azul cobalto con
+   amarillo sol; Matriz 2 verde cafetal con naranja. El mismo par de colores
+   se repite en el formulario, en las tarjetas del panel y en el detalle.
+   ===================================================================== */
+
 :root {
-  /* Superficies — blanco-azulado muy claro, tarjetas blancas puras que
-     flotan encima con sombra teñida (no gris plano) */
-  --bg: #f5f7ff;
-  --surface: #ffffff;
-  --surface-muted: #f1f3fb;
-  --surface-band: #eef1fc;
+  --paper: #fff7e8;
+  --paper-2: #ffeed0;
+  --card: #ffffff;
 
-  /* Tinta */
-  --ink: #0f172a;
-  --ink-secondary: #475569;
-  --ink-tertiary: #64748b;
-  --ink-muted: #94a3b8;
+  --ink: #1b1712;
+  --ink-2: #4a4238;
+  --ink-3: #7a6f62;
+  --line: var(--ink);
+  --line-soft: #e6d9bf;
 
-  --border: #e2e8f0;
-  --border-strong: #c7d2e6;
+  --blue: #2f55ff;
+  --blue-deep: #1b34c9;
+  --blue-soft: #dfe6ff;
+  --sun: #ffc526;
+  --sun-soft: #fff0b5;
+  --green: #0f9d58;
+  --green-deep: #0a6a3b;
+  --green-soft: #d3f4df;
+  --orange: #ff7d1a;
+  --orange-soft: #ffe4c9;
+  --coral: #ff5c4d;
+  --coral-soft: #ffdcd7;
+  --violet: #7c4dff;
+  --violet-soft: #e6dcff;
 
-  /* Marca — índigo + violeta, en gradiente para las acciones primarias */
-  --primary: #4f46e5;
-  --primary-dark: #4338ca;
-  --secondary: #7c3aed;
-  --primary-gradient: linear-gradient(135deg, var(--primary), var(--secondary));
-  --primary-wash: rgba(79, 70, 229, 0.08);
-  --primary-shadow: rgba(79, 70, 229, 0.22);
+  --error: #d92d20;
+  --error-soft: #ffe3df;
 
-  /* Semántica */
-  --success: #16a34a;
-  --success-wash: rgba(22, 163, 74, 0.09);
-  --error: #dc2626;
-  --error-wash: rgba(220, 38, 38, 0.08);
-  --warning: #d97706;
-  --warning-wash: rgba(217, 119, 6, 0.1);
+  /* Acento activo (Matriz 1 por defecto) */
+  --acc: var(--blue);
+  --acc-deep: var(--blue-deep);
+  --acc-soft: var(--blue-soft);
+  --acc2: var(--sun);
+  --acc2-soft: var(--sun-soft);
+  --on-acc: #ffffff;
 
-  /* Colores de identidad por área del conocimiento — cada uno con su
-     tono base y su versión "wash" para el fondo del chip sin marcar.
-     Mismo mapeo que el proyecto hermano, por área real, no por posición. */
-  --area-indigo: #4f46e5;
-  --area-indigo-wash: rgba(79, 70, 229, 0.09);
-  --area-violeta: #9333ea;
-  --area-violeta-wash: rgba(147, 51, 234, 0.09);
-  --area-verde: #059669;
-  --area-verde-wash: rgba(5, 150, 105, 0.09);
-  --area-ambar: #d97706;
-  --area-ambar-wash: rgba(217, 119, 6, 0.1);
-  --area-rosa: #db2777;
-  --area-rosa-wash: rgba(219, 39, 119, 0.09);
+  --m1: var(--blue);
+  --m1-soft: var(--blue-soft);
+  --m2: var(--green);
+  --m2-soft: var(--green-soft);
 
-  /* Identidad por matriz: cada formulario tiene su propio color y se repite
-     igual en el formulario, en las tarjetas del panel y en el detalle. */
-  --m1: #4f46e5;
-  --m1-wash: rgba(79, 70, 229, 0.1);
-  --m2: #059669;
-  --m2-wash: rgba(5, 150, 105, 0.1);
+  --font-display: 'Bricolage Grotesque Variable', 'Arial Black', system-ui, sans-serif;
+  --font-body: 'Figtree Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
 
-  --radius-sm: 10px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
-  --radius-pill: 999px;
-
-  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.06);
-  --shadow-card: 0 4px 24px rgba(79, 70, 229, 0.1), 0 1px 3px rgba(15, 23, 42, 0.04);
-  --shadow-btn: 0 8px 20px var(--primary-shadow);
-
-  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Menlo, Consolas, monospace;
-
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
+  --text-xs: 0.78rem;
+  --text-sm: 0.9rem;
   --text-base: 1rem;
-  --text-md: 1.125rem;
-  --text-lg: 1.375rem;
-  --text-xl: 1.75rem;
-  --text-2xl: 2.25rem;
+  --text-md: 1.15rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
 
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
 
-  --sheet-max-width: 760px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  --borde: 3px solid var(--ink);
+  --sombra: 5px 5px 0 var(--ink);
+  --sombra-chica: 3px 3px 0 var(--ink);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ancho: 880px;
 }
 
-/* Tema de la Matriz 2: verde. `--primary-gradient` y `--shadow-btn` se
-   redefinen aquí porque un `var()` dentro de una propiedad personalizada se
-   resuelve donde se declara (:root), no donde se usa. */
+/* Matriz 2: verde cafetal + naranja */
 :root[data-tema='verde'] {
-  --primary: #059669;
-  --primary-dark: #047857;
-  --secondary: #0d9488;
-  --primary-gradient: linear-gradient(135deg, #059669, #0d9488);
-  --primary-wash: rgba(5, 150, 105, 0.08);
-  --primary-shadow: rgba(5, 150, 105, 0.22);
-  --shadow-btn: 0 8px 20px rgba(5, 150, 105, 0.22);
-  --shadow-card: 0 4px 24px rgba(5, 150, 105, 0.1), 0 1px 3px rgba(15, 23, 42, 0.04);
-}
-
-:root[data-tema='verde'] body {
-  background-image: radial-gradient(circle at 12% -10%, rgba(5, 150, 105, 0.08), transparent 45%),
-    radial-gradient(circle at 88% 0%, rgba(13, 148, 136, 0.06), transparent 40%);
+  --acc: var(--green);
+  --acc-deep: var(--green-deep);
+  --acc-soft: var(--green-soft);
+  --acc2: var(--orange);
+  --acc2-soft: var(--orange-soft);
 }
 
 * {
@@ -111,31 +94,42 @@
 
 html,
 body {
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 body {
-  background: var(--bg);
-  background-image: radial-gradient(circle at 12% -10%, rgba(79, 70, 229, 0.08), transparent 45%),
-    radial-gradient(circle at 88% 0%, rgba(124, 58, 237, 0.06), transparent 40%);
-  background-attachment: fixed;
+  background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  /* Trama de puntos: textura de papel sin imágenes */
+  background-image: radial-gradient(rgba(27, 23, 18, 0.11) 1.2px, transparent 1.4px);
+  background-size: 22px 22px;
 }
 
 #root {
   min-height: 100vh;
 }
 
-button {
-  font-family: inherit;
-  color: inherit;
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--ink);
 }
 
+p {
+  margin: 0;
+}
+
+button,
 input,
 select,
 textarea {
@@ -144,68 +138,194 @@ textarea {
   color: inherit;
 }
 
-a {
-  color: var(--primary);
-}
-
-h1,
-h2,
-h3 {
-  line-height: 1.15;
-  margin: 0;
-  color: var(--ink);
-  font-weight: 800;
-  letter-spacing: -0.01em;
-}
-
-p {
-  margin: 0;
-}
-
-fieldset {
-  border: none;
-  padding: 0;
-  margin: 0;
-}
-
-legend {
-  padding: 0;
-}
-
 ::selection {
-  background: var(--primary-wash);
+  background: var(--sun);
   color: var(--ink);
 }
 
 :focus-visible {
-  outline: 3px solid var(--primary);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 /* ---------------------------------------------------------------------
-   La "hoja": la tarjeta blanca que contiene todo el formulario y el
-   panel, flotando sobre el fondo con degradado suave.
+   Botones: relieve duro que se "hunde" al presionar
    --------------------------------------------------------------------- */
-.hoja {
-  max-width: var(--sheet-max-width);
-  margin: 0 auto;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  overflow: hidden;
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-base);
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--radius-pill);
+  border: var(--borde);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 140ms ease;
 }
 
-.hoja-ancha {
-  max-width: 1120px;
+.boton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
 }
 
-@media (max-width: 640px) {
-  .hoja {
-    border-left: none;
-    border-right: none;
-    border-radius: 0;
+.boton:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.boton--primario {
+  background: var(--acc);
+  color: var(--on-acc);
+  font-size: var(--text-md);
+  padding: 1rem 2.2rem;
+  box-shadow: var(--sombra);
+}
+
+.boton--primario:hover:not(:disabled) {
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.boton--chico {
+  font-size: var(--text-sm);
+  padding: 0.45rem 1rem;
+}
+
+.boton--texto {
+  border: none;
+  background: none;
+  box-shadow: none;
+  padding: var(--space-1) var(--space-2);
+  color: var(--error);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.boton--texto:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  background: var(--error-soft);
+}
+
+.boton--texto:active:not(:disabled) {
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------
+   Campos
+   --------------------------------------------------------------------- */
+
+.campo-etiqueta {
+  display: block;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  margin-bottom: var(--space-2);
+}
+
+.campo-opcional {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.campo-input,
+.campo-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  line-height: 1.45;
+  transition: box-shadow 140ms var(--ease-out), background-color 140ms ease, transform 140ms var(--ease-out);
+}
+
+.campo-input::placeholder {
+  color: var(--ink-3);
+}
+
+.campo-input:focus,
+.campo-select:focus {
+  outline: none;
+  background: var(--card);
+  box-shadow: 4px 4px 0 var(--acc);
+  transform: translate(-2px, -2px);
+}
+
+.campo-textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.campo-select {
+  appearance: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding-right: 2.6rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.campo-input--error {
+  border-color: var(--error);
+  background: var(--error-soft);
+}
+
+.campo-error {
+  color: var(--error);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------
+   Avisos y animación de entrada
+   --------------------------------------------------------------------- */
+
+.aviso {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-4);
+}
+
+.aviso--info {
+  background: var(--sun-soft);
+}
+
+.aviso--advertencia {
+  background: var(--coral-soft);
+}
+
+.entra {
+  animation: entra-arriba 420ms var(--ease-out) both;
+}
+
+@keyframes entra-arriba {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -213,6 +333,7 @@ legend {
   * {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
     transition-duration: 0.001ms !important;
   }
 }

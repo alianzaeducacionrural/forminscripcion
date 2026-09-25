@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Membrete from '../components/Membrete.jsx';
 import Progreso from '../components/Progreso.jsx';
 import Modal from '../components/Modal.jsx';
 import FilaMatriz from './FilaMatriz.jsx';
 import RevisionMatriz from './RevisionMatriz.jsx';
 import PantallaExito from './PantallaExito.jsx';
-import { INSTITUCIONES } from '../data/catalogos.js';
+import { INSTITUCIONES_SUGERIDAS, MAX_CORTO } from '../data/catalogos.js';
 import {
   armarPayload,
   calcularProgreso,
@@ -17,7 +16,6 @@ import {
 } from '../validar.js';
 import { createDraftStore } from '../storage.js';
 import { listInstituciones } from '../api.js';
-import '../formulario.css';
 import './matriz.css';
 
 /**
@@ -26,12 +24,15 @@ import './matriz.css';
  * solo hay comportamiento.
  */
 export default function MatrizForm({ config, enviar }) {
-  const store = useMemo(() => createDraftStore(`comite-academico-${config.id}-v1`), [config.id]);
+  const store = useMemo(() => createDraftStore(`comite-academico-${config.id}-v2`), [config.id]);
   // El borrador se lee una sola vez al montar (inicializador perezoso), no en un efecto.
   const [inicial] = useState(() => {
     const borrador = store.loadDraft();
     const conContenido =
-      borrador && (borrador.institucion || (borrador.filas || []).some((f) => f.accion || f.situacion));
+      borrador &&
+      (borrador.nombre ||
+        borrador.institucion ||
+        (borrador.filas || []).some((f) => f.accion || f.situacion));
     return conContenido
       ? { datos: restaurarBorrador(config, borrador), restaurado: true }
       : { datos: estadoInicial(config), restaurado: false };
@@ -69,6 +70,8 @@ export default function MatrizForm({ config, enviar }) {
   const progreso = useMemo(() => calcularProgreso(config, datos), [config, datos]);
 
   const visible = (idFila, clave) => intentado || Boolean(tocados[`${idFila}.${clave}`]);
+  const veError = (campo) => Boolean(errores[campo] && (intentado || tocados[campo]));
+  const nombreMatriz = config.titulo.replace(/^Matriz \d+\.\s*/, '');
 
   function cambiarFila(idFila, clave, valor) {
     setDatos((prev) => ({
@@ -95,7 +98,7 @@ export default function MatrizForm({ config, enviar }) {
     if (!esValido(errores)) {
       // Esperar al render con los errores visibles antes de buscar el primero.
       requestAnimationFrame(() => {
-        const primero = document.querySelector('.campo-input--error, .select-institucion--error');
+        const primero = document.querySelector('.campo-input--error');
         if (primero) primero.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
@@ -109,7 +112,7 @@ export default function MatrizForm({ config, enviar }) {
     try {
       await enviar(armarPayload(config, datos));
       store.clearDraft();
-      setResultado({ institucion: datos.institucion, totalFilas: datos.filas.length });
+      setResultado({ nombre: datos.nombre.trim(), institucion: datos.institucion.trim(), totalFilas: datos.filas.length });
       setMostrarModal(false);
     } catch (err) {
       setErrorEnvio(err.message || 'Error desconocido. Intente de nuevo.');
@@ -127,14 +130,9 @@ export default function MatrizForm({ config, enviar }) {
   if (resultado) {
     return (
       <div className="pagina">
-        <div className="hoja">
-          <PantallaExito
-            config={config}
-            institucion={resultado.institucion}
-            totalFilas={resultado.totalFilas}
-            onEnviarOtra={volverAEditar}
-          />
-        </div>
+        <main className="contenedor contenedor--exito">
+          <PantallaExito config={config} resultado={resultado} onEnviarOtra={volverAEditar} />
+        </main>
       </div>
     );
   }
@@ -143,36 +141,56 @@ export default function MatrizForm({ config, enviar }) {
 
   return (
     <div className="pagina">
-      <div className="hoja">
-        <header className="encabezado">
-          <Membrete />
-          <div className="encabezado-cuerpo">
-            <h1>{config.titulo}</h1>
-            <p className="encabezado-subtitulo">{config.subtitulo}</p>
-            <Progreso respondidas={progreso.listos} total={progreso.total} />
+      <Progreso etiqueta={`Matriz ${config.numero}`} respondidas={progreso.listos} total={progreso.total} />
 
-            <div className="encabezado-objetivo">
-              <span className="encabezado-objetivo-rotulo">Pregunta orientadora</span>
-              <p>{config.pregunta}</p>
-            </div>
+      <header className="hero">
+        <div className="hero-formas" aria-hidden="true">
+          <span className="forma forma--circulo" />
+          <span className="forma forma--anillo" />
+          <span className="forma forma--cuadro" />
+          <span className="forma forma--punto" />
+        </div>
+        <span className="hero-numero" aria-hidden="true">
+          {config.numero}
+        </span>
+        <div className="hero-contenido">
+          <span className="hero-etiqueta">Comité Académico · 25 sep 2026</span>
+          <h1>
+            <span className="hero-matriz">Matriz {config.numero}</span>
+            {nombreMatriz}
+          </h1>
+          <p className="hero-subtitulo">{config.subtitulo}</p>
+        </div>
+      </header>
 
-            {config.categorias.length > 0 && (
-              <div className="guia-categorias">
-                <span className="guia-categorias-titulo">{config.categoriasTitulo}</span>
-                <ul className="guia-categorias-lista">
-                  {config.categorias.map((c) => (
-                    <li key={c}>{c}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
+      <main className="contenedor">
+        <section className="tarjeta tarjeta--pregunta entra">
+          <span className="sticker sticker--acc2">Pregunta orientadora</span>
+          <p className="pregunta-texto">{config.pregunta}</p>
+        </section>
 
-            {config.producto && (
-              <p className="encabezado-producto">
-                <strong>Producto:</strong> {config.producto}
-              </p>
-            )}
+        {config.categorias.length > 0 && (
+          <section className="tarjeta entra">
+            <h2 className="tarjeta-titulo">{config.categoriasTitulo}</h2>
+            <ul className="stickers">
+              {config.categorias.map((c, i) => (
+                <li key={c} className={`sticker sticker--${i % 5}`}>
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
+        {config.producto && (
+          <section className="producto entra">
+            <span className="producto-rotulo">Producto</span>
+            <p>{config.producto}</p>
+          </section>
+        )}
+
+        {(avisoBorrador || avisoConexion) && (
+          <div className="avisos">
             {avisoBorrador && (
               <p className="aviso aviso--info">Se restauró un borrador que tenía guardado en este dispositivo.</p>
             )}
@@ -183,33 +201,54 @@ export default function MatrizForm({ config, enviar }) {
               </p>
             )}
           </div>
-        </header>
+        )}
 
-        <section className="campo campo--institucion">
-          <label className="campo-etiqueta" htmlFor="institucion-select">
-            Institución de educación superior
-          </label>
-          <div className="select-envoltura">
-            <select
-              id="institucion-select"
-              className={`select-institucion ${errores.institucion && (intentado || tocados.institucion) ? 'select-institucion--error' : ''}`}
-              value={datos.institucion}
-              onChange={(e) => setDatos((prev) => ({ ...prev, institucion: e.target.value }))}
-              onBlur={() => setTocados((prev) => ({ ...prev, institucion: true }))}
-            >
-              <option value="" disabled>
-                Seleccione su institución…
-              </option>
-              {INSTITUCIONES.map((nombre) => (
-                <option key={nombre} value={nombre}>
-                  {nombre}
-                </option>
-              ))}
-            </select>
+        <section className="tarjeta entra" aria-labelledby="titulo-quien">
+          <h2 className="tarjeta-titulo" id="titulo-quien">
+            <span className="numerito">★</span> ¿Quién diligencia?
+          </h2>
+          <div className="grid-quien">
+            <div>
+              <label className="campo-etiqueta" htmlFor="nombre">
+                Su nombre
+              </label>
+              <input
+                id="nombre"
+                type="text"
+                className={`campo-input ${veError('nombre') ? 'campo-input--error' : ''}`}
+                value={datos.nombre}
+                maxLength={MAX_CORTO}
+                autoComplete="name"
+                placeholder="Nombre y apellido"
+                onChange={(e) => setDatos((prev) => ({ ...prev, nombre: e.target.value }))}
+                onBlur={() => setTocados((prev) => ({ ...prev, nombre: true }))}
+              />
+              {veError('nombre') && <p className="campo-error">{errores.nombre}</p>}
+            </div>
+            <div>
+              <label className="campo-etiqueta" htmlFor="institucion">
+                Institución
+              </label>
+              <input
+                id="institucion"
+                type="text"
+                list="instituciones-sugeridas"
+                className={`campo-input ${veError('institucion') ? 'campo-input--error' : ''}`}
+                value={datos.institucion}
+                maxLength={MAX_CORTO}
+                autoComplete="organization"
+                placeholder="Universidad, entidad u organización"
+                onChange={(e) => setDatos((prev) => ({ ...prev, institucion: e.target.value }))}
+                onBlur={() => setTocados((prev) => ({ ...prev, institucion: true }))}
+              />
+              <datalist id="instituciones-sugeridas">
+                {INSTITUCIONES_SUGERIDAS.map((n) => (
+                  <option key={n} value={n} />
+                ))}
+              </datalist>
+              {veError('institucion') && <p className="campo-error">{errores.institucion}</p>}
+            </div>
           </div>
-          {errores.institucion && (intentado || tocados.institucion) && (
-            <p className="campo-error">{errores.institucion}</p>
-          )}
         </section>
 
         <div className="filas-matriz">
@@ -230,18 +269,19 @@ export default function MatrizForm({ config, enviar }) {
           ))}
         </div>
 
-        <div className="agregar-fila">
-          <button type="button" className="boton-agregar" onClick={agregarFila}>
-            <span aria-hidden="true">+</span> {config.botonAgregar}
-          </button>
-        </div>
+        <button type="button" className="boton-agregar" onClick={agregarFila}>
+          <span className="boton-agregar-mas" aria-hidden="true">
+            +
+          </span>
+          {config.botonAgregar}
+        </button>
 
         <div className="acciones-finales">
           <button type="button" className="boton boton--primario" onClick={abrirRevision}>
-            Revisar y enviar
+            Revisar y enviar →
           </button>
         </div>
-      </div>
+      </main>
 
       {mostrarModal && (
         <Modal titulo="Revise antes de enviar" onCerrar={() => setMostrarModal(false)}>

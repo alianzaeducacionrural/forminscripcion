@@ -1,8 +1,7 @@
 .modal-fondo {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(2px);
+  background: rgba(27, 23, 18, 0.62);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -13,42 +12,43 @@
 
 .modal-panel {
   position: relative;
-  background: var(--surface);
+  background: var(--card);
+  border: var(--borde);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card), 0 20px 48px rgba(15, 23, 42, 0.28);
-  max-width: 560px;
+  box-shadow: 8px 8px 0 var(--ink);
+  max-width: 620px;
   width: 100%;
-  max-height: min(640px, 90vh);
+  max-height: min(720px, 90vh);
   overflow-y: auto;
   outline: none;
 }
 
 .modal-panel--grande {
-  max-width: 880px;
-  max-height: min(760px, 90vh);
+  max-width: 960px;
+  max-height: min(820px, 92vh);
 }
 
 .modal-cerrar {
   position: absolute;
   top: var(--space-3);
   right: var(--space-3);
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface-muted);
-  border: none;
+  background: var(--sun);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius-pill);
-  color: var(--ink-tertiary);
+  color: var(--ink);
   cursor: pointer;
-  z-index: 1;
-  transition: background-color 150ms ease, color 150ms ease;
+  z-index: 2;
+  transition: transform 140ms var(--ease-out), background-color 140ms ease;
 }
 
 .modal-cerrar:hover {
-  background: var(--error-wash);
-  color: var(--error);
+  background: var(--coral);
+  transform: rotate(90deg);
 }
 
 @keyframes modal-fondo-entra {
@@ -61,24 +61,17 @@
 }
 
 .modal-panel.entra {
-  animation: modal-panel-entra 220ms var(--ease-out) both;
+  animation: modal-panel-entra 260ms var(--ease-out) both;
 }
 
 @keyframes modal-panel-entra {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.97);
+    transform: translateY(18px) scale(0.97);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .modal-fondo,
-  .modal-panel.entra {
-    animation: none;
   }
 }
 
@@ -90,7 +83,9 @@
 
   .modal-panel {
     max-width: none;
-    max-height: 85vh;
+    max-height: 88vh;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom-width: 0;
+    box-shadow: none;
   }
 }

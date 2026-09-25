@@ -1,6 +1,7 @@
-// Catálogo cerrado de IES. Duplicado a propósito en backend/Code.js
-// (INSTITUCIONES_SEED): si cambia, se actualizan los dos y se hace `clasp push`.
-export const INSTITUCIONES = [
+// Institución y nombre son texto libre: participan también representantes de
+// entidades que no son universidades. Esta lista solo alimenta el autocompletado
+// del campo Institución (duplicada en backend/Code.js, INSTITUCIONES_SEED).
+export const INSTITUCIONES_SUGERIDAS = [
   'IES CINOC',
   'Universidad Autónoma de Manizales',
   'Universidad Católica de Manizales',
@@ -8,10 +9,13 @@ export const INSTITUCIONES = [
   'Universidad de Manizales',
 ];
 
+export const MAX_CORTO = 200;
+
 // Textos oficiales de las matrices transcritos de los documentos del Comité
 // Académico — no se parafrasean.
 export const MATRIZ_1 = {
   id: 'matriz1',
+  numero: '1',
   tema: 'indigo',
   titulo: 'Matriz 1. Internacionalización',
   subtitulo: 'Propuestas de las IES para La Universidad en el Campo',
@@ -50,6 +54,7 @@ export const MATRIZ_1 = {
 
 export const MATRIZ_2 = {
   id: 'matriz2',
+  numero: '2',
   tema: 'verde',
   titulo: 'Matriz 2. Fortalecimiento de la implementación del modelo por los docentes universitarios',
   subtitulo: 'Modelo de Educación Rural con Escuela Nueva',

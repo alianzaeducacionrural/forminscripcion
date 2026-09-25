@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import Membrete from '../components/Membrete.jsx';
 import Modal from '../components/Modal.jsx';
 import ResumenStats from './ResumenStats.jsx';
 import CategoriasBarra from './CategoriasBarra.jsx';
 import GridIES from './GridIES.jsx';
 import { DetalleIES, DetalleGlobal } from './DetalleIES.jsx';
-import { calcularTotales, distribucionCategorias, resumenPorIES } from './calculos.js';
+import { calcularTotales, distribucionCategorias, resumenPorInstitucion } from './calculos.js';
 import { getMatriz1, getMatriz2 } from '../api.js';
-import '../formulario.css';
 import './admin.css';
 
 const GLOBAL = '__global__';
@@ -17,7 +15,7 @@ export default function AdminPanel() {
   const [matriz2, setMatriz2] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
-  const [abierta, setAbierta] = useState(null); // null | GLOBAL | nombre de IES
+  const [abierta, setAbierta] = useState(null); // null | GLOBAL | clave de institución
 
   function cargar() {
     setCargando(true);
@@ -35,52 +33,58 @@ export default function AdminPanel() {
     cargar();
   }, []);
 
-  const resumenes = useMemo(() => resumenPorIES(matriz1, matriz2), [matriz1, matriz2]);
+  const resumenes = useMemo(() => resumenPorInstitucion(matriz1, matriz2), [matriz1, matriz2]);
   const totales = useMemo(() => calcularTotales(resumenes), [resumenes]);
   const categorias = useMemo(() => distribucionCategorias(resumenes), [resumenes]);
 
-  const resumenAbierto = abierta && abierta !== GLOBAL ? resumenes.find((r) => r.institucion === abierta) : null;
+  const resumenAbierto = abierta && abierta !== GLOBAL ? resumenes.find((r) => r.clave === abierta) : null;
   const primeraCarga = cargando && matriz1.length + matriz2.length === 0;
 
   return (
-    <div className="pagina pagina--admin">
-      <div className="hoja hoja-ancha">
-        <Membrete />
-        <div className="admin-encabezado">
+    <div className="admin">
+      <header className="admin-hero">
+        <div className="admin-hero-interior">
           <div>
+            <span className="admin-hero-etiqueta">Comité Académico · 25 sep 2026</span>
             <h1>Panel de coordinación</h1>
-            <p className="admin-encabezado-subtitulo">Comité Académico — La Universidad en el Campo</p>
+            <p>La Universidad en el Campo — Matrices 1 y 2</p>
           </div>
-          <button type="button" className="boton boton--secundario" onClick={cargar} disabled={cargando}>
-            {cargando ? 'Actualizando…' : 'Actualizar'}
+          <button type="button" className="boton" onClick={cargar} disabled={cargando}>
+            {cargando ? 'Actualizando…' : '↻ Actualizar'}
           </button>
         </div>
+      </header>
 
+      <main className="admin-cuerpo">
         {error ? (
-          <div className="admin-error">
+          <div className="admin-mensaje admin-mensaje--error">
             <p>{error}</p>
             <button type="button" className="boton boton--primario" onClick={cargar}>
               Reintentar
             </button>
           </div>
         ) : primeraCarga ? (
-          <p className="admin-cargando">Cargando información…</p>
+          <p className="admin-mensaje">Cargando información…</p>
         ) : (
           <>
             <ResumenStats totales={totales} />
             <GridIES
               resumenes={resumenes}
               totales={totales}
-              onAbrirIES={setAbierta}
+              onAbrirInstitucion={setAbierta}
               onAbrirGlobal={() => setAbierta(GLOBAL)}
             />
             <CategoriasBarra distribucion={categorias} />
           </>
         )}
-      </div>
+      </main>
 
-      {abierta && (
-        <Modal titulo={abierta === GLOBAL ? 'Todas las IES' : abierta} onCerrar={() => setAbierta(null)} ancho="grande">
+      {abierta && (resumenAbierto || abierta === GLOBAL) && (
+        <Modal
+          titulo={abierta === GLOBAL ? 'Todas las instituciones' : resumenAbierto.institucion}
+          onCerrar={() => setAbierta(null)}
+          ancho="grande"
+        >
           {abierta === GLOBAL ? <DetalleGlobal resumenes={resumenes} /> : <DetalleIES resumen={resumenAbierto} />}
         </Modal>
       )}

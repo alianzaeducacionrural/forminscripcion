@@ -1,0 +1,72 @@
+.progreso {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--paper);
+  border-bottom: var(--borde);
+}
+
+.progreso-interior {
+  max-width: var(--ancho);
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.progreso-etiqueta {
+  flex-shrink: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-sm);
+  background: var(--acc);
+  color: var(--on-acc);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 2px var(--space-3);
+}
+
+.progreso-barra {
+  flex: 1;
+  height: 16px;
+  background: var(--card);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.progreso-relleno {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--acc) 0 10px,
+    var(--acc-deep) 10px 20px
+  );
+  transition: transform 420ms var(--ease-out);
+}
+
+.progreso-texto {
+  flex-shrink: 0;
+  min-width: 4.5ch;
+  text-align: right;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.progreso--completo .progreso-relleno {
+  background: var(--acc2);
+}
+
+.progreso--completo .progreso-texto {
+  color: var(--acc-deep);
+}
+
+@media (max-width: 480px) {
+  .progreso-etiqueta {
+    display: none;
+  }
+}

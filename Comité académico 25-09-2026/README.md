@@ -14,22 +14,27 @@ Base: `https://alianzaeducacionrural.github.io/forminscripcion/comite-academico-
 
 ## Cómo funciona
 
-- **IES (catálogo cerrado, 5):** IES CINOC, Universidad Autónoma de Manizales, Universidad
-  Católica de Manizales, Universidad de Caldas, Universidad de Manizales. Duplicado en
-  `frontend/src/data/catalogos.js` y `backend/Code.js` (`INSTITUCIONES_SEED`): si cambia,
-  se actualizan los dos y se hace `clasp push`.
+- **Quién diligencia:** nombre e institución son **texto libre** (también participan
+  representantes de entidades que no son universidades). El campo Institución sugiere las 5
+  universidades (IES CINOC, Autónoma, Católica, de Caldas y de Manizales) con autocompletado,
+  pero acepta cualquier texto. La lista de sugerencias está en `frontend/src/data/catalogos.js`
+  y en `backend/Code.js` (`INSTITUCIONES_SEED`).
 - **Todos los campos de cada fila son obligatorios** (validado en el frontend y en el
   backend). La categoría orientadora de la Matriz 1 es lo único opcional.
-- **Reenvíos:** una IES puede volver a enviar para corregir. Los envíos anteriores quedan
-  en la Sheet como historial; el panel muestra como vigente el más reciente de cada IES.
+- **Reenvíos:** una persona puede volver a enviar para corregir. Los envíos anteriores quedan
+  en la Sheet como historial; el panel muestra como vigente el más reciente de cada pareja
+  institución + nombre. Las instituciones se agrupan sin distinguir tildes ni mayúsculas.
   Tras enviar, el botón "Enviar una versión corregida" reabre el formulario con los datos.
 - **Borrador:** lo escrito se guarda en el navegador (localStorage) hasta que se envía.
-- **Panel:** resumen (IES con cada matriz, acciones y aspectos registrados), tarjeta por
-  IES con el estado de cada matriz, distribución de acciones por categoría, detalle de cada
+- **Panel:** resumen (instituciones con cada matriz, acciones y aspectos registrados), tarjeta
+  por institución (solo aparecen las que ya enviaron algo) con el estado de cada matriz,
+  quién diligenció, distribución de acciones por categoría, detalle de cada
   IES, consolidado de todas y descarga de CSV por matriz.
 - Textos oficiales (preguntas orientadoras, categorías, encabezados de columna, producto,
   aspectos) transcritos de los documentos del Comité, en `catalogos.js`.
-- Colores: Matriz 1 índigo, Matriz 2 verde — iguales en formulario, tarjetas y detalle.
+- Diseño: papel cálido + tinta, bordes gruesos y sombras duras, Bricolage Grotesque + Figtree.
+  Matriz 1 azul cobalto con amarillo; Matriz 2 verde con naranja — iguales en formulario,
+  tarjetas y detalle. Sin logos.
 
 ## Estructura
 
@@ -43,7 +48,8 @@ Comité académico 25-09-2026/
 ```
 
 Sheet: tabs `Instituciones`, `Matriz1` (una fila por acción) y `Matriz2` (una fila por
-aspecto). Cada envío comparte `id_envio` y `timestamp`.
+aspecto). Cada envío comparte `id_envio`, `timestamp`, `institucion` y `nombre`. Si cambian
+los encabezados y el tab aún no tiene datos, el backend los reescribe solo.
 
 ## Backend (ya creado)
 

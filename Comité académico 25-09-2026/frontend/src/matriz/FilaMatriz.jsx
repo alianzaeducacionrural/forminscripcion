@@ -21,9 +21,7 @@ export default function FilaMatriz({
   const tituloLibre = config.filasFijas.length > 0 && fila.aspecto.trim();
   const titulo = fila.fija ? fila.aspecto : tituloLibre || `${config.etiquetaFila} ${indice + 1}`;
 
-  function mensaje(clave) {
-    return visibles(clave) ? errores[clave] : null;
-  }
+  const mensaje = (clave) => (visibles(clave) ? errores[clave] : null);
 
   return (
     <section className="fila-matriz entra" aria-labelledby={`${idBase}-titulo`}>
@@ -35,7 +33,7 @@ export default function FilaMatriz({
         {puedeQuitar && (
           <button
             type="button"
-            className="boton boton--texto fila-matriz-quitar"
+            className="boton boton--texto"
             onClick={onQuitar}
             aria-label={`Quitar ${titulo}`}
           >
@@ -68,22 +66,20 @@ export default function FilaMatriz({
             <label className="campo-etiqueta" htmlFor={`${idBase}-categoria`}>
               Categoría orientadora <span className="campo-opcional">(opcional)</span>
             </label>
-            <div className="select-envoltura">
-              <select
-                id={`${idBase}-categoria`}
-                className="select-institucion select-institucion--compacto"
-                value={fila.categoria}
-                onChange={(e) => onCambiar('categoria', e.target.value)}
-              >
-                <option value="">Sin categoría</option>
-                {config.categorias.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-                <option value="Otra">Otra</option>
-              </select>
-            </div>
+            <select
+              id={`${idBase}-categoria`}
+              className="campo-select"
+              value={fila.categoria}
+              onChange={(e) => onCambiar('categoria', e.target.value)}
+            >
+              <option value="">Sin categoría</option>
+              {config.categorias.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+              <option value="Otra">Otra</option>
+            </select>
           </div>
         )}
 

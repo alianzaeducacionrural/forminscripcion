@@ -1,38 +1,47 @@
 import { formatearFechaCorta } from './calculos.js';
 
 const ESTADO_LABEL = {
-  completo: 'Completo',
+  completo: '¡Completo!',
   parcial: 'Falta una matriz',
-  'sin-datos': 'Sin envíos',
 };
 
-function LineaMatriz({ clase, nombre, unidad, envio }) {
+const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+
+function LineaMatriz({ clase, nombre, unidad, envios }) {
+  const hay = envios.length > 0;
+  const filas = envios.reduce((suma, e) => suma + e.filas.length, 0);
+  const reciente = hay ? envios[0].fecha : null;
+
   return (
-    <div className={`ies-linea ies-linea--${clase} ${envio ? '' : 'ies-linea--pendiente'}`}>
-      <span className="ies-linea-nombre">{nombre}</span>
-      {envio ? (
-        <span className="ies-linea-dato">
-          {envio.filas.length} {envio.filas.length === 1 ? unidad[0] : unidad[1]} · {formatearFechaCorta(envio.fecha)}
+    <div className={`linea linea--${clase} ${hay ? '' : 'linea--pendiente'}`}>
+      <span className="linea-nombre">{nombre}</span>
+      {hay ? (
+        <span className="linea-dato">
+          {plural(filas, unidad[0], unidad[1])}
+          <span className="linea-sub">
+            {plural(envios.length, 'persona', 'personas')} · {formatearFechaCorta(reciente)}
+          </span>
         </span>
       ) : (
-        <span className="ies-linea-dato">Pendiente</span>
+        <span className="linea-dato">Pendiente</span>
       )}
     </div>
   );
 }
 
 /**
- * Tarjeta de una IES en la grilla. Las dos matrices se ven de un vistazo, cada
- * una en su color; una IES sin envíos se ve claramente distinta (borde punteado).
+ * Tarjeta de una institución en la grilla. Las dos matrices se ven de un
+ * vistazo, cada una en su color.
  */
-export default function IESCard({ resumen, onAbrir }) {
+export default function IESCard({ resumen, indice, onAbrir }) {
   const { institucion, m1, m2, estado } = resumen;
-  const reenvios = Math.max((m1?.totalEnvios || 1) - 1, 0) + Math.max((m2?.totalEnvios || 1) - 1, 0);
+  const personas = [...new Set([...m1, ...m2].map((e) => e.nombre))];
 
   return (
     <button
       type="button"
       className={`ies-card ies-card--${estado}`}
+      style={{ '--i': indice }}
       onClick={onAbrir}
       aria-label={`Ver detalle de ${institucion}`}
     >
@@ -40,13 +49,9 @@ export default function IESCard({ resumen, onAbrir }) {
         <span className="ies-card-nombre">{institucion}</span>
         <span className={`ies-card-estado ies-card-estado--${estado}`}>{ESTADO_LABEL[estado]}</span>
       </div>
-      <LineaMatriz clase="m1" nombre="Matriz 1" unidad={['acción', 'acciones']} envio={m1} />
-      <LineaMatriz clase="m2" nombre="Matriz 2" unidad={['aspecto', 'aspectos']} envio={m2} />
-      {reenvios > 0 && (
-        <span className="ies-card-nota">
-          {reenvios} {reenvios === 1 ? 'reenvío' : 'reenvíos'} · se muestra el más reciente
-        </span>
-      )}
+      <LineaMatriz clase="m1" nombre="Matriz 1" unidad={['acción', 'acciones']} envios={m1} />
+      <LineaMatriz clase="m2" nombre="Matriz 2" unidad={['aspecto', 'aspectos']} envios={m2} />
+      <span className="ies-card-personas">{personas.join(' · ')}</span>
     </button>
   );
 }

@@ -1,33 +1,41 @@
-import Membrete from './components/Membrete.jsx';
 import { MATRIZ_1, MATRIZ_2 } from './data/catalogos.js';
-import './formulario.css';
 import './landing.css';
+
+const PANELES = [
+  { config: MATRIZ_1, clase: 'azul', href: 'matriz-1/', nombre: 'Internacionalización' },
+  { config: MATRIZ_2, clase: 'verde', href: 'matriz-2/', nombre: 'Fortalecimiento de la implementación del modelo' },
+];
 
 export default function Landing() {
   return (
-    <div className="pagina">
-      <div className="hoja">
-        <Membrete />
-        <div className="landing-cuerpo">
-          <h1>Comité Académico</h1>
-          <p className="landing-subtitulo">
-            La Universidad en el Campo. Cada institución de educación superior diligencia las dos
-            matrices de trabajo.
-          </p>
-          <div className="landing-opciones">
-            <a className="landing-opcion landing-opcion--m1" href="matriz-1/">
-              <span className="landing-opcion-etiqueta">Matriz 1</span>
-              <span className="landing-opcion-titulo">Internacionalización</span>
-              <span className="landing-opcion-detalle">{MATRIZ_1.subtitulo}</span>
-            </a>
-            <a className="landing-opcion landing-opcion--m2" href="matriz-2/">
-              <span className="landing-opcion-etiqueta">Matriz 2</span>
-              <span className="landing-opcion-titulo">Fortalecimiento de la implementación del modelo</span>
-              <span className="landing-opcion-detalle">{MATRIZ_2.subtitulo}</span>
-            </a>
-          </div>
-        </div>
-      </div>
+    <div className="landing">
+      <header className="landing-cabecera">
+        <span className="landing-fecha">25 · 09 · 2026</span>
+        <h1>
+          Comité
+          <br />
+          Académico
+        </h1>
+        <p className="landing-subtitulo">
+          La Universidad en el Campo. Elija la matriz que va a diligenciar: cada una se envía por separado.
+        </p>
+      </header>
+
+      <main className="landing-paneles">
+        {PANELES.map(({ config, clase, href, nombre }) => (
+          <a key={href} className={`panel panel--${clase}`} href={href}>
+            <span className="panel-numero" aria-hidden="true">
+              {config.numero}
+            </span>
+            <span className="panel-etiqueta">Matriz {config.numero}</span>
+            <span className="panel-titulo">{nombre}</span>
+            <span className="panel-detalle">{config.subtitulo}</span>
+            <span className="panel-cta">
+              Diligenciar <span aria-hidden="true">→</span>
+            </span>
+          </a>
+        ))}
+      </main>
     </div>
   );
 }

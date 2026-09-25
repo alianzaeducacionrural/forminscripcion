@@ -1,6 +1,3 @@
-import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/plus-jakarta-sans/500.css';
-import '@fontsource/plus-jakarta-sans/600.css';
-import '@fontsource/plus-jakarta-sans/700.css';
-import '@fontsource/plus-jakarta-sans/800.css';
+import '@fontsource-variable/bricolage-grotesque/index.css';
+import '@fontsource-variable/figtree/index.css';
 import './index.css';
