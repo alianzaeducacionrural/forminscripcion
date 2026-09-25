@@ -104,20 +104,6 @@
   transform: scale(1.06) rotate(-3deg);
 }
 
-.panel-etiqueta {
-  position: relative;
-  align-self: flex-start;
-  font-weight: 800;
-  font-size: var(--text-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background: var(--p2);
-  color: var(--ink);
-  border: 2.5px solid var(--ink);
-  border-radius: var(--radius-pill);
-  padding: 2px var(--space-4);
-}
-
 .panel-titulo {
   position: relative;
   margin-top: auto;

@@ -9,7 +9,7 @@ export default function Progreso({ respondidas, total, etiqueta }) {
   return (
     <div className={`progreso ${completo ? 'progreso--completo' : ''}`} role="status" aria-live="polite">
       <div className="progreso-interior">
-        <span className="progreso-etiqueta">{etiqueta}</span>
+        {etiqueta && <span className="progreso-etiqueta">{etiqueta}</span>}
         <div className="progreso-barra">
           <div className="progreso-relleno" style={{ transform: `scaleX(${fraccion})` }} />
         </div>

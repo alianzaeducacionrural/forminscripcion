@@ -141,7 +141,7 @@ export default function MatrizForm({ config, enviar }) {
 
   return (
     <div className="pagina">
-      <Progreso etiqueta={`Matriz ${config.numero}`} respondidas={progreso.listos} total={progreso.total} />
+      <Progreso respondidas={progreso.listos} total={progreso.total} />
 
       <header className="hero">
         <div className="hero-formas" aria-hidden="true">
@@ -155,10 +155,7 @@ export default function MatrizForm({ config, enviar }) {
         </span>
         <div className="hero-contenido">
           <span className="hero-etiqueta">Comité Académico · 25 sep 2026</span>
-          <h1>
-            <span className="hero-matriz">Matriz {config.numero}</span>
-            {nombreMatriz}
-          </h1>
+          <h1>{nombreMatriz}</h1>
           <p className="hero-subtitulo">{config.subtitulo}</p>
         </div>
       </header>

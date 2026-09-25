@@ -27,7 +27,6 @@ export default function Landing() {
             <span className="panel-numero" aria-hidden="true">
               {config.numero}
             </span>
-            <span className="panel-etiqueta">Matriz {config.numero}</span>
             <span className="panel-titulo">{nombre}</span>
             <span className="panel-detalle">{config.subtitulo}</span>
             <span className="panel-cta">
