@@ -481,7 +481,6 @@
   --c: var(--m1);
   --cs: var(--m1-soft);
   padding: var(--space-5);
-  border-top: var(--borde);
 }
 
 .detalle-seccion--verde {
@@ -493,14 +492,77 @@
   margin-bottom: var(--space-4);
 }
 
-.detalle-seccion-titulo {
-  font-size: var(--text-lg);
-  display: inline-block;
-  background: var(--c);
-  color: #fff;
+.detalle-resumen {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-md);
+}
+
+/* Pestañas: un botón por matriz, fijas arriba del modal mientras se desplaza el contenido */
+.pestanas {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--space-5);
+  background: var(--card);
+  border-top: var(--borde);
+  border-bottom: var(--borde);
+}
+
+.pestana {
+  --c: var(--m1);
+  --cs: var(--m1-soft);
+  flex: 1 1 260px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--card);
+  color: var(--ink);
   border: 2.5px solid var(--ink);
   border-radius: var(--radius-pill);
-  padding: 2px var(--space-4);
+  box-shadow: var(--sombra-chica);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-base);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 140ms ease;
+}
+
+.pestana--verde {
+  --c: var(--m2);
+  --cs: var(--m2-soft);
+}
+
+.pestana:hover {
+  background: var(--cs);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.pestana--activa,
+.pestana--activa:hover {
+  background: var(--c);
+  color: #fff;
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.pestana-conteo {
+  flex-shrink: 0;
+  min-width: 2.2ch;
+  text-align: center;
+  padding: 0 var(--space-2);
+  background: var(--card);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
 }
 
 .envios {
@@ -649,7 +711,8 @@
   }
 
   .institucion-detalle h2,
-  .detalle-filtro {
+  .detalle-filtro,
+  .pestanas {
     padding-left: var(--space-4);
     padding-right: var(--space-4);
   }

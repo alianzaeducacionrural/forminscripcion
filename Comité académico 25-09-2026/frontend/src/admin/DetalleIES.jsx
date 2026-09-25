@@ -4,6 +4,9 @@ import { MATRIZ_1, MATRIZ_2 } from '../data/catalogos.js';
 import { filasParaCSV, formatearFecha } from './calculos.js';
 import { descargarCSV } from './csv.js';
 
+const plural = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
+const contarFilas = (envios) => envios.reduce((suma, e) => suma + e.filas.length, 0);
+
 function Envio({ config, envio, mostrarInstitucion }) {
   return (
     <div className="envio">
@@ -20,11 +23,16 @@ function Envio({ config, envio, mostrarInstitucion }) {
   );
 }
 
-function Seccion({ config, titulo, envios, mostrarInstitucion, nombreArchivo }) {
+/** Contenido de una matriz: resumen, descarga en CSV y los envíos vigentes de cada persona. */
+function PanelMatriz({ config, unidad, envios, mostrarInstitucion, nombreArchivo }) {
   return (
-    <section className={`detalle-seccion detalle-seccion--${config.tema}`}>
+    <div className={`detalle-seccion detalle-seccion--${config.tema}`}>
       <div className="bloque-cabecera">
-        <h3 className="detalle-seccion-titulo">{titulo}</h3>
+        <p className="detalle-resumen">
+          {envios.length === 0
+            ? 'Todavía no hay envíos de esta matriz.'
+            : `${plural(contarFilas(envios), unidad[0], unidad[1])} · ${plural(envios.length, 'persona', 'personas')}`}
+        </p>
         {envios.length > 0 && (
           <button
             type="button"
@@ -36,7 +44,7 @@ function Seccion({ config, titulo, envios, mostrarInstitucion, nombreArchivo }) 
         )}
       </div>
       {envios.length === 0 ? (
-        <p className="vacio">Todavía no hay envíos de esta matriz.</p>
+        <p className="vacio">Cuando alguien envíe esta matriz, aparecerá aquí.</p>
       ) : (
         <div className="envios">
           {envios.map((envio) => (
@@ -44,20 +52,78 @@ function Seccion({ config, titulo, envios, mostrarInstitucion, nombreArchivo }) 
           ))}
         </div>
       )}
-    </section>
+    </div>
   );
 }
 
-const TITULO_1 = 'Matriz 1 · Internacionalización';
-const TITULO_2 = 'Matriz 2 · Fortalecimiento de la implementación del modelo';
+const MATRICES = [
+  { id: 'm1', config: MATRIZ_1, nombre: 'Internacionalización', unidad: ['acción', 'acciones'] },
+  { id: 'm2', config: MATRIZ_2, nombre: 'Fortalecimiento del modelo', unidad: ['aspecto', 'aspectos'] },
+];
 
-/** Detalle de una institución: las dos matrices con los envíos vigentes de cada persona. */
+/**
+ * Dos botones (pestañas) para ver la información de la Matriz 1 o de la Matriz 2.
+ * Abre en la primera que tenga datos.
+ */
+function DetallePorMatriz({ enviosPorMatriz, mostrarInstitucion, sufijoArchivo }) {
+  const [activa, setActiva] = useState(() => (enviosPorMatriz.m1.length === 0 && enviosPorMatriz.m2.length > 0 ? 'm2' : 'm1'));
+  const actual = MATRICES.find((m) => m.id === activa);
+
+  function elegir(e, id) {
+    setActiva(id);
+    // El contenido cambia de largo: volver arriba para no quedar a mitad de la otra matriz.
+    e.currentTarget.closest('.modal-panel')?.scrollTo({ top: 0 });
+  }
+
+  return (
+    <>
+      <div className="pestanas" role="tablist" aria-label="Matriz a consultar">
+        {MATRICES.map((m) => {
+          const envios = enviosPorMatriz[m.id];
+          return (
+            <button
+              key={m.id}
+              type="button"
+              role="tab"
+              id={`pestana-${m.id}`}
+              aria-selected={activa === m.id}
+              aria-controls="panel-matriz"
+              className={`pestana pestana--${m.config.tema} ${activa === m.id ? 'pestana--activa' : ''}`}
+              onClick={(e) => elegir(e, m.id)}
+            >
+              <span className="pestana-titulo">
+                Matriz {m.config.numero} · {m.nombre}
+              </span>
+              <span className="pestana-conteo">{contarFilas(envios)}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div id="panel-matriz" role="tabpanel" aria-labelledby={`pestana-${actual.id}`}>
+        <PanelMatriz
+          key={actual.id}
+          config={actual.config}
+          unidad={actual.unidad}
+          envios={enviosPorMatriz[actual.id]}
+          mostrarInstitucion={mostrarInstitucion}
+          nombreArchivo={`${actual.id === 'm1' ? 'matriz1' : 'matriz2'}-${sufijoArchivo}.csv`}
+        />
+      </div>
+    </>
+  );
+}
+
+/** Detalle de una institución: pestañas con los envíos vigentes de cada persona en cada matriz. */
 export function DetalleIES({ resumen }) {
   return (
     <div className="institucion-detalle entra">
       <h2>{resumen.institucion}</h2>
-      <Seccion config={MATRIZ_1} titulo={TITULO_1} envios={resumen.m1} nombreArchivo={`matriz1-${resumen.institucion}.csv`} />
-      <Seccion config={MATRIZ_2} titulo={TITULO_2} envios={resumen.m2} nombreArchivo={`matriz2-${resumen.institucion}.csv`} />
+      <DetallePorMatriz
+        enviosPorMatriz={{ m1: resumen.m1, m2: resumen.m2 }}
+        mostrarInstitucion={false}
+        sufijoArchivo={resumen.institucion}
+      />
     </div>
   );
 }
@@ -66,9 +132,9 @@ export function DetalleIES({ resumen }) {
 export function DetalleGlobal({ resumenes }) {
   const [filtro, setFiltro] = useState('');
 
-  const { envios1, envios2 } = useMemo(() => {
+  const enviosPorMatriz = useMemo(() => {
     const visibles = filtro ? resumenes.filter((r) => r.clave === filtro) : resumenes;
-    return { envios1: visibles.flatMap((r) => r.m1), envios2: visibles.flatMap((r) => r.m2) };
+    return { m1: visibles.flatMap((r) => r.m1), m2: visibles.flatMap((r) => r.m2) };
   }, [resumenes, filtro]);
 
   const sufijo = filtro ? resumenes.find((r) => r.clave === filtro)?.institucion : 'todas';
@@ -92,8 +158,7 @@ export function DetalleGlobal({ resumenes }) {
         </select>
         <span className="detalle-filtro-nota">Se muestra el envío más reciente de cada persona.</span>
       </div>
-      <Seccion config={MATRIZ_1} titulo={TITULO_1} envios={envios1} mostrarInstitucion nombreArchivo={`matriz1-${sufijo}.csv`} />
-      <Seccion config={MATRIZ_2} titulo={TITULO_2} envios={envios2} mostrarInstitucion nombreArchivo={`matriz2-${sufijo}.csv`} />
+      <DetallePorMatriz enviosPorMatriz={enviosPorMatriz} mostrarInstitucion sufijoArchivo={sufijo} />
     </div>
   );
 }
