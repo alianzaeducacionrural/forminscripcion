@@ -127,7 +127,6 @@ export default function FilaMatriz({
                           onTocar(c.clave);
                         }}
                       />
-                      <span className="valoracion-punto" aria-hidden="true" />
                       {op.etiqueta}
                     </label>
                   ))}

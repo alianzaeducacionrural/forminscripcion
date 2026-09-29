@@ -388,16 +388,17 @@
 }
 
 .valoracion-opcion {
-  --cs: var(--card);
   --fill: var(--ink);
   --texto: #fff;
   position: relative;
   flex: 1;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  justify-content: center;
+  text-align: center;
   padding: var(--space-3) var(--space-4);
-  background: var(--cs);
+  /* Neutro hasta que se seleccione: el color solo aparece al marcar la opción. */
+  background: var(--card);
   border: 2.5px solid var(--ink);
   border-radius: var(--radius-sm);
   font-weight: 700;
@@ -414,29 +415,16 @@
   height: 1px;
 }
 
-.valoracion-punto {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 2.5px solid var(--ink);
-  background: var(--card);
-  transition: background-color 140ms ease;
-}
-
 .valoracion-opcion--verde {
-  --cs: var(--green-soft);
   --fill: var(--green);
 }
 
 .valoracion-opcion--amarillo {
-  --cs: var(--sun-soft);
   --fill: var(--sun);
   --texto: var(--ink);
 }
 
 .valoracion-opcion--rojo {
-  --cs: var(--error-soft);
   --fill: var(--error);
 }
 
@@ -449,10 +437,6 @@
   background: var(--fill);
   color: var(--texto);
   box-shadow: var(--sombra-chica);
-}
-
-.valoracion-opcion--activa .valoracion-punto {
-  background: var(--texto);
 }
 
 /* Chip de valoración en la pantalla de revisión */

@@ -34,11 +34,14 @@
  * `clasp create-script --type sheets`), así que usa
  * SpreadsheetApp.getActiveSpreadsheet() — no requiere SPREADSHEET_ID.
  *
- * Configuración requerida antes de compartir los enlaces:
+ * Configuración inicial (ya hecha; se deja documentada):
  *   1. Ejecutar una vez setup() manualmente desde el editor (crea los tabs
  *      Instituciones/Matriz1/Matriz2 con encabezados y siembra el catálogo).
  *   2. Desplegar como Web App (`clasp create-deployment`).
- *   3. Antes de compartir los enlaces, ejecutar limpiarRegistrosDePrueba().
+ *
+ * ⚠️ Los enlaces YA están compartidos y la Sheet YA tiene envíos reales. No
+ * ejecutar limpiarRegistrosDePrueba() (borra todo, real incluido). Para borrar
+ * solo pruebas hechas por un agente/automatización, usar eliminarPruebasDelAgente().
  */
 
 var SHEET_INSTITUCIONES = 'Instituciones';
@@ -134,9 +137,12 @@ function setup() {
 }
 
 /**
- * Borra TODAS las filas de datos de Matriz1 y Matriz2 (deja los encabezados).
- * Ejecutar manualmente una sola vez desde el editor, antes de compartir los
- * enlaces reales, para limpiar los registros de prueba.
+ * ⚠️ DESTRUCTIVA: borra TODAS las filas de datos de Matriz1 y Matriz2 (deja los
+ * encabezados), sin distinguir entre registros de prueba y envíos reales. Los
+ * enlaces de este formulario YA se compartieron y ya tienen envíos reales —
+ * NO ejecutar esta función a menos que la intención sea vaciar también esos
+ * envíos reales. Para borrar solo las filas de prueba de este agente, usar
+ * eliminarPruebasDelAgente() en su lugar.
  */
 function limpiarRegistrosDePrueba() {
   [SHEET_MATRIZ1, SHEET_MATRIZ2].forEach(function (nombre) {
@@ -148,6 +154,31 @@ function limpiarRegistrosDePrueba() {
     }
     sheet.deleteRows(2, ultimaFila - 1);
     Logger.log('Se borraron ' + (ultimaFila - 1) + ' filas de ' + nombre + '.');
+  });
+}
+
+/**
+ * Borra únicamente las filas cuyo nombre de quien diligencia sea exactamente
+ * MARCA_PRUEBA_AGENTE ("PRUEBA AUTOMÁTICA - BORRAR"), en Matriz1 y Matriz2.
+ * A diferencia de limpiarRegistrosDePrueba(), es seguro ejecutarla con envíos
+ * reales ya en la Sheet: solo toca filas con esa marca exacta.
+ */
+function eliminarPruebasDelAgente() {
+  var marca = 'PRUEBA AUTOMÁTICA - BORRAR';
+  [SHEET_MATRIZ1, SHEET_MATRIZ2].forEach(function (nombreHoja) {
+    var sheet = getSheet_(nombreHoja);
+    var values = sheet.getDataRange().getValues();
+    var headers = values[0];
+    var idxNombre = headers.indexOf('nombre');
+    var borradas = 0;
+    // De abajo hacia arriba: borrar una fila no debe desplazar los índices pendientes.
+    for (var i = values.length - 1; i >= 1; i--) {
+      if (values[i][idxNombre] === marca) {
+        sheet.deleteRow(i + 1);
+        borradas++;
+      }
+    }
+    Logger.log('Se borraron ' + borradas + ' filas de prueba en ' + nombreHoja + '.');
   });
 }
 
