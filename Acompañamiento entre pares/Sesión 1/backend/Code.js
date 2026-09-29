@@ -163,6 +163,49 @@ function setup() {
 }
 
 /**
+ * Fuerza la pantalla de autorización de Gmail, Docs y Drive — los permisos
+ * que necesita "Mi primer reto de acompañamiento" para generar el PDF y
+ * enviarlo por correo — y manda un correo de prueba con un PDF adjunto a
+ * quien la ejecute, para confirmar que quedaron bien autorizados sin tener
+ * que diligenciar el formulario completo.
+ *
+ * Ejecutar UNA VEZ desde el editor de Apps Script: elegir esta función en el
+ * desplegable, presionar Ejecutar, y autorizar cuando lo pida (Configuración
+ * avanzada → Ir a … → Permitir). No toca la Sheet ni deja archivos sueltos
+ * en Drive — el documento de prueba se manda a la papelera apenas se envía
+ * el correo, igual que en enviarPlanPorCorreo_.
+ */
+function autorizarPermisosDeCorreo() {
+  var yo = Session.getEffectiveUser().getEmail();
+
+  var doc = DocumentApp.create('Prueba de permisos — Acompañamiento entre Pares');
+  doc.getBody().appendParagraph(
+    'Este documento confirma que Apps Script puede crear Google Docs, exportarlos a PDF y ' +
+    'enviarlos por Gmail — los tres permisos que usa "Mi primer reto de acompañamiento".'
+  );
+  doc.saveAndClose();
+
+  var pdf = DriveApp.getFileById(doc.getId()).getAs(MimeType.PDF);
+  pdf.setName('Prueba de permisos.pdf');
+
+  try {
+    MailApp.sendEmail({
+      to: yo,
+      subject: 'Prueba de permisos — Acompañamiento entre Pares',
+      body:
+        'Si recibiste este correo con un PDF adjunto, los permisos de Gmail, Docs y Drive quedaron ' +
+        'autorizados correctamente. Ya se puede probar "Mi primer reto de acompañamiento" de verdad.',
+      attachments: [pdf],
+      name: 'Acompañamiento entre Pares',
+    });
+  } finally {
+    DriveApp.getFileById(doc.getId()).setTrashed(true);
+  }
+
+  Logger.log('Correo de prueba enviado a ' + yo + '. Revisa la bandeja de entrada (y la carpeta de spam).');
+}
+
+/**
  * Borra TODAS las filas de datos de Experimentados y Nuevos (deja los
  * encabezados). Ejecutar manualmente una sola vez desde el editor, antes de
  * compartir los enlaces reales, para limpiar los registros de prueba.
