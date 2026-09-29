@@ -28,9 +28,6 @@ export default function Landing() {
         <main className="landing-paneles">
           {PANELES.map(({ config, clase, href }) => (
             <a key={href} className={`panel panel--${clase}`} href={href}>
-              <span className="panel-inicial" aria-hidden="true">
-                {config.subtitulo.includes('nuevos') ? 'N' : 'E'}
-              </span>
               <span className="panel-titulo">{config.titulo}</span>
               <span className="panel-subtitulo">{config.subtitulo}</span>
               <span className="panel-detalle">{config.pregunta}</span>

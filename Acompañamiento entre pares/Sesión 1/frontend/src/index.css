@@ -1,74 +1,52 @@
 /* =====================================================================
-   Sistema visual — "Acompañamiento entre Pares"
-   Papel cálido + tinta, bordes gruesos, sombras duras (sin blur) y color
-   pleno (mismo lenguaje que los formularios hermanos de la organización).
-   Cada herramienta tiene su propio acento: "Mi capital de experiencia"
-   (rectores experimentados) en ámbar/tierra — un color maduro, de oficio;
-   "Mi mapa de necesidades" (rectores nuevos) en turquesa — fresco, de
-   arranque. El semáforo de valoración (verde/amarillo/azul) es fijo y no
-   cambia con el tema: son sus propios tres colores con significado.
+   Sistema visual — "Acompañamiento entre Pares" (minimalista y limpio)
+   Fondo casi blanco, tarjetas con borde fino y sombra apenas perceptible,
+   un solo acento por herramienta (ámbar en "experimentados", turquesa en
+   "nuevos"), usado con moderación — en etiquetas y chips pequeños, nunca
+   en superficies grandes. El semáforo de valoración (verde/ámbar/azul) es
+   fijo y no cambia con el tema de la página.
    ===================================================================== */
 
 :root {
-  --paper: #fff7e8;
-  --paper-2: #ffeed0;
-  --card: #ffffff;
+  --paper: #F6F6F4;
+  --card: #FFFFFF;
 
-  --ink: #1b1712;
-  --ink-2: #4a4238;
-  --ink-3: #7a6f62;
-  --line: var(--ink);
-  --line-soft: #e6d9bf;
+  --ink: #16181D;
+  --ink-strong: #101216;
+  --ink-2: #4A4F57;
+  --ink-3: #6B7280;
+  --line: #E4E5E8;
+  --line-soft: #EFF0F1;
 
-  --blue: #2f55ff;
-  --blue-deep: #1b34c9;
-  --blue-soft: #dfe6ff;
-  --sun: #ffc526;
-  --sun-soft: #fff0b5;
-  --green: #0f9d58;
-  --green-deep: #0a6a3b;
-  --green-soft: #d3f4df;
-  --orange: #ff7d1a;
-  --orange-soft: #ffe4c9;
-  --coral: #ff5c4d;
-  --coral-soft: #ffdcd7;
-  --violet: #7c4dff;
-  --violet-soft: #e6dcff;
-
-  --error: #d92d20;
-  --error-soft: #ffe3df;
+  --field-bg: #FBFBFA;
+  --field-border: #DADCE1;
 
   /* Acentos de cada herramienta */
-  --ambar: #d98c0a;
-  --ambar-deep: #a3670a;
-  --ambar-soft: #ffe6b8;
-  --turquesa: #0891b2;
-  --turquesa-deep: #0b6577;
-  --turquesa-soft: #cdf1f7;
+  --ambar: #93590F;
+  --ambar-deep: #6E430A;
+  --ambar-soft: #F5EAD8;
+  --turquesa: #146356;
+  --turquesa-deep: #0E4B41;
+  --turquesa-soft: #E1F0EC;
 
   /* Acento activo (Experimentados por defecto; cada página fija data-tema) */
   --acc: var(--ambar);
   --acc-deep: var(--ambar-deep);
   --acc-soft: var(--ambar-soft);
-  --acc2: var(--coral);
-  --acc2-soft: var(--coral-soft);
-  --on-acc: #ffffff;
-
-  --exp: var(--ambar);
-  --exp-soft: var(--ambar-soft);
-  --nue: var(--turquesa);
-  --nue-soft: var(--turquesa-soft);
 
   /* Semáforo de valoración: fijo, no depende del tema de la página */
-  --val-domina: var(--green);
-  --val-domina-soft: var(--green-soft);
-  --val-fortaleciendo: #c9960a;
-  --val-fortaleciendo-soft: var(--sun-soft);
-  --val-aprender: var(--blue);
-  --val-aprender-soft: var(--blue-soft);
+  --val-domina: #16794A;
+  --val-domina-soft: #E7F5ED;
+  --val-fortaleciendo: #A8740B;
+  --val-fortaleciendo-soft: #FBF1DC;
+  --val-aprender: #1E56C8;
+  --val-aprender-soft: #E8EEFC;
 
-  --font-display: 'Bricolage Grotesque Variable', 'Arial Black', system-ui, sans-serif;
-  --font-body: 'Figtree Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --error: #C0271A;
+  --error-soft: #FBEAE8;
+
+  --font-display: 'Space Grotesk Variable', system-ui, sans-serif;
+  --font-body: 'Manrope Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
 
   /* Escala de texto: mínimo 14px para que se lea bien en pantalla y en móvil */
   --text-xs: 0.875rem;
@@ -87,25 +65,23 @@
   --space-7: 48px;
   --space-8: 64px;
 
-  --radius-sm: 12px;
-  --radius-md: 20px;
-  --radius-lg: 28px;
+  --radius-sm: 10px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
   --radius-pill: 999px;
 
-  --borde: 3px solid var(--ink);
-  --sombra: 5px 5px 0 var(--ink);
-  --sombra-chica: 3px 3px 0 var(--ink);
+  --borde: 1px solid var(--line);
+  --sombra: 0 1px 2px rgba(16, 18, 22, 0.04), 0 10px 24px rgba(16, 18, 22, 0.05);
+  --sombra-chica: 0 1px 2px rgba(16, 18, 22, 0.05);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ancho: 1040px;
+  --ancho: 720px;
 }
 
-/* Rectores nuevos: turquesa + amarillo sol */
+/* Rectores nuevos: turquesa */
 :root[data-tema='turquesa'] {
   --acc: var(--turquesa);
   --acc-deep: var(--turquesa-deep);
   --acc-soft: var(--turquesa-soft);
-  --acc2: var(--sun);
-  --acc2-soft: var(--sun-soft);
 }
 
 * {
@@ -125,9 +101,6 @@ body {
   font-size: var(--text-base);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  /* Trama de puntos: textura de papel sin imágenes */
-  background-image: radial-gradient(rgba(27, 23, 18, 0.11) 1.2px, transparent 1.4px);
-  background-size: 22px 22px;
 }
 
 #root {
@@ -138,11 +111,11 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
   margin: 0;
-  color: var(--ink);
+  color: var(--ink-strong);
 }
 
 p {
@@ -159,18 +132,35 @@ textarea {
 }
 
 ::selection {
-  background: var(--sun);
-  color: var(--ink);
+  background: var(--acc-soft);
+  color: var(--ink-strong);
 }
 
 :focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-  border-radius: 6px;
+  outline: 2px solid var(--ink-strong);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ---------------------------------------------------------------------
-   Botones: relieve duro que se "hunde" al presionar
+   Etiqueta pequeña (eyebrow / chip informativo)
+   --------------------------------------------------------------------- */
+
+.etiqueta {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--acc);
+  background: var(--acc-soft);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+}
+
+/* ---------------------------------------------------------------------
+   Botones
    --------------------------------------------------------------------- */
 
 .boton {
@@ -181,46 +171,47 @@ textarea {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: var(--text-base);
-  padding: 0.8rem 1.6rem;
+  padding: 0.7rem 1.4rem;
   border-radius: var(--radius-pill);
-  border: var(--borde);
+  border: 1px solid var(--line);
   background: var(--card);
   color: var(--ink);
-  box-shadow: var(--sombra-chica);
+  box-shadow: none;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 140ms ease;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms var(--ease-out);
 }
 
 .boton:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 var(--ink);
+  background: var(--paper);
+  border-color: var(--ink-3);
 }
 
 .boton:active:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--ink);
+  transform: translateY(1px);
 }
 
 .boton:disabled {
   cursor: not-allowed;
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
 .boton--primario {
-  background: var(--acc);
-  color: var(--on-acc);
+  background: var(--ink-strong);
+  color: #ffffff;
+  border-color: var(--ink-strong);
   font-size: var(--text-md);
-  padding: 1rem 2.2rem;
-  box-shadow: var(--sombra);
+  padding: 0.85rem 1.8rem;
+  box-shadow: var(--sombra-chica);
 }
 
 .boton--primario:hover:not(:disabled) {
-  box-shadow: 8px 8px 0 var(--ink);
+  background: #24262c;
+  border-color: #24262c;
 }
 
 .boton--chico {
   font-size: var(--text-sm);
-  padding: 0.45rem 1rem;
+  padding: 0.4rem 0.9rem;
 }
 
 .boton--texto {
@@ -236,7 +227,6 @@ textarea {
 
 .boton--texto:hover:not(:disabled) {
   transform: none;
-  box-shadow: none;
   background: var(--error-soft);
 }
 
@@ -250,9 +240,9 @@ textarea {
 
 .campo-etiqueta {
   display: block;
-  font-weight: 800;
+  font-weight: 700;
   font-size: var(--text-sm);
-  color: var(--ink);
+  color: var(--ink-2);
   margin-bottom: var(--space-2);
 }
 
@@ -264,12 +254,12 @@ textarea {
 .campo-input,
 .campo-select {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: var(--paper);
-  border: 2.5px solid var(--ink);
+  padding: 0.7rem 0.9rem;
+  background: var(--field-bg);
+  border: 1px solid var(--field-border);
   border-radius: var(--radius-sm);
   line-height: 1.45;
-  transition: box-shadow 140ms var(--ease-out), background-color 140ms ease, transform 140ms var(--ease-out);
+  transition: border-color 140ms ease, background-color 140ms ease, box-shadow 140ms ease;
 }
 
 .campo-input::placeholder {
@@ -280,8 +270,8 @@ textarea {
 .campo-select:focus {
   outline: none;
   background: var(--card);
-  box-shadow: 4px 4px 0 var(--acc);
-  transform: translate(-2px, -2px);
+  border-color: var(--ink-3);
+  box-shadow: 0 0 0 3px var(--acc-soft);
 }
 
 .campo-textarea {
@@ -293,9 +283,9 @@ textarea {
   appearance: none;
   cursor: pointer;
   font-weight: 600;
-  padding-right: 2.6rem;
-  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
-    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  padding-right: 2.4rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%),
+    linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
   background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
   background-size: 6px 6px, 6px 6px;
   background-repeat: no-repeat;
@@ -321,27 +311,29 @@ textarea {
   font-weight: 600;
   font-size: var(--text-sm);
   padding: var(--space-3) var(--space-4);
-  border: 2.5px solid var(--ink);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
   margin-top: var(--space-4);
 }
 
 .aviso--info {
-  background: var(--sun-soft);
+  background: var(--acc-soft);
+  border-color: transparent;
 }
 
 .aviso--advertencia {
-  background: var(--coral-soft);
+  background: var(--val-fortaleciendo-soft);
+  border-color: transparent;
 }
 
 .entra {
-  animation: entra-arriba 420ms var(--ease-out) both;
+  animation: entra-arriba 380ms var(--ease-out) both;
 }
 
 @keyframes entra-arriba {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;

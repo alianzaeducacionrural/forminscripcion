@@ -6,28 +6,24 @@
 }
 
 .sello-estrella {
-  width: 132px;
-  height: 132px;
+  width: 88px;
+  height: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ink);
-  background: var(--acc2);
-  /* Estrella de 12 puntas */
-  clip-path: polygon(
-    50% 0%, 60% 12%, 75% 6.7%, 79% 21%, 93.3% 25%, 88% 40%, 100% 50%, 88% 60%,
-    93.3% 75%, 79% 79%, 75% 93.3%, 60% 88%, 50% 100%, 40% 88%, 25% 93.3%, 21% 79%,
-    6.7% 75%, 12% 60%, 0% 50%, 12% 40%, 6.7% 25%, 21% 21%, 25% 6.7%, 40% 12%
-  );
-  animation: sello-entra 800ms 80ms var(--ease-out) both;
+  color: var(--acc);
+  background: var(--acc-soft);
+  border-radius: 50%;
+  animation: sello-entra 500ms var(--ease-out) both;
 }
 
 .sello-texto {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--text-md);
-  letter-spacing: 0.12em;
-  margin-top: var(--space-2);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  color: var(--ink-2);
+  margin-top: var(--space-1);
 }
 
 .sello-fecha {
@@ -38,11 +34,11 @@
 
 @keyframes sello-entra {
   from {
-    transform: scale(0.2) rotate(-120deg);
+    transform: scale(0.7);
     opacity: 0;
   }
   to {
-    transform: scale(1) rotate(0deg);
+    transform: scale(1);
     opacity: 1;
   }
 }
