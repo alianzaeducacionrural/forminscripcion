@@ -155,14 +155,22 @@ export default function HerramientaForm({ config, enviar }) {
       <Progreso respondidas={progreso.listos} total={progreso.total} />
 
       <header className="hero">
-        <span className="etiqueta">Acompañamiento entre Pares · Sesión 1</span>
-        <h1>{config.titulo}</h1>
-        <p className="hero-subtitulo">{config.subtitulo}</p>
+        <div className="hero-formas" aria-hidden="true">
+          <span className="forma forma--circulo" />
+          <span className="forma forma--anillo" />
+          <span className="forma forma--cuadro" />
+          <span className="forma forma--punto" />
+        </div>
+        <div className="hero-contenido">
+          <span className="hero-etiqueta">Acompañamiento entre Pares · Sesión 1</span>
+          <h1>{config.titulo}</h1>
+          <p className="hero-subtitulo">{config.subtitulo}</p>
+        </div>
       </header>
 
       <main className="contenedor">
-        <section className="tarjeta entra">
-          <span className="pregunta-rotulo">Pregunta orientadora</span>
+        <section className="tarjeta tarjeta--pregunta entra">
+          <span className="sticker sticker--acc2">Pregunta orientadora</span>
           <p className="pregunta-texto">{config.pregunta}</p>
         </section>
 
