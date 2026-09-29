@@ -4,9 +4,10 @@ import Membrete from '../components/Membrete.jsx';
 import ResumenStats from './ResumenStats.jsx';
 import DistribucionValoracion from './DistribucionValoracion.jsx';
 import GridInstituciones from './GridInstituciones.jsx';
+import PlanesAccion from './PlanesAccion.jsx';
 import { DetalleInstitucion, DetalleGlobal } from './DetalleInstitucion.jsx';
-import { calcularTotales, distribucionValoracion, resumenPorInstitucion } from './calculos.js';
-import { getExperimentados, getNuevos } from '../api.js';
+import { calcularTotales, distribucionValoracion, planesVigentes, resumenPorInstitucion } from './calculos.js';
+import { getExperimentados, getNuevos, getPlanAccion } from '../api.js';
 import './admin.css';
 
 const GLOBAL = '__global__';
@@ -14,6 +15,7 @@ const GLOBAL = '__global__';
 export default function AdminPanel() {
   const [experimentados, setExperimentados] = useState([]);
   const [nuevos, setNuevos] = useState([]);
+  const [planAccion, setPlanAccion] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [abierta, setAbierta] = useState(null); // null | GLOBAL | clave de institución
@@ -21,10 +23,11 @@ export default function AdminPanel() {
   function cargar() {
     setCargando(true);
     setError(null);
-    Promise.all([getExperimentados(), getNuevos()])
-      .then(([exp, nue]) => {
+    Promise.all([getExperimentados(), getNuevos(), getPlanAccion()])
+      .then(([exp, nue, plan]) => {
         setExperimentados(exp);
         setNuevos(nue);
+        setPlanAccion(plan);
       })
       .catch((err) => setError(err.message || 'No se pudo cargar la información.'))
       .finally(() => setCargando(false));
@@ -35,11 +38,13 @@ export default function AdminPanel() {
   }, []);
 
   const resumenes = useMemo(() => resumenPorInstitucion(experimentados, nuevos), [experimentados, nuevos]);
-  const totales = useMemo(() => calcularTotales(resumenes), [resumenes]);
+  const totalesBase = useMemo(() => calcularTotales(resumenes), [resumenes]);
+  const planes = useMemo(() => planesVigentes(planAccion), [planAccion]);
+  const totales = useMemo(() => ({ ...totalesBase, planes: planes.length }), [totalesBase, planes]);
   const valoracion = useMemo(() => distribucionValoracion(resumenes), [resumenes]);
 
   const resumenAbierto = abierta && abierta !== GLOBAL ? resumenes.find((r) => r.clave === abierta) : null;
-  const primeraCarga = cargando && experimentados.length + nuevos.length === 0;
+  const primeraCarga = cargando && experimentados.length + nuevos.length + planAccion.length === 0;
 
   return (
     <div className="admin">
@@ -77,6 +82,7 @@ export default function AdminPanel() {
               onAbrirGlobal={() => setAbierta(GLOBAL)}
             />
             <DistribucionValoracion distribucion={valoracion} />
+            <PlanesAccion planes={planes} />
           </>
         )}
       </main>

@@ -18,6 +18,7 @@ export default defineConfig({
         main: resolve(import.meta.dirname, 'index.html'),
         experimentados: resolve(import.meta.dirname, 'experimentados/index.html'),
         nuevos: resolve(import.meta.dirname, 'nuevos/index.html'),
+        planAccion: resolve(import.meta.dirname, 'plan-accion/index.html'),
         admin: resolve(import.meta.dirname, 'admin/index.html'),
       },
     },

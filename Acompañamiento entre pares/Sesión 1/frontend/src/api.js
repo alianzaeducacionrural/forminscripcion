@@ -77,3 +77,11 @@ export function getExperimentados() {
 export function getNuevos() {
   return get('getNuevos');
 }
+
+export function submitPlanAccion(payload) {
+  return post('submitPlanAccion', payload);
+}
+
+export function getPlanAccion() {
+  return get('getPlanAccion');
+}

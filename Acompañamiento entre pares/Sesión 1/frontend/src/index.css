@@ -5,8 +5,10 @@
    Cada herramienta tiene su propio acento: "Mi capital de experiencia"
    (rectores con experiencia) en ámbar/tierra — un color maduro, de oficio;
    "Mi mapa de necesidades" (rectores nuevos) en turquesa — fresco, de
-   arranque. El semáforo de valoración (verde/amarillo/azul) es fijo y no
-   cambia con el tema: son sus propios tres colores con significado.
+   arranque; "Mi primer reto de acompañamiento" (plan de la dupla) en
+   violeta — compromiso, cierre. El semáforo de valoración
+   (verde/amarillo/azul) es fijo y no cambia con el tema: son sus propios
+   tres colores con significado.
    ===================================================================== */
 
 :root {
@@ -45,6 +47,9 @@
   --turquesa: #0891b2;
   --turquesa-deep: #0b6577;
   --turquesa-soft: #cdf1f7;
+  --violeta: #7c4dff;
+  --violeta-deep: #5327d6;
+  --violeta-soft: #e6dcff;
 
   /* Acento activo (Experimentados por defecto; cada página fija data-tema) */
   --acc: var(--ambar);
@@ -104,6 +109,15 @@
   --acc: var(--turquesa);
   --acc-deep: var(--turquesa-deep);
   --acc-soft: var(--turquesa-soft);
+  --acc2: var(--sun);
+  --acc2-soft: var(--sun-soft);
+}
+
+/* Plan de acción de la dupla: violeta + amarillo sol */
+:root[data-tema='violeta'] {
+  --acc: var(--violeta);
+  --acc-deep: var(--violeta-deep);
+  --acc-soft: var(--violeta-soft);
   --acc2: var(--sun);
   --acc2-soft: var(--sun-soft);
 }

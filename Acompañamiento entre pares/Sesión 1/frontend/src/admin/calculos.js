@@ -107,6 +107,69 @@ export function distribucionValoracion(resumenes) {
   });
 }
 
+/**
+ * Igual que enviosVigentes, pero para PlanAccion: la identidad de un envío es
+ * la pareja (nombre del rector con experiencia, nombre del rector nuevo), no
+ * institución + nombre — una dupla puede cruzar dos instituciones distintas.
+ * Devuelve una lista de planes vigentes con sus acciones ordenadas.
+ */
+export function planesVigentes(filas) {
+  const porDupla = new Map();
+  filas.forEach((fila) => {
+    const clave = `${normalizar(fila.nombre_experimentado)}|${normalizar(fila.nombre_nuevo)}`;
+    if (!porDupla.has(clave)) porDupla.set(clave, new Map());
+    const envios = porDupla.get(clave);
+    if (!envios.has(fila.id_envio)) envios.set(fila.id_envio, []);
+    envios.get(fila.id_envio).push(fila);
+  });
+
+  const vigentes = [];
+  porDupla.forEach((envios) => {
+    let elegido = null;
+    envios.forEach((filasEnvio, idEnvio) => {
+      const fecha = filasEnvio[0].timestamp;
+      if (!elegido || fecha > elegido.fecha) elegido = { idEnvio, fecha, filas: filasEnvio };
+    });
+    const primera = elegido.filas[0];
+    vigentes.push({
+      idEnvio: elegido.idEnvio,
+      fecha: elegido.fecha,
+      institucionExperimentado: primera.institucion_experimentado,
+      nombreExperimentado: primera.nombre_experimentado,
+      correoExperimentado: primera.correo_experimentado,
+      institucionNuevo: primera.institucion_nuevo,
+      nombreNuevo: primera.nombre_nuevo,
+      correoNuevo: primera.correo_nuevo,
+      compromiso: primera.compromiso,
+      acciones: [...elegido.filas].sort((a, b) => a.orden - b.orden),
+      totalEnvios: envios.size,
+    });
+  });
+  return vigentes.sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+}
+
+/** Filas para CSV: una fila por acción de la dupla, con toda la identificación repetida. */
+export function filasParaCSVPlan(planes) {
+  return planes.flatMap((plan) =>
+    plan.acciones.map((fila) => ({
+      institucion_experimentado: plan.institucionExperimentado,
+      nombre_experimentado: plan.nombreExperimentado,
+      correo_experimentado: plan.correoExperimentado,
+      institucion_nuevo: plan.institucionNuevo,
+      nombre_nuevo: plan.nombreNuevo,
+      correo_nuevo: plan.correoNuevo,
+      fecha_envio: plan.fecha,
+      orden: fila.orden,
+      reto: fila.reto,
+      accion: fila.accion,
+      responsable: fila.responsable,
+      fecha: fila.fecha,
+      evidencia: fila.evidencia,
+      compromiso: plan.compromiso,
+    }))
+  );
+}
+
 /** Filas para CSV: institución, quién diligenció, fecha del envío y una columna por campo de la herramienta. */
 export function filasParaCSV(config, envios) {
   return envios.flatMap((envio) =>
