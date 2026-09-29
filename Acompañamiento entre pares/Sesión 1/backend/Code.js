@@ -47,8 +47,9 @@ var MAX_CARACTERES = 2000;
 var MAX_CARACTERES_CORTO = 200;
 
 // Solo SUGERENCIAS para el campo Institución (el frontend las ofrece como
-// autocompletado; el campo acepta cualquier texto). Duplicado en
-// frontend/src/data/catalogos.js (INSTITUCIONES_SUGERIDAS).
+// lista cerrada — el frontend usa un <select> con estos mismos nombres
+// (frontend/src/data/catalogos.js, INSTITUCIONES_MANIZALES), y aquí se valida
+// que el envío traiga una de estas (ver validarIdentificacion_).
 var INSTITUCIONES_SEED = [
   ['IE01', 'Giovanni Montini'],
   ['IE02', 'Granada'],
@@ -300,10 +301,18 @@ function validarIdentificacion_(body, errors) {
   var institucion = limpiarTexto_(body.institucion);
   var nombre = limpiarTexto_(body.nombre);
   if (!institucion) errors.push('institucion es requerida');
-  else if (institucion.length > MAX_CARACTERES_CORTO) errors.push('institucion supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+  else if (!institucionValida_(institucion)) errors.push('institucion no reconocida: ' + institucion);
   if (!nombre) errors.push('nombre es requerido');
   else if (nombre.length > MAX_CARACTERES_CORTO) errors.push('nombre supera ' + MAX_CARACTERES_CORTO + ' caracteres');
   return { institucion: institucion, nombre: nombre };
+}
+
+/** La institución es una lista cerrada (INSTITUCIONES_SEED): el frontend la
+ * ofrece como <select>, y aquí se valida por si acaso, sin distinguir tildes
+ * ni mayúsculas. */
+function institucionValida_(institucion) {
+  var clave = normalizarClave_(institucion);
+  return INSTITUCIONES_SEED.some(function (fila) { return normalizarClave_(fila[1]) === clave; });
 }
 
 /** `idEnvio` es opcional; si viene debe ser un identificador simple (letras, dígitos y guiones). */
