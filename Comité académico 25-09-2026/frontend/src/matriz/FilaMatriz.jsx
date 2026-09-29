@@ -1,4 +1,4 @@
-import { MAX_CARACTERES } from '../data/catalogos.js';
+import { MAX_CARACTERES, VALORACION_OPCIONES } from '../data/catalogos.js';
 
 /**
  * Una fila de la matriz como tarjeta: en la hoja original es una fila de tabla
@@ -102,23 +102,58 @@ export default function FilaMatriz({
           </div>
         )}
 
-        {config.campos.map((c, i) => (
-          <div key={c.clave} className={`fila-campo ${i === 0 && config.categorias.length > 0 ? 'fila-campo--ancho' : ''}`}>
-            <label className="campo-etiqueta" htmlFor={`${idBase}-${c.clave}`}>
-              {c.etiqueta}
-            </label>
-            <textarea
-              id={`${idBase}-${c.clave}`}
-              className={`campo-input campo-textarea ${mensaje(c.clave) ? 'campo-input--error' : ''}`}
-              rows={3}
-              maxLength={MAX_CARACTERES}
-              value={fila[c.clave]}
-              onChange={(e) => onCambiar(c.clave, e.target.value)}
-              onBlur={() => onTocar(c.clave)}
-            />
-            {mensaje(c.clave) && <p className="campo-error">{errores[c.clave]}</p>}
-          </div>
-        ))}
+        {config.campos.map((c, i) => {
+          if (c.tipo === 'valoracion') {
+            return (
+              <div key={c.clave} className="fila-campo fila-campo--ancho">
+                <span className="campo-etiqueta" id={`${idBase}-${c.clave}-label`}>
+                  {c.etiqueta}
+                </span>
+                <div className="valoracion" role="radiogroup" aria-labelledby={`${idBase}-${c.clave}-label`}>
+                  {VALORACION_OPCIONES.map((op) => (
+                    <label
+                      key={op.valor}
+                      className={`valoracion-opcion valoracion-opcion--${op.color} ${
+                        fila[c.clave] === op.valor ? 'valoracion-opcion--activa' : ''
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`${idBase}-${c.clave}`}
+                        value={op.valor}
+                        checked={fila[c.clave] === op.valor}
+                        onChange={() => {
+                          onCambiar(c.clave, op.valor);
+                          onTocar(c.clave);
+                        }}
+                      />
+                      <span className="valoracion-punto" aria-hidden="true" />
+                      {op.etiqueta}
+                    </label>
+                  ))}
+                </div>
+                {mensaje(c.clave) && <p className="campo-error">{errores[c.clave]}</p>}
+              </div>
+            );
+          }
+          return (
+            <div key={c.clave} className={`fila-campo ${i === 0 && config.categorias.length > 0 ? 'fila-campo--ancho' : ''}`}>
+              <label className="campo-etiqueta" htmlFor={`${idBase}-${c.clave}`}>
+                {c.etiqueta}
+              </label>
+              <textarea
+                id={`${idBase}-${c.clave}`}
+                className={`campo-input campo-textarea ${mensaje(c.clave) ? 'campo-input--error' : ''}`}
+                rows={3}
+                maxLength={MAX_CARACTERES}
+                value={fila[c.clave]}
+                onChange={(e) => onCambiar(c.clave, e.target.value)}
+                onBlur={() => onTocar(c.clave)}
+              />
+              {mensaje(c.clave) && <p className="campo-error">{errores[c.clave]}</p>}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

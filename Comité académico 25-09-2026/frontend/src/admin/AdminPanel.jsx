@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import Modal from '../components/Modal.jsx';
 import ResumenStats from './ResumenStats.jsx';
 import CategoriasBarra from './CategoriasBarra.jsx';
+import ValoracionResumen from './ValoracionResumen.jsx';
 import GridIES from './GridIES.jsx';
 import { DetalleIES, DetalleGlobal } from './DetalleIES.jsx';
-import { calcularTotales, distribucionCategorias, resumenPorInstitucion } from './calculos.js';
+import { calcularTotales, distribucionCategorias, distribucionValoracion, resumenPorInstitucion } from './calculos.js';
 import { getMatriz1, getMatriz2 } from '../api.js';
 import './admin.css';
 
@@ -36,6 +37,7 @@ export default function AdminPanel() {
   const resumenes = useMemo(() => resumenPorInstitucion(matriz1, matriz2), [matriz1, matriz2]);
   const totales = useMemo(() => calcularTotales(resumenes), [resumenes]);
   const categorias = useMemo(() => distribucionCategorias(resumenes), [resumenes]);
+  const valoracion = useMemo(() => distribucionValoracion(resumenes), [resumenes]);
 
   const resumenAbierto = abierta && abierta !== GLOBAL ? resumenes.find((r) => r.clave === abierta) : null;
   const primeraCarga = cargando && matriz1.length + matriz2.length === 0;
@@ -75,6 +77,7 @@ export default function AdminPanel() {
               onAbrirGlobal={() => setAbierta(GLOBAL)}
             />
             <CategoriasBarra distribucion={categorias} />
+            <ValoracionResumen distribucion={valoracion} />
           </>
         )}
       </main>

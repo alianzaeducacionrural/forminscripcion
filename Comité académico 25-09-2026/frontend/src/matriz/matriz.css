@@ -362,6 +362,121 @@
   border-radius: var(--radius-sm);
 }
 
+/* Igual, pero fuera del grid de una fila (campo "¿Cuál institución?" bajo el selector de universidad) */
+.campo-otra {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--acc2-soft);
+  border: 2.5px dashed var(--ink);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------------
+   Escala de valoración (3 opciones de color, Matriz 2)
+   --------------------------------------------------------------------- */
+
+.valoracion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .valoracion {
+    flex-direction: row;
+  }
+}
+
+.valoracion-opcion {
+  --cs: var(--card);
+  --fill: var(--ink);
+  --texto: #fff;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--cs);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 140ms ease,
+    color 140ms ease;
+}
+
+.valoracion-opcion input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.valoracion-punto {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid var(--ink);
+  background: var(--card);
+  transition: background-color 140ms ease;
+}
+
+.valoracion-opcion--verde {
+  --cs: var(--green-soft);
+  --fill: var(--green);
+}
+
+.valoracion-opcion--amarillo {
+  --cs: var(--sun-soft);
+  --fill: var(--sun);
+  --texto: var(--ink);
+}
+
+.valoracion-opcion--rojo {
+  --cs: var(--error-soft);
+  --fill: var(--error);
+}
+
+.valoracion-opcion:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--sombra-chica);
+}
+
+.valoracion-opcion--activa {
+  background: var(--fill);
+  color: var(--texto);
+  box-shadow: var(--sombra-chica);
+}
+
+.valoracion-opcion--activa .valoracion-punto {
+  background: var(--texto);
+}
+
+/* Chip de valoración en la pantalla de revisión */
+.chip-valoracion {
+  display: inline-block;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  padding: 2px var(--space-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+}
+
+.chip-valoracion--verde {
+  background: var(--green-soft);
+}
+
+.chip-valoracion--amarillo {
+  background: var(--sun-soft);
+}
+
+.chip-valoracion--rojo {
+  background: var(--error-soft);
+}
+
 @media (min-width: 720px) {
   .fila-matriz-cuerpo {
     grid-template-columns: 1fr 1fr;

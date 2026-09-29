@@ -200,6 +200,10 @@
   background: var(--m1-soft);
 }
 
+.chip--m2 {
+  background: var(--m2-soft);
+}
+
 .vacio {
   padding: var(--space-6) var(--space-4);
   text-align: center;
@@ -448,6 +452,39 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Variantes de color para la barra de valoración (Matriz 2) */
+.distribucion-fila-etiqueta--verde {
+  color: var(--green-deep);
+}
+
+.distribucion-fila-etiqueta--amarillo {
+  color: #8a6100;
+}
+
+.distribucion-fila-etiqueta--rojo {
+  color: var(--error);
+}
+
+.distribucion-fila-etiqueta--gris {
+  color: var(--ink-3);
+}
+
+.distribucion-fila-barra--verde {
+  background: var(--green);
+}
+
+.distribucion-fila-barra--amarillo {
+  background: var(--sun);
+}
+
+.distribucion-fila-barra--rojo {
+  background: var(--error);
+}
+
+.distribucion-fila-barra--gris {
+  background: var(--ink-3);
+}
+
 /* ---------------------------------------------------------------------
    Detalle (modal ancho)
    --------------------------------------------------------------------- */
@@ -667,6 +704,26 @@
   border: 2px solid var(--ink);
   border-radius: var(--radius-pill);
   padding: 0 var(--space-2);
+}
+
+.ficha-valoracion {
+  font-size: 0.875rem;
+  font-weight: 800;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3);
+}
+
+.ficha-valoracion--verde {
+  background: var(--green-soft);
+}
+
+.ficha-valoracion--amarillo {
+  background: var(--sun-soft);
+}
+
+.ficha-valoracion--rojo {
+  background: var(--error-soft);
 }
 
 .ficha-campos {

@@ -62,7 +62,7 @@ export function validarMatriz(config, datos) {
   if (vacio(datos.nombre)) errores.nombre = 'Escriba su nombre.';
   else if (datos.nombre.trim().length > MAX_CORTO) errores.nombre = `Máximo ${MAX_CORTO} caracteres.`;
 
-  if (vacio(datos.institucion)) errores.institucion = 'Escriba el nombre de su institución.';
+  if (vacio(datos.institucion)) errores.institucion = 'Seleccione su universidad o escriba la institución.';
   else if (datos.institucion.trim().length > MAX_CORTO) errores.institucion = `Máximo ${MAX_CORTO} caracteres.`;
 
   const aspectosVistos = new Set(config.filasFijas.map((a) => a.trim().toLowerCase()));
@@ -83,8 +83,11 @@ export function validarMatriz(config, datos) {
       else if (fila.categoriaOtra.trim().length > MAX_CORTO) e.categoriaOtra = `Máximo ${MAX_CORTO} caracteres.`;
     }
     config.campos.forEach((c) => {
-      if (vacio(fila[c.clave])) e[c.clave] = 'Este campo es obligatorio.';
-      else if (String(fila[c.clave]).length > MAX_CARACTERES) e[c.clave] = `Máximo ${MAX_CARACTERES} caracteres.`;
+      if (vacio(fila[c.clave])) {
+        e[c.clave] = c.tipo === 'valoracion' ? 'Seleccione una valoración.' : 'Este campo es obligatorio.';
+      } else if (String(fila[c.clave]).length > MAX_CARACTERES) {
+        e[c.clave] = `Máximo ${MAX_CARACTERES} caracteres.`;
+      }
     });
     if (Object.keys(e).length > 0) errores.filas[fila.id] = e;
   });

@@ -1,4 +1,4 @@
-import { MATRIZ_1, MATRIZ_2 } from '../data/catalogos.js';
+import { MATRIZ_1, MATRIZ_2, VALORACION_OPCIONES, valoracionPorValor } from '../data/catalogos.js';
 
 /** Clave de comparación: sin tildes, mayúsculas ni espacios de más. "Univ. de  Caldas" ≈ "univ. de caldas". */
 export function normalizar(texto) {
@@ -108,6 +108,25 @@ export function distribucionCategorias(resumenes) {
   return lista.sort((a, b) => b.total - a.total);
 }
 
+/** Cuántas estrategias vigentes hay en cada nivel de la escala de valoración (Matriz 2). */
+export function distribucionValoracion(resumenes) {
+  const conteo = new Map(VALORACION_OPCIONES.map((o) => [o.valor, 0]));
+  let sinValorar = 0;
+
+  resumenes.forEach((r) => {
+    r.m2.forEach((envio) =>
+      envio.filas.forEach((fila) => {
+        if (fila.valoracion && conteo.has(fila.valoracion)) conteo.set(fila.valoracion, conteo.get(fila.valoracion) + 1);
+        else sinValorar += 1;
+      })
+    );
+  });
+
+  const lista = VALORACION_OPCIONES.map((o) => ({ valor: o.valor, etiqueta: o.etiqueta, color: o.color, total: conteo.get(o.valor) }));
+  if (sinValorar > 0) lista.push({ valor: '', etiqueta: 'Sin valorar', color: 'gris', total: sinValorar });
+  return lista;
+}
+
 /** Filas para CSV: institución, quién diligenció, fecha del envío y una columna por campo de la matriz. */
 export function filasParaCSV(config, envios) {
   return envios.flatMap((envio) =>
@@ -124,7 +143,12 @@ export function filasParaCSV(config, envios) {
         salida.categoria_otra = fila.categoria === 'Otra' ? fila.categoria_otra || '' : '';
       }
       config.campos.forEach((c) => {
-        salida[c.etiqueta] = fila[c.columna];
+        if (c.tipo === 'valoracion') {
+          const op = valoracionPorValor(fila[c.columna]);
+          salida[c.etiqueta] = op ? op.etiqueta : fila[c.columna] || '';
+        } else {
+          salida[c.etiqueta] = fila[c.columna];
+        }
       });
       return salida;
     })

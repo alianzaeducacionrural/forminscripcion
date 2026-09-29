@@ -1,8 +1,7 @@
-// Institución y nombre son texto libre: participan también representantes de
-// entidades que no son universidades. Esta lista solo alimenta el autocompletado
-// del campo Institución (duplicada en backend/Code.js, INSTITUCIONES_SEED).
-export const INSTITUCIONES_SUGERIDAS = [
-  'IES CINOC',
+// Universidad: lista cerrada (orden alfabético). El selector del formulario
+// incluye además una opción "Otra" con texto libre, para representantes de
+// entidades que no son universidad (IES CINOC, Federación de Cafeteros, etc.).
+export const UNIVERSIDADES = [
   'Universidad Autónoma de Manizales',
   'Universidad Católica de Manizales',
   'Universidad de Caldas',
@@ -10,6 +9,17 @@ export const INSTITUCIONES_SUGERIDAS = [
 ];
 
 export const MAX_CORTO = 200;
+
+// Escala de autovaloración que se pide para cada estrategia de la Matriz 2.
+export const VALORACION_OPCIONES = [
+  { valor: 'domino', etiqueta: 'Lo domino y lo aplico', color: 'verde' },
+  { valor: 'fortaleciendo', etiqueta: 'Lo hago, pero todavía estoy fortaleciendo la práctica', color: 'amarillo' },
+  { valor: 'inicial', etiqueta: 'Debo empezar a implementarlo', color: 'rojo' },
+];
+
+export function valoracionPorValor(valor) {
+  return VALORACION_OPCIONES.find((o) => o.valor === valor) || null;
+}
 
 // Textos oficiales de las matrices transcritos de los documentos del Comité
 // Académico — no se parafrasean.
@@ -69,8 +79,15 @@ export const MATRIZ_2 = {
     'Uso de guías con la estructura de Escuela Nueva',
     'Trabajo en equipo: roles',
     'Mediación actividades de conjunto',
+    'Gobierno Estudiantil',
+    'Proyectos Pedagógicos Productivos, modelos y planes de negocio',
   ],
+  // `tipo: 'valoracion'` se renderiza como la escala de 3 colores (ver VALORACION_OPCIONES),
+  // no como cuadro de texto. Va primero en el formulario (es la autovaloración que enmarca
+  // el resto), pero en el backend viaja al final de la fila para no desordenar columnas
+  // ya existentes en la Sheet (ver MATRIZ2_CAMPOS en backend/Code.js).
   campos: [
+    { clave: 'valoracion', columna: 'valoracion', etiqueta: 'Valoración de la estrategia', tipo: 'valoracion' },
     { clave: 'situacion', columna: 'situacion', etiqueta: 'Situación identificada / evidencia' },
     { clave: 'accionMejora', columna: 'accion_mejora', etiqueta: 'Acción de mejora propuesta' },
     { clave: 'responsable', columna: 'responsable', etiqueta: 'Responsable' },

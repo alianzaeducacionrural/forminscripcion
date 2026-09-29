@@ -4,7 +4,7 @@ import Modal from '../components/Modal.jsx';
 import FilaMatriz from './FilaMatriz.jsx';
 import RevisionMatriz from './RevisionMatriz.jsx';
 import PantallaExito from './PantallaExito.jsx';
-import { INSTITUCIONES_SUGERIDAS, MAX_CORTO } from '../data/catalogos.js';
+import { MAX_CORTO, UNIVERSIDADES } from '../data/catalogos.js';
 import {
   armarPayload,
   calcularProgreso,
@@ -39,6 +39,18 @@ export default function MatrizForm({ config, enviar }) {
       : { datos: estadoInicial(config), restaurado: false };
   });
   const [datos, setDatos] = useState(inicial.datos);
+  // Widget de universidad: selector cerrado + "Otra" con texto libre. `datos.institucion`
+  // (el valor real que se valida y se envía) se deriva de estos dos, así el resto del
+  // formulario sigue tratando la institución como un simple string, como antes.
+  const [institucionSeleccion, setInstitucionSeleccion] = useState(() => {
+    const valor = inicial.datos.institucion;
+    if (!valor) return '';
+    return UNIVERSIDADES.includes(valor) ? valor : 'Otra';
+  });
+  const [institucionOtra, setInstitucionOtra] = useState(() => {
+    const valor = inicial.datos.institucion;
+    return valor && !UNIVERSIDADES.includes(valor) ? valor : '';
+  });
   const [tocados, setTocados] = useState({});
   const [intentado, setIntentado] = useState(false);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -90,6 +102,20 @@ export default function MatrizForm({ config, enviar }) {
   const visible = (idFila, clave) => intentado || Boolean(tocados[`${idFila}.${clave}`]);
   const veError = (campo) => Boolean(errores[campo] && (intentado || tocados[campo]));
   const nombreMatriz = config.titulo.replace(/^Matriz \d+\.\s*/, '');
+
+  function actualizarInstitucion(seleccion, otra) {
+    setDatos((prev) => ({ ...prev, institucion: seleccion === 'Otra' ? otra : seleccion }));
+  }
+
+  function cambiarInstitucionSeleccion(valor) {
+    setInstitucionSeleccion(valor);
+    actualizarInstitucion(valor, institucionOtra);
+  }
+
+  function cambiarInstitucionOtra(valor) {
+    setInstitucionOtra(valor);
+    actualizarInstitucion(institucionSeleccion, valor);
+  }
 
   function cambiarFila(idFila, clave, valor) {
     setDatos((prev) => ({
@@ -186,7 +212,6 @@ export default function MatrizForm({ config, enviar }) {
           {config.numero}
         </span>
         <div className="hero-contenido">
-          <span className="hero-etiqueta">Comité Académico · 25 sep 2026</span>
           <h1>{nombreMatriz}</h1>
           <p className="hero-subtitulo">{config.subtitulo}</p>
         </div>
@@ -255,26 +280,46 @@ export default function MatrizForm({ config, enviar }) {
               {veError('nombre') && <p className="campo-error">{errores.nombre}</p>}
             </div>
             <div>
-              <label className="campo-etiqueta" htmlFor="institucion">
-                Institución
+              <label className="campo-etiqueta" htmlFor="universidad">
+                Universidad
               </label>
-              <input
-                id="institucion"
-                type="text"
-                list="instituciones-sugeridas"
-                className={`campo-input ${veError('institucion') ? 'campo-input--error' : ''}`}
-                value={datos.institucion}
-                maxLength={MAX_CORTO}
-                autoComplete="organization"
-                placeholder="Universidad, entidad u organización"
-                onChange={(e) => setDatos((prev) => ({ ...prev, institucion: e.target.value }))}
+              <select
+                id="universidad"
+                className={`campo-select ${veError('institucion') && institucionSeleccion !== 'Otra' ? 'campo-input--error' : ''}`}
+                value={institucionSeleccion}
+                onChange={(e) => cambiarInstitucionSeleccion(e.target.value)}
                 onBlur={() => setTocados((prev) => ({ ...prev, institucion: true }))}
-              />
-              <datalist id="instituciones-sugeridas">
-                {INSTITUCIONES_SUGERIDAS.map((n) => (
-                  <option key={n} value={n} />
+              >
+                <option value="" disabled>
+                  Seleccione su universidad…
+                </option>
+                {UNIVERSIDADES.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
                 ))}
-              </datalist>
+                <option value="Otra">Otra institución</option>
+              </select>
+
+              {institucionSeleccion === 'Otra' && (
+                <div className="campo-otra entra">
+                  <label className="campo-etiqueta" htmlFor="universidad-otra">
+                    ¿Cuál institución?
+                  </label>
+                  <input
+                    id="universidad-otra"
+                    type="text"
+                    className={`campo-input ${veError('institucion') && institucionSeleccion === 'Otra' ? 'campo-input--error' : ''}`}
+                    value={institucionOtra}
+                    maxLength={MAX_CORTO}
+                    autoComplete="organization"
+                    placeholder="Nombre de la institución o entidad"
+                    onChange={(e) => cambiarInstitucionOtra(e.target.value)}
+                    onBlur={() => setTocados((prev) => ({ ...prev, institucion: true }))}
+                  />
+                </div>
+              )}
+
               {veError('institucion') && <p className="campo-error">{errores.institucion}</p>}
             </div>
           </div>

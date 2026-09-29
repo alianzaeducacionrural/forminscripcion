@@ -12,8 +12,8 @@
  *          filas: [{ categoria, categoriaOtra (obligatoria si categoria = "Otra"), accion, dirigidaA, comoSeDesarrolla, aliados,
  *                    periodicidad, recursos, resultado }] }
  *   POST { action: "submitMatriz2", idEnvio (opcional), institucion, nombre,
- *          filas: [{ aspecto, personalizado, situacion, accionMejora,
- *                    responsable, apoyo, tiempo, evidencia }] }
+ *          filas: [{ aspecto, personalizado, valoracion ('domino'|'fortaleciendo'|'inicial'),
+ *                    situacion, accionMejora, responsable, apoyo, tiempo, evidencia }] }
  *
  * Modelo de datos: cada envío es un conjunto de filas (una por acción en la
  * Matriz 1, una por aspecto en la Matriz 2) que comparten `id_envio` y
@@ -77,12 +77,19 @@ var MATRIZ1_CATEGORIAS = [
 var MATRIZ2_ASPECTOS_FIJOS = [
   'Uso de guías con la estructura de Escuela Nueva',
   'Trabajo en equipo: roles',
-  'Mediación actividades de conjunto'
+  'Mediación actividades de conjunto',
+  'Gobierno Estudiantil',
+  'Proyectos Pedagógicos Productivos, modelos y planes de negocio'
 ];
 
+// Escala de autovaloración pedida para cada estrategia de la Matriz 2.
+var VALORACION_VALORES = ['domino', 'fortaleciendo', 'inicial'];
+
 // Campos de texto obligatorios de cada fila, en el orden de las columnas de la Sheet.
+// 'valoracion' va al final (columna agregada después de las demás: mismo criterio que
+// 'categoria_otra' en Matriz 1, para que la migración de encabezados sea aditiva).
 var MATRIZ1_CAMPOS = ['accion', 'dirigidaA', 'comoSeDesarrolla', 'aliados', 'periodicidad', 'recursos', 'resultado'];
-var MATRIZ2_CAMPOS = ['situacion', 'accionMejora', 'responsable', 'apoyo', 'tiempo', 'evidencia'];
+var MATRIZ2_CAMPOS = ['situacion', 'accionMejora', 'responsable', 'apoyo', 'tiempo', 'evidencia', 'valoracion'];
 
 var MATRIZ1_HEADERS = [
   'timestamp', 'id_envio', 'institucion', 'nombre', 'orden', 'categoria',
@@ -92,7 +99,7 @@ var MATRIZ1_HEADERS = [
 
 var MATRIZ2_HEADERS = [
   'timestamp', 'id_envio', 'institucion', 'nombre', 'orden', 'personalizado', 'aspecto',
-  'situacion', 'accion_mejora', 'responsable', 'apoyo', 'tiempo', 'evidencia'
+  'situacion', 'accion_mejora', 'responsable', 'apoyo', 'tiempo', 'evidencia', 'valoracion'
 ];
 
 // ---------------------------------------------------------------------------
@@ -260,6 +267,9 @@ function submitMatriz2_(body) {
       aspectosVistos[clave] = true;
     }
     validarTextos_(fila, MATRIZ2_CAMPOS, nombre, errors);
+    if (fila.valoracion && VALORACION_VALORES.indexOf(fila.valoracion) === -1) {
+      errors.push(nombre + ': valoracion no reconocida: ' + fila.valoracion);
+    }
   });
 
   // Los 3 aspectos de la matriz original deben venir siempre, una vez cada uno.

@@ -1,4 +1,5 @@
 import { limpiarTexto } from '../validar.js';
+import { valoracionPorValor } from '../data/catalogos.js';
 
 export default function RevisionMatriz({ config, datos, enviando, errorEnvio, onEditar, onConfirmar }) {
   const tituloFila = (fila, i) =>
@@ -36,12 +37,29 @@ export default function RevisionMatriz({ config, datos, enviando, errorEnvio, on
               ) : null}
             </span>
             <dl className="revision-campos">
-              {config.campos.map((c) => (
-                <div key={c.clave} className="revision-campo">
-                  <dt>{c.etiqueta}</dt>
-                  <dd>{fila[c.clave].trim()}</dd>
-                </div>
-              ))}
+              {config.campos.map((c) => {
+                if (c.tipo === 'valoracion') {
+                  const op = valoracionPorValor(fila[c.clave]);
+                  return (
+                    <div key={c.clave} className="revision-campo">
+                      <dt>{c.etiqueta}</dt>
+                      <dd>
+                        {op ? (
+                          <span className={`chip-valoracion chip-valoracion--${op.color}`}>{op.etiqueta}</span>
+                        ) : (
+                          '—'
+                        )}
+                      </dd>
+                    </div>
+                  );
+                }
+                return (
+                  <div key={c.clave} className="revision-campo">
+                    <dt>{c.etiqueta}</dt>
+                    <dd>{fila[c.clave].trim()}</dd>
+                  </div>
+                );
+              })}
             </dl>
           </li>
         ))}
