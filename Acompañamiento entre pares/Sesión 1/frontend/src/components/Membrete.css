@@ -22,9 +22,9 @@
 }
 
 .membrete-separador {
-  width: 1px;
+  width: 2px;
   height: 32px;
-  background: var(--line);
+  background: var(--line-soft);
   flex-shrink: 0;
 }
 

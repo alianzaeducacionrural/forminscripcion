@@ -3,36 +3,36 @@
 }
 
 .landing {
-  max-width: var(--ancho);
+  max-width: 1040px;
   margin: 0 auto;
   padding: var(--space-7) var(--space-4) var(--space-8);
 }
 
 .landing-cabecera {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-7);
 }
 
 .landing-fecha {
-  display: inline-flex;
-  align-items: center;
-  font-weight: 700;
-  font-size: var(--text-xs);
-  letter-spacing: 0.02em;
-  color: var(--ink-2);
-  background: var(--paper);
-  border: var(--borde);
+  display: inline-block;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  background: var(--sun);
+  border: 2.5px solid var(--ink);
   border-radius: var(--radius-pill);
-  padding: 6px 14px;
+  padding: 4px var(--space-4);
+  transform: rotate(-2deg);
+  box-shadow: var(--sombra-chica);
   margin-bottom: var(--space-5);
 }
 
 .landing h1 {
-  font-size: clamp(2.4rem, 8vw, 3.6rem);
-  line-height: 1.02;
+  font-size: clamp(3rem, 11vw, 6rem);
+  line-height: 0.94;
 }
 
 .landing-subtitulo {
-  margin-top: var(--space-4);
+  margin-top: var(--space-5);
   font-size: var(--text-md);
   font-weight: 600;
   color: var(--ink-2);
@@ -42,10 +42,10 @@
 .landing-paneles {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
-@media (min-width: 720px) {
+@media (min-width: 820px) {
   .landing-paneles {
     grid-template-columns: 1fr 1fr;
   }
@@ -53,78 +53,110 @@
 
 .panel {
   --p: var(--ambar);
-  --ps: var(--ambar-soft);
+  --p2: var(--coral);
+  --pt: #ffffff;
   position: relative;
-  min-height: 260px;
+  overflow: hidden;
+  min-height: 340px;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-6);
-  background: var(--card);
-  color: var(--ink);
+  background: var(--p);
+  color: var(--pt);
   border: var(--borde);
   border-radius: var(--radius-lg);
-  box-shadow: var(--sombra);
+  box-shadow: 8px 8px 0 var(--ink);
   text-decoration: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms var(--ease-out);
-  animation: entra-arriba 460ms var(--ease-out) both;
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+  animation: entra-arriba 520ms var(--ease-out) both;
 }
 
 .panel--turquesa {
   --p: var(--turquesa);
-  --ps: var(--turquesa-soft);
-  animation-delay: 80ms;
+  --p2: var(--sun);
+  animation-delay: 90ms;
 }
 
 .panel:hover,
 .panel:focus-visible {
-  border-color: var(--p);
-  transform: translateY(-2px);
+  transform: translate(-4px, -4px);
+  box-shadow: 12px 12px 0 var(--ink);
+}
+
+.panel:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.panel-inicial {
+  position: absolute;
+  right: -0.1em;
+  top: -0.3em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20rem;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 3px rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  transition: transform 400ms var(--ease-out);
+}
+
+.panel:hover .panel-inicial {
+  transform: scale(1.06) rotate(-3deg);
 }
 
 .panel-titulo {
+  position: relative;
+  margin-top: auto;
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(1.4rem, 3vw, 1.7rem);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  color: var(--ink-strong);
-  max-width: 18ch;
+  font-weight: 800;
+  font-size: clamp(1.7rem, 3.6vw, 2.3rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  max-width: 16ch;
+  text-wrap: balance;
 }
 
 .panel-subtitulo {
+  position: relative;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--p);
-  background: var(--ps);
-  align-self: flex-start;
-  border-radius: var(--radius-pill);
-  padding: 3px 12px;
-  order: -1;
-  margin-bottom: var(--space-2);
+  opacity: 0.85;
 }
 
 .panel-detalle {
-  font-weight: 500;
-  color: var(--ink-2);
+  position: relative;
+  font-weight: 600;
+  opacity: 0.95;
   max-width: 38ch;
 }
 
 .panel-cta {
+  position: relative;
   align-self: flex-start;
-  margin-top: auto;
-  padding-top: var(--space-3);
+  margin-top: var(--space-3);
   font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--p);
+  font-weight: 800;
+  background: var(--card);
+  color: var(--ink);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-5);
+  box-shadow: var(--sombra-chica);
 }
 
 @media (max-width: 560px) {
   .panel {
-    min-height: auto;
+    min-height: 300px;
     padding: var(--space-5);
+  }
+
+  .panel-inicial {
+    font-size: 14rem;
   }
 }
