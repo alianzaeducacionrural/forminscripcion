@@ -1,29 +1,46 @@
 /**
  * Backend API — Acompañamiento entre Pares, Sesión 1 (rectores)
- * Dos herramientas: "Mi capital de experiencia" (rectores con experiencia, con
- * valoración semáforo) y "Mi mapa de necesidades" (rectores nuevos).
+ * Tres herramientas: "Mi capital de experiencia" (rectores con experiencia,
+ * con valoración semáforo), "Mi mapa de necesidades" (rectores nuevos), y
+ * "Mi primer reto de acompañamiento" (microplan de la dupla, con envío de
+ * PDF por correo a ambos).
  * Google Apps Script (Web App), bound a una Google Sheet, gestionado con clasp.
  *
  * Endpoints:
  *   GET  ?action=listInstituciones
  *   GET  ?action=getExperimentados      (uso del panel admin)
  *   GET  ?action=getNuevos              (uso del panel admin)
+ *   GET  ?action=getPlanAccion          (uso del panel admin)
  *   POST { action: "submitExperimentados", idEnvio (opcional), institucion, nombre,
  *          filas: [{ componente, queSabeHacer, queExperiencia, queEvidencia, queEnsenar, valoracion }] }
  *   POST { action: "submitNuevos", idEnvio (opcional), institucion, nombre,
  *          filas: [{ componente, situacion, queAprender, tipoApoyo }] }
+ *   POST { action: "submitPlanAccion", idEnvio (opcional),
+ *          institucionExperimentado, nombreExperimentado, correoExperimentado,
+ *          institucionNuevo, nombreNuevo, correoNuevo, compromiso,
+ *          acciones: [{ reto, accion, responsable, fecha, evidencia }, ...] }
+ *          (al menos 1 acción; se pueden agregar más)
  *
- * Modelo de datos: cada envío es un conjunto de EXACTAMENTE 4 filas (una por
- * componente: Administrativo, Curricular, Capacitación, Comunitario), que
- * comparten `id_envio` y `timestamp`. `institucion` y `nombre` (quien
- * diligencia) son TEXTO LIBRE. Una persona puede volver a enviar para
- * corregir: los envíos anteriores NO se borran (quedan como historial en la
- * Sheet); el panel toma como vigente el `id_envio` más reciente de cada
- * pareja institución + nombre.
+ * Modelo de datos (Experimentados/Nuevos): cada envío es un conjunto de
+ * EXACTAMENTE 4 filas (una por componente: Administrativo, Curricular,
+ * Capacitación, Comunitario), que comparten `id_envio` y `timestamp`.
+ * `institucion` y `nombre` (quien diligencia) son TEXTO LIBRE. Una persona
+ * puede volver a enviar para corregir: los envíos anteriores NO se borran
+ * (quedan como historial en la Sheet); el panel toma como vigente el
+ * `id_envio` más reciente de cada pareja institución + nombre.
+ *
+ * Modelo de datos (PlanAccion): cada envío es un conjunto de 1 o más filas
+ * (una por acción de acompañamiento que la dupla haya agregado), que
+ * comparten `id_envio`, `timestamp` y los datos de identificación de la
+ * dupla y el compromiso de cierre (repetidos en cada fila, igual que
+ * institución/nombre en Experimentados/Nuevos). Al guardar exitosamente (por
+ * primera vez, no en un reintento), se genera un PDF con el plan completo y
+ * se envía por correo a ambos integrantes de la dupla.
  *
  * Idempotencia: el frontend manda un `idEnvio` (UUID) por intento de envío. Si
- * ese id ya existe en la Sheet, el backend responde éxito SIN volver a escribir,
- * así un doble clic o un reintento tras un corte de red no duplica filas.
+ * ese id ya existe en la Sheet, el backend responde éxito SIN volver a escribir
+ * ni reenviar el correo, así un doble clic o un reintento tras un corte de red
+ * no duplica filas ni reenvía el PDF.
  *
  * Sin protección por clave: el panel admin se protege únicamente por ser un
  * enlace no listado, igual que en los demás formularios de la organización.
@@ -34,17 +51,24 @@
  *
  * Configuración requerida antes de compartir los enlaces:
  *   1. Ejecutar una vez setup() manualmente desde el editor (crea los tabs
- *      Instituciones/Experimentados/Nuevos con encabezados y siembra el catálogo).
- *   2. Desplegar como Web App (`clasp create-deployment`).
+ *      Instituciones/Experimentados/Nuevos/PlanAccion con encabezados y
+ *      siembra el catálogo). Esa misma ejecución autoriza los permisos de
+ *      Gmail/Docs/Drive que necesita el envío del PDF — si el proyecto ya
+ *      estaba desplegado antes de agregar PlanAccion, hay que volver a
+ *      correr setup() una vez para conceder esos permisos nuevos.
+ *   2. Desplegar como Web App (`clasp create-deployment` o, si ya existe el
+ *      deployment, `clasp deploy -i <deploymentId>`).
  *   3. Antes de compartir los enlaces, ejecutar limpiarRegistrosDePrueba().
  */
 
 var SHEET_INSTITUCIONES = 'Instituciones';
 var SHEET_EXPERIMENTADOS = 'Experimentados';
 var SHEET_NUEVOS = 'Nuevos';
+var SHEET_PLAN_ACCION = 'PlanAccion';
 
 var MAX_CARACTERES = 2000;
 var MAX_CARACTERES_CORTO = 200;
+var MAX_ACCIONES = 20;
 
 // Solo SUGERENCIAS para el campo Institución (el frontend las ofrece como
 // lista cerrada — el frontend usa un <select> con estos mismos nombres
@@ -87,6 +111,18 @@ var NUEVOS_HEADERS = [
   'situacion_que_necesito_fortalecer', 'que_necesito_aprender', 'tipo_de_apoyo'
 ];
 
+// Una fila por acción de acompañamiento (al menos 1, se pueden agregar más).
+// La identificación de la dupla y el compromiso de cierre se repiten en cada
+// fila del mismo envío (igual que institución/nombre en Experimentados/Nuevos).
+var PLAN_ACCION_CAMPOS = ['reto', 'accion', 'responsable', 'fecha', 'evidencia'];
+
+var PLAN_ACCION_HEADERS = [
+  'timestamp', 'id_envio',
+  'institucion_experimentado', 'nombre_experimentado', 'correo_experimentado',
+  'institucion_nuevo', 'nombre_nuevo', 'correo_nuevo',
+  'orden', 'reto', 'accion', 'responsable', 'fecha', 'evidencia', 'compromiso'
+];
+
 // ---------------------------------------------------------------------------
 // Setup (ejecutar manualmente una sola vez desde el editor de Apps Script)
 // ---------------------------------------------------------------------------
@@ -110,12 +146,20 @@ function setup() {
   nuevos.getRange(1, 1, 1, NUEVOS_HEADERS.length).setValues([NUEVOS_HEADERS]);
   nuevos.setFrozenRows(1);
 
+  var planAccion = ss.getSheetByName(SHEET_PLAN_ACCION) || ss.insertSheet(SHEET_PLAN_ACCION);
+  planAccion.clear();
+  planAccion.getRange(1, 1, 1, PLAN_ACCION_HEADERS.length).setValues([PLAN_ACCION_HEADERS]);
+  planAccion.setFrozenRows(1);
+
   var porDefecto = ss.getSheetByName('Sheet1') || ss.getSheetByName('Hoja 1') || ss.getSheetByName('Hoja1');
-  if (porDefecto && ss.getSheets().length > 3) {
+  if (porDefecto && ss.getSheets().length > 4) {
     ss.deleteSheet(porDefecto);
   }
 
-  Logger.log('Setup completo. Tabs creados: ' + SHEET_INSTITUCIONES + ', ' + SHEET_EXPERIMENTADOS + ', ' + SHEET_NUEVOS);
+  Logger.log(
+    'Setup completo. Tabs creados: ' + SHEET_INSTITUCIONES + ', ' + SHEET_EXPERIMENTADOS + ', ' +
+    SHEET_NUEVOS + ', ' + SHEET_PLAN_ACCION
+  );
 }
 
 /**
@@ -124,7 +168,7 @@ function setup() {
  * compartir los enlaces reales, para limpiar los registros de prueba.
  */
 function limpiarRegistrosDePrueba() {
-  [SHEET_EXPERIMENTADOS, SHEET_NUEVOS].forEach(function (nombre) {
+  [SHEET_EXPERIMENTADOS, SHEET_NUEVOS, SHEET_PLAN_ACCION].forEach(function (nombre) {
     var sheet = getSheet_(nombre);
     var ultimaFila = sheet.getLastRow();
     if (ultimaFila <= 1) {
@@ -156,6 +200,10 @@ function doGet(e) {
       return jsonResponse_({ success: true, data: leerFilas_(SHEET_NUEVOS, NUEVOS_HEADERS) });
     }
 
+    if (action === 'getPlanAccion') {
+      return jsonResponse_({ success: true, data: leerFilas_(SHEET_PLAN_ACCION, PLAN_ACCION_HEADERS) });
+    }
+
     return jsonResponse_({ success: false, error: 'Acción no reconocida: ' + action });
   } catch (err) {
     return jsonResponse_({ success: false, error: String(err) });
@@ -173,6 +221,10 @@ function doPost(e) {
 
     if (action === 'submitNuevos') {
       return jsonResponse_({ success: true, id: submitNuevos_(body) });
+    }
+
+    if (action === 'submitPlanAccion') {
+      return jsonResponse_(submitPlanAccion_(body));
     }
 
     return jsonResponse_({ success: false, error: 'Acción no reconocida: ' + action });
@@ -244,6 +296,199 @@ function submitNuevos_(body) {
 
   // 'componente' es la 6.ª columna: desde ahí todo es texto plano.
   return guardarEnvio_(SHEET_NUEVOS, NUEVOS_HEADERS, quien, datos, 6, idEnvio);
+}
+
+// ---------------------------------------------------------------------------
+// submitPlanAccion — microplan de la dupla, con envío de PDF por correo
+// ---------------------------------------------------------------------------
+
+function submitPlanAccion_(body) {
+  var errors = [];
+  var dupla = validarDupla_(body, errors);
+  var idEnvio = validarIdEnvio_(body.idEnvio, errors);
+  var acciones = validarListaAcciones_(body.acciones, errors);
+  var compromiso = limpiarTexto_(body.compromiso);
+
+  if (!compromiso) errors.push('compromiso es requerido');
+  else if (compromiso.length > MAX_CARACTERES) errors.push('compromiso supera ' + MAX_CARACTERES + ' caracteres');
+
+  acciones.forEach(function (accion, i) {
+    validarTextos_(accion, PLAN_ACCION_CAMPOS, 'Acción ' + (i + 1), errors);
+  });
+
+  if (errors.length > 0) throw new Error(errors.join('; '));
+
+  var datos = acciones.map(function (accion) {
+    return textos_(accion, PLAN_ACCION_CAMPOS).concat([compromiso]);
+  });
+
+  var resultado = guardarPlanAccion_(dupla, datos, idEnvio);
+
+  var correoEnviado = false;
+  if (resultado.esNuevo) {
+    try {
+      enviarPlanPorCorreo_(dupla, acciones, compromiso);
+      correoEnviado = true;
+    } catch (err) {
+      // El plan ya quedó guardado en la Sheet aunque el correo falle (cuota de
+      // Gmail agotada, error de Docs/Drive, etc.) — se avisa al frontend para
+      // que le diga a la dupla que contacte a coordinación, en vez de fallar
+      // todo el envío y arriesgar un reintento que sí duplicaría el correo.
+      Logger.log('No se pudo enviar el PDF del plan ' + resultado.id + ': ' + err);
+    }
+  }
+
+  return { success: true, id: resultado.id, correoEnviado: correoEnviado };
+}
+
+/** Identificación de los dos integrantes de la dupla; institución de cada
+ * uno validada contra la lista cerrada, correos validados por formato. */
+function validarDupla_(body, errors) {
+  var experimentado = validarPersona_(body, 'Experimentado', errors);
+  var nuevo = validarPersona_(body, 'Nuevo', errors);
+  return {
+    institucionExperimentado: experimentado.institucion,
+    nombreExperimentado: experimentado.nombre,
+    correoExperimentado: experimentado.correo,
+    institucionNuevo: nuevo.institucion,
+    nombreNuevo: nuevo.nombre,
+    correoNuevo: nuevo.correo,
+  };
+}
+
+function validarPersona_(body, sufijo, errors) {
+  var etiqueta = 'Rector' + (sufijo === 'Nuevo' ? ' nuevo' : ' con experiencia');
+  var institucion = limpiarTexto_(body['institucion' + sufijo]);
+  var nombre = limpiarTexto_(body['nombre' + sufijo]);
+  var correo = limpiarTexto_(body['correo' + sufijo]).toLowerCase();
+
+  if (!institucion) errors.push(etiqueta + ': institución es requerida');
+  else if (!institucionValida_(institucion)) errors.push(etiqueta + ': institución no reconocida: ' + institucion);
+
+  if (!nombre) errors.push(etiqueta + ': nombre es requerido');
+  else if (nombre.length > MAX_CARACTERES_CORTO) errors.push(etiqueta + ': nombre supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+
+  if (!correo) errors.push(etiqueta + ': correo es requerido');
+  else if (!correoValido_(correo)) errors.push(etiqueta + ': correo no válido: ' + correo);
+  else if (correo.length > MAX_CARACTERES_CORTO) errors.push(etiqueta + ': correo supera ' + MAX_CARACTERES_CORTO + ' caracteres');
+
+  return { institucion: institucion, nombre: nombre, correo: correo };
+}
+
+function correoValido_(correo) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo);
+}
+
+/** Al menos 1 acción, como máximo MAX_ACCIONES. */
+function validarListaAcciones_(acciones, errors) {
+  if (!Array.isArray(acciones) || acciones.length === 0) {
+    errors.push('acciones debe tener al menos una acción');
+    return [];
+  }
+  if (acciones.length > MAX_ACCIONES) {
+    errors.push('acciones no puede tener más de ' + MAX_ACCIONES + ' acciones');
+    return [];
+  }
+  return acciones.map(function (accion) { return accion && typeof accion === 'object' ? accion : {}; });
+}
+
+/**
+ * Igual que guardarEnvio_, pero para PlanAccion: la identificación de la
+ * dupla (6 campos) y el compromiso se repiten en cada fila (una por acción).
+ * Devuelve { id, esNuevo } — `esNuevo` es false si el idEnvio ya existía
+ * (para no reenviar el correo en un reintento o doble clic).
+ */
+function guardarPlanAccion_(dupla, filasDatos, idEnvio) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var sheet = getSheet_(SHEET_PLAN_ACCION, PLAN_ACCION_HEADERS);
+    if (idEnvio && existeEnvio_(sheet, idEnvio)) return { id: idEnvio, esNuevo: false };
+
+    var id = idEnvio || Utilities.getUuid();
+    var timestamp = new Date();
+    var numColumnas = PLAN_ACCION_HEADERS.length;
+    var filas = filasDatos.map(function (datos, i) {
+      return [
+        timestamp, id,
+        dupla.institucionExperimentado, dupla.nombreExperimentado, dupla.correoExperimentado,
+        dupla.institucionNuevo, dupla.nombreNuevo, dupla.correoNuevo,
+        i + 1,
+      ].concat(datos);
+    });
+
+    var primeraFila = sheet.getLastRow() + 1;
+    // Columnas 2-8 (id + los 6 campos de la dupla) y desde la 10 (reto en
+    // adelante) como texto plano, para que ningún valor que empiece con "="
+    // o "+" se ejecute como fórmula en la Sheet.
+    sheet.getRange(primeraFila, 2, filas.length, 7).setNumberFormat('@');
+    sheet.getRange(primeraFila, 10, filas.length, numColumnas - 9).setNumberFormat('@');
+    sheet.getRange(primeraFila, 1, filas.length, numColumnas).setValues(filas);
+    SpreadsheetApp.flush();
+    return { id: id, esNuevo: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Genera un PDF con el plan completo (identificación de la dupla, todas las
+ * acciones y el compromiso de cierre) y lo envía por correo a ambos
+ * integrantes. El documento de Google Docs se crea solo como paso
+ * intermedio para exportar el PDF, y se manda a la papelera apenas se envía
+ * el correo — no queda como archivo suelto en Drive.
+ */
+function enviarPlanPorCorreo_(dupla, acciones, compromiso) {
+  var nombreDoc = 'Plan de acompañamiento — ' + dupla.nombreExperimentado + ' y ' + dupla.nombreNuevo;
+  var doc = DocumentApp.create(nombreDoc);
+  var body = doc.getBody();
+
+  body.appendParagraph('Acompañamiento entre Pares · Sesión 1').setHeading(DocumentApp.ParagraphHeading.HEADING3);
+  body.appendParagraph('Mi primer reto de acompañamiento').setHeading(DocumentApp.ParagraphHeading.HEADING1);
+  body.appendParagraph('Microplan de acompañamiento entre pares').setItalic(true);
+
+  body.appendParagraph('Dupla').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  body.appendTable([
+    ['', 'Nombre', 'Correo', 'Institución'],
+    ['Rector con experiencia', dupla.nombreExperimentado, dupla.correoExperimentado, dupla.institucionExperimentado],
+    ['Rector nuevo', dupla.nombreNuevo, dupla.correoNuevo, dupla.institucionNuevo],
+  ]);
+
+  body.appendParagraph('Plan de acción').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  var filasTabla = [['#', 'Reto concreto', 'Acción de acompañamiento', 'Responsable', 'Fecha', 'Evidencia de avance']];
+  acciones.forEach(function (accion, i) {
+    filasTabla.push([
+      String(i + 1),
+      String(accion.reto).trim(),
+      String(accion.accion).trim(),
+      String(accion.responsable).trim(),
+      String(accion.fecha).trim(),
+      String(accion.evidencia).trim(),
+    ]);
+  });
+  body.appendTable(filasTabla);
+
+  body.appendParagraph('Compromiso de cierre').setHeading(DocumentApp.ParagraphHeading.HEADING2);
+  body.appendParagraph(compromiso);
+
+  doc.saveAndClose();
+  var pdf = DriveApp.getFileById(doc.getId()).getAs(MimeType.PDF);
+  pdf.setName(nombreDoc + '.pdf');
+
+  try {
+    MailApp.sendEmail({
+      to: dupla.correoExperimentado + ',' + dupla.correoNuevo,
+      subject: 'Su plan de acompañamiento entre pares — Sesión 1',
+      body:
+        'Hola ' + dupla.nombreExperimentado + ' y ' + dupla.nombreNuevo + ',\n\n' +
+        'Adjunto el plan de acompañamiento que definieron en la Sesión 1 de Acompañamiento entre Pares. ' +
+        '¡Éxitos con el reto!\n\nAcompañamiento entre Pares',
+      attachments: [pdf],
+      name: 'Acompañamiento entre Pares',
+    });
+  } finally {
+    DriveApp.getFileById(doc.getId()).setTrashed(true);
+  }
 }
 
 /**

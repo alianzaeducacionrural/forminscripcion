@@ -1,0 +1,99 @@
+/* =====================================================================
+   "Mi primer reto de acompañamiento": la mayoría de las clases vienen de
+   herramienta.css (tarjeta, hero, fila-herramienta, campo-*); aquí solo lo
+   propio de este formulario — el bloque de cada integrante de la dupla y el
+   botón de agregar acción.
+   ===================================================================== */
+
+.dupla-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 720px) {
+  .dupla-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.dupla-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+
+.dupla-bloque--ambar {
+  background: var(--ambar-soft);
+}
+
+.dupla-bloque--turquesa {
+  background: var(--turquesa-soft);
+}
+
+.etiqueta-rol {
+  align-self: flex-start;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px var(--space-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+}
+
+.etiqueta-rol--ambar {
+  color: var(--ambar-deep);
+}
+
+.etiqueta-rol--turquesa {
+  color: var(--turquesa-deep);
+}
+
+/* Agregar acción */
+
+.boton-agregar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4);
+  background: transparent;
+  border: 3px dashed var(--ink);
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--text-md);
+  cursor: pointer;
+  transition: background-color 140ms ease, transform 140ms var(--ease-out);
+}
+
+.boton-agregar-mas {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--acc2);
+  border: 2.5px solid var(--ink);
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: transform 220ms var(--ease-out);
+}
+
+.boton-agregar:hover {
+  background: var(--acc-soft);
+}
+
+.boton-agregar:hover .boton-agregar-mas {
+  transform: rotate(90deg) scale(1.1);
+}

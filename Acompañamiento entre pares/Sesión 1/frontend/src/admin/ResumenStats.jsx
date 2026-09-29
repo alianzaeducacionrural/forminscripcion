@@ -13,6 +13,12 @@ export default function ResumenStats({ totales }) {
       etiqueta: 'rectores nuevos',
       nota: `${totales.componentesNue} ${totales.componentesNue === 1 ? 'componente diligenciado' : 'componentes diligenciados'}`,
     },
+    {
+      clase: 'violeta',
+      valor: totales.planes,
+      etiqueta: 'planes de acompañamiento',
+      nota: 'duplas con al menos un reto definido',
+    },
   ];
 
   return (

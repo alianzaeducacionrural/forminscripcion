@@ -137,6 +137,11 @@
   --texto: #fff;
 }
 
+.stat--violeta {
+  --fondo: var(--violeta);
+  --texto: #fff;
+}
+
 .stat-valor {
   font-family: var(--font-display);
   font-weight: 800;
@@ -644,6 +649,18 @@
 .ficha--turquesa {
   --c: var(--nue);
   --cs: var(--turquesa-soft);
+}
+
+.ficha--violeta {
+  --c: var(--violeta);
+  --cs: var(--violeta-soft);
+}
+
+.plan-compromiso {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-top: 2.5px dashed var(--ink-3);
+  font-size: var(--text-sm);
 }
 
 .ficha-cabecera {

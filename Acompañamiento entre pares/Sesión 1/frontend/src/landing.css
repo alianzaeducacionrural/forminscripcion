@@ -3,7 +3,7 @@
 }
 
 .landing {
-  max-width: 1040px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: var(--space-7) var(--space-4) var(--space-8);
 }
@@ -51,6 +51,12 @@
   }
 }
 
+@media (min-width: 1180px) {
+  .landing-paneles {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
 .panel {
   --p: var(--ambar);
   --p2: var(--coral);
@@ -76,6 +82,12 @@
   --p: var(--turquesa);
   --p2: var(--sun);
   animation-delay: 90ms;
+}
+
+.panel--violeta {
+  --p: var(--violeta);
+  --p2: var(--sun);
+  animation-delay: 160ms;
 }
 
 .panel:hover,

@@ -20,6 +20,7 @@ export const INSTITUCIONES_MANIZALES = [
 
 export const MAX_CORTO = 200;
 export const MAX_CARACTERES = 2000;
+export const MAX_ACCIONES = 20;
 
 // Los 4 componentes de la gestión escolar, en el orden fijo de la herramienta
 // original en papel. Cada herramienta trae siempre una fila por componente:
@@ -89,5 +90,27 @@ export const HERRAMIENTA_NUEVOS = {
       etiqueta: '¿Qué tipo de apoyo necesito?',
       ayuda: 'Orientación / ejemplo / herramienta / acompañamiento',
     },
+  ],
+};
+
+// "Mi primer reto de acompañamiento": lo diligencia la dupla junta (rector
+// con experiencia + rector nuevo), no cada uno por separado. Al menos 1
+// acción es obligatoria; se pueden agregar más. Al guardar, se envía un PDF
+// con el plan completo a los correos de ambos.
+export const HERRAMIENTA_PLAN_ACCION = {
+  id: 'plan-accion',
+  tema: 'violeta',
+  titulo: 'Mi primer reto de acompañamiento',
+  subtitulo: 'Microplan de acompañamiento entre pares',
+  pregunta:
+    'Cada dupla define un reto concreto, una acción de acompañamiento, responsable, fecha y evidencia de avance. Cierre con compromiso.',
+  etiquetaFila: 'Acción',
+  botonAgregar: 'Agregar otra acción',
+  campos: [
+    { clave: 'reto', columna: 'reto', etiqueta: 'Reto concreto' },
+    { clave: 'accion', columna: 'accion', etiqueta: 'Acción de acompañamiento' },
+    { clave: 'responsable', columna: 'responsable', etiqueta: 'Responsable' },
+    { clave: 'fecha', columna: 'fecha', etiqueta: 'Fecha', tipo: 'fecha' },
+    { clave: 'evidencia', columna: 'evidencia', etiqueta: 'Evidencia de avance' },
   ],
 };
