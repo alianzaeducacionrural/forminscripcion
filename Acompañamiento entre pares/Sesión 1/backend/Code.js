@@ -1,6 +1,6 @@
 /**
  * Backend API — Acompañamiento entre Pares, Sesión 1 (rectores)
- * Dos herramientas: "Mi capital de experiencia" (rectores experimentados, con
+ * Dos herramientas: "Mi capital de experiencia" (rectores con experiencia, con
  * valoración semáforo) y "Mi mapa de necesidades" (rectores nuevos).
  * Google Apps Script (Web App), bound a una Google Sheet, gestionado con clasp.
  *

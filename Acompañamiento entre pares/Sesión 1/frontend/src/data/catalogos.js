@@ -60,7 +60,7 @@ export const HERRAMIENTA_EXPERIMENTADOS = {
   id: 'experimentados',
   tema: 'ambar',
   titulo: 'Mi capital de experiencia',
-  subtitulo: 'Herramienta para rectores experimentados',
+  subtitulo: 'Herramienta para rectores con experiencia',
   pregunta:
     'Identifique, por cada componente de la gestión escolar: fortaleza + evidencia + posibilidad de transferencia.',
   conValoracion: true,

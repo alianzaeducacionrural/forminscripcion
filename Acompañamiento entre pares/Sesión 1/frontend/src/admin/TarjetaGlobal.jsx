@@ -4,7 +4,7 @@ export default function TarjetaGlobal({ totales, onAbrir }) {
       <span className="ies-card-global-rotulo">Consolidado</span>
       <span className="ies-card-global-titulo">Todas las instituciones</span>
       <span className="ies-card-global-texto">
-        {totales.rectoresExperimentados} experimentados · {totales.rectoresNuevos} nuevos
+        {totales.rectoresExperimentados} con experiencia · {totales.rectoresNuevos} nuevos
       </span>
       <span className="ies-card-global-cta">Ver todo →</span>
     </button>

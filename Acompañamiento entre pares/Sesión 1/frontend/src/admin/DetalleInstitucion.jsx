@@ -56,7 +56,7 @@ function PanelHerramienta({ config, envios, mostrarInstitucion, nombreArchivo })
 }
 
 const HERRAMIENTAS = [
-  { id: 'exp', config: HERRAMIENTA_EXPERIMENTADOS, nombre: 'Experimentados' },
+  { id: 'exp', config: HERRAMIENTA_EXPERIMENTADOS, nombre: 'Con experiencia' },
   { id: 'nue', config: HERRAMIENTA_NUEVOS, nombre: 'Nuevos' },
 ];
 
