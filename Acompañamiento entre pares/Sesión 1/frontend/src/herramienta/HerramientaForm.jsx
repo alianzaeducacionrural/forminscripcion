@@ -5,7 +5,7 @@ import Membrete from '../components/Membrete.jsx';
 import FilaComponente from './FilaComponente.jsx';
 import RevisionHerramienta from './RevisionHerramienta.jsx';
 import PantallaExito from './PantallaExito.jsx';
-import { INSTITUCIONES_SUGERIDAS, MAX_CORTO } from '../data/catalogos.js';
+import { INSTITUCIONES_MANIZALES, MAX_CORTO } from '../data/catalogos.js';
 import {
   armarPayload,
   calcularProgreso,
@@ -206,23 +206,20 @@ export default function HerramientaForm({ config, enviar }) {
               <label className="campo-etiqueta" htmlFor="institucion">
                 Institución educativa
               </label>
-              <input
+              <select
                 id="institucion"
-                type="text"
-                list="instituciones-sugeridas"
-                className={`campo-input ${veError('institucion') ? 'campo-input--error' : ''}`}
+                className={`campo-select ${veError('institucion') ? 'campo-input--error' : ''}`}
                 value={datos.institucion}
-                maxLength={MAX_CORTO}
-                autoComplete="organization"
-                placeholder="Nombre de la institución"
                 onChange={(e) => setDatos((prev) => ({ ...prev, institucion: e.target.value }))}
                 onBlur={() => setTocados((prev) => ({ ...prev, institucion: true }))}
-              />
-              <datalist id="instituciones-sugeridas">
-                {INSTITUCIONES_SUGERIDAS.map((n) => (
-                  <option key={n} value={n} />
+              >
+                <option value="">Seleccione su institución</option>
+                {INSTITUCIONES_MANIZALES.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
                 ))}
-              </datalist>
+              </select>
               {veError('institucion') && <p className="campo-error">{errores.institucion}</p>}
             </div>
           </div>

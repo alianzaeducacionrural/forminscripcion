@@ -1,8 +1,8 @@
-// Institución es texto libre: el campo sugiere las 13 instituciones educativas
-// rurales de Manizales con autocompletado, pero acepta cualquier texto (por si
-// participa alguien de otra institución). Duplicada en backend/Code.js
-// (INSTITUCIONES_SEED).
-export const INSTITUCIONES_SUGERIDAS = [
+// Lista cerrada: las instituciones educativas rurales de Manizales que
+// acompaña el programa. El campo Institución es un <select> con estas
+// opciones únicamente (no texto libre). Duplicada en backend/Code.js
+// (INSTITUCIONES_SEED), que además valida que el envío traiga una de estas.
+export const INSTITUCIONES_MANIZALES = [
   'Giovanni Montini',
   'Granada',
   'José Antonio Galán',

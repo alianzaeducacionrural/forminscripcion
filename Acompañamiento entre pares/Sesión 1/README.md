@@ -20,12 +20,13 @@ Base: `https://alianzaeducacionrural.github.io/forminscripcion/acompanamiento-pa
 - **"Mi capital de experiencia"** agrega, por cada componente, un semáforo de valoración de 3
   niveles (verde "lo domino", amarillo "lo estoy fortaleciendo", azul "quiero aprender"),
   transcrito literalmente de la hoja original.
-- **Quién diligencia:** nombre y institución son **texto libre** (el campo Institución sugiere
-  las 13 instituciones educativas rurales de Manizales con autocompletado — el mismo catálogo
-  de los formularios hermanos — pero acepta cualquier texto). Lista en
-  `frontend/src/data/catalogos.js` y en `backend/Code.js` (`INSTITUCIONES_SEED`); si la red de
-  instituciones que participa en esta estrategia difiere, se actualiza en los dos lugares y se
-  vuelve a correr `clasp push`.
+- **Quién diligencia:** el nombre es texto libre; la institución es un `<select>` con **lista
+  cerrada** de las 13 instituciones educativas rurales de Manizales que acompaña el programa
+  (mismo catálogo que los formularios hermanos). Validado también en el backend (no distingue
+  tildes ni mayúsculas). Lista en `frontend/src/data/catalogos.js`
+  (`INSTITUCIONES_MANIZALES`) y en `backend/Code.js` (`INSTITUCIONES_SEED`); si la red de
+  instituciones cambia, se actualiza en los dos lugares y se vuelve a correr `clasp push` +
+  `clasp deploy -i <deploymentId>`.
 - **Todos los campos de cada componente son obligatorios**, validado en el frontend y en el
   backend.
 - **Reenvíos:** una persona puede volver a enviar para corregir. Los envíos anteriores quedan
