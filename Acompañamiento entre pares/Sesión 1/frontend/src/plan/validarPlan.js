@@ -2,6 +2,14 @@ import { MAX_ACCIONES, MAX_CARACTERES, MAX_CORTO } from '../data/catalogos.js';
 
 const CORREO_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Los dos integrantes de la dupla se manejan como "1" y "2", nunca como
+// "experimentado"/"nuevo": esa distinción ya vive en las otras dos
+// herramientas (cada una la diligencia una sola persona, sobre sí misma);
+// repetirla aquí, en un documento conjunto que reciben ambos, podía leerse
+// como una jerarquía entre los dos rectores de la dupla — decisión
+// explícita del usuario, no un descuido.
+const SUFIJOS = ['1', '2'];
+
 let contador = 0;
 function nuevoId() {
   contador += 1;
@@ -19,12 +27,12 @@ export function accionVacia(config) {
 
 export function estadoInicial(config) {
   return {
-    institucionExperimentado: '',
-    nombreExperimentado: '',
-    correoExperimentado: '',
-    institucionNuevo: '',
-    nombreNuevo: '',
-    correoNuevo: '',
+    institucion1: '',
+    nombre1: '',
+    correo1: '',
+    institucion2: '',
+    nombre2: '',
+    correo2: '',
     acciones: [accionVacia(config)],
     compromiso: '',
   };
@@ -39,16 +47,16 @@ export function restaurarBorrador(config, borrador) {
   const guardadas = Array.isArray(borrador.acciones) ? borrador.acciones.filter((f) => f && typeof f === 'object') : [];
   const acciones = guardadas.map((f) => ({ ...accionVacia(config), ...f }));
 
-  return {
-    institucionExperimentado: typeof borrador.institucionExperimentado === 'string' ? borrador.institucionExperimentado : '',
-    nombreExperimentado: typeof borrador.nombreExperimentado === 'string' ? borrador.nombreExperimentado : '',
-    correoExperimentado: typeof borrador.correoExperimentado === 'string' ? borrador.correoExperimentado : '',
-    institucionNuevo: typeof borrador.institucionNuevo === 'string' ? borrador.institucionNuevo : '',
-    nombreNuevo: typeof borrador.nombreNuevo === 'string' ? borrador.nombreNuevo : '',
-    correoNuevo: typeof borrador.correoNuevo === 'string' ? borrador.correoNuevo : '',
-    acciones: acciones.length > 0 ? acciones : base.acciones,
-    compromiso: typeof borrador.compromiso === 'string' ? borrador.compromiso : '',
-  };
+  const datos = { ...base, acciones: acciones.length > 0 ? acciones : base.acciones };
+  SUFIJOS.forEach((s) => {
+    ['institucion', 'nombre', 'correo'].forEach((campo) => {
+      const clave = `${campo}${s}`;
+      if (typeof borrador[clave] === 'string') datos[clave] = borrador[clave];
+    });
+  });
+  if (typeof borrador.compromiso === 'string') datos.compromiso = borrador.compromiso;
+
+  return datos;
 }
 
 /** Recorta y colapsa espacios internos (igual que el backend). */
@@ -60,16 +68,15 @@ function vacio(valor) {
   return !valor || !String(valor).trim();
 }
 
-/** errores = { institucionExperimentado?, nombreExperimentado?, correoExperimentado?,
- *              institucionNuevo?, nombreNuevo?, correoNuevo?, compromiso?,
+/** errores = { institucion1?, nombre1?, correo1?, institucion2?, nombre2?, correo2?, compromiso?,
  *              acciones: { [idAccion]: { [clave]: mensaje } } } */
 export function validarPlan(config, datos) {
   const errores = { acciones: {} };
 
-  ['Experimentado', 'Nuevo'].forEach((sufijo) => {
-    const institucionK = `institucion${sufijo}`;
-    const nombreK = `nombre${sufijo}`;
-    const correoK = `correo${sufijo}`;
+  SUFIJOS.forEach((s) => {
+    const institucionK = `institucion${s}`;
+    const nombreK = `nombre${s}`;
+    const correoK = `correo${s}`;
 
     if (vacio(datos[institucionK])) errores[institucionK] = 'Seleccione la institución.';
 
@@ -97,13 +104,13 @@ export function validarPlan(config, datos) {
 }
 
 export function esValido(errores) {
-  const camposPlanos = ['institucionExperimentado', 'nombreExperimentado', 'correoExperimentado', 'institucionNuevo', 'nombreNuevo', 'correoNuevo', 'compromiso'];
+  const camposPlanos = ['institucion1', 'nombre1', 'correo1', 'institucion2', 'nombre2', 'correo2', 'compromiso'];
   return camposPlanos.every((k) => !errores[k]) && Object.keys(errores.acciones).length === 0;
 }
 
 /** Progreso: campos obligatorios con contenido / campos obligatorios totales. */
 export function calcularProgreso(config, datos) {
-  const camposPlanos = ['institucionExperimentado', 'nombreExperimentado', 'correoExperimentado', 'institucionNuevo', 'nombreNuevo', 'correoNuevo', 'compromiso'];
+  const camposPlanos = ['institucion1', 'nombre1', 'correo1', 'institucion2', 'nombre2', 'correo2', 'compromiso'];
   let total = camposPlanos.length;
   let listos = camposPlanos.filter((k) => !vacio(datos[k])).length;
   datos.acciones.forEach((accion) => {
@@ -132,20 +139,18 @@ export function puedeAgregarAccion(datos) {
 
 /** Lo que viaja al backend: sin ids internos, con texto recortado. */
 export function armarPayload(config, datos) {
-  return {
-    institucionExperimentado: limpiarTexto(datos.institucionExperimentado),
-    nombreExperimentado: limpiarTexto(datos.nombreExperimentado),
-    correoExperimentado: limpiarTexto(datos.correoExperimentado).toLowerCase(),
-    institucionNuevo: limpiarTexto(datos.institucionNuevo),
-    nombreNuevo: limpiarTexto(datos.nombreNuevo),
-    correoNuevo: limpiarTexto(datos.correoNuevo).toLowerCase(),
-    compromiso: limpiarTexto(datos.compromiso),
-    acciones: datos.acciones.map((accion) => {
-      const salida = {};
-      config.campos.forEach((c) => {
-        salida[c.clave] = String(accion[c.clave]).trim();
-      });
-      return salida;
-    }),
-  };
+  const payload = { compromiso: limpiarTexto(datos.compromiso) };
+  SUFIJOS.forEach((s) => {
+    payload[`institucion${s}`] = limpiarTexto(datos[`institucion${s}`]);
+    payload[`nombre${s}`] = limpiarTexto(datos[`nombre${s}`]);
+    payload[`correo${s}`] = limpiarTexto(datos[`correo${s}`]).toLowerCase();
+  });
+  payload.acciones = datos.acciones.map((accion) => {
+    const salida = {};
+    config.campos.forEach((c) => {
+      salida[c.clave] = String(accion[c.clave]).trim();
+    });
+    return salida;
+  });
+  return payload;
 }

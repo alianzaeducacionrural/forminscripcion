@@ -17,6 +17,8 @@
   }
 }
 
+/* Los dos bloques de la dupla se ven exactamente igual — ningún color ni
+   énfasis distingue a un integrante del otro (ver PlanAccionForm.jsx). */
 .dupla-bloque {
   display: flex;
   flex-direction: column;
@@ -27,14 +29,6 @@
   background: var(--paper);
 }
 
-.dupla-bloque--ambar {
-  background: var(--ambar-soft);
-}
-
-.dupla-bloque--turquesa {
-  background: var(--turquesa-soft);
-}
-
 .etiqueta-rol {
   align-self: flex-start;
   display: inline-block;
@@ -43,18 +37,11 @@
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: var(--ink-2);
   padding: 4px var(--space-3);
   border: 2px solid var(--ink);
   border-radius: var(--radius-pill);
   background: var(--card);
-}
-
-.etiqueta-rol--ambar {
-  color: var(--ambar-deep);
-}
-
-.etiqueta-rol--turquesa {
-  color: var(--turquesa-deep);
 }
 
 /* Agregar acción */

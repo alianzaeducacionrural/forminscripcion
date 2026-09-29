@@ -6,10 +6,10 @@ function PlanCard({ plan }) {
     <div className="envio">
       <div className="envio-cabecera">
         <span className="envio-nombre">
-          {plan.nombreExperimentado} · {plan.nombreNuevo}
+          {plan.nombre1} · {plan.nombre2}
         </span>
         <span className="envio-institucion">
-          {plan.institucionExperimentado} → {plan.institucionNuevo}
+          {plan.institucion1} · {plan.institucion2}
         </span>
         <span className="envio-fecha">
           {formatearFecha(plan.fecha)}

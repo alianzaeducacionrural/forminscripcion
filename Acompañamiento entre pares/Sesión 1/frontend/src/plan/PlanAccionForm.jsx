@@ -23,9 +23,14 @@ import { listInstituciones } from '../api.js';
 import '../herramienta/herramienta.css';
 import './plan.css';
 
+// Los dos integrantes de la dupla se muestran igual, sin etiquetar a
+// ninguno como "el experimentado" o "el nuevo": esa distinción ya vive en
+// las otras dos herramientas, y repetirla aquí — en un formulario que
+// llenan y reciben los dos juntos — podía leerse como una jerarquía entre
+// ellos. Decisión explícita del usuario, no un descuido.
 const PERSONAS = [
-  { sufijo: 'Experimentado', etiqueta: 'Rector con experiencia', clase: 'ambar' },
-  { sufijo: 'Nuevo', etiqueta: 'Rector nuevo', clase: 'turquesa' },
+  { sufijo: '1', etiqueta: 'Integrante 1' },
+  { sufijo: '2', etiqueta: 'Integrante 2' },
 ];
 
 /**
@@ -40,8 +45,8 @@ export default function PlanAccionForm({ config, enviar }) {
     const borrador = store.loadDraft();
     const conContenido =
       borrador &&
-      (borrador.nombreExperimentado ||
-        borrador.nombreNuevo ||
+      (borrador.nombre1 ||
+        borrador.nombre2 ||
         (borrador.acciones || []).some((f) => Object.values(f).some(Boolean)));
     return conContenido
       ? { datos: restaurarBorrador(config, borrador), restaurado: true }
@@ -153,10 +158,10 @@ export default function PlanAccionForm({ config, enviar }) {
       intentoRef.current = null;
       store.clearDraft();
       setResultado({
-        nombreExperimentado: datos.nombreExperimentado.trim(),
-        nombreNuevo: datos.nombreNuevo.trim(),
-        correoExperimentado: datos.correoExperimentado.trim(),
-        correoNuevo: datos.correoNuevo.trim(),
+        nombre1: datos.nombre1.trim(),
+        nombre2: datos.nombre2.trim(),
+        correo1: datos.correo1.trim(),
+        correo2: datos.correo2.trim(),
         correoEnviado: Boolean(respuesta?.correoEnviado),
       });
       setMostrarModal(false);
@@ -229,9 +234,9 @@ export default function PlanAccionForm({ config, enviar }) {
             <span className="numerito">★</span> ¿Quiénes conforman la dupla?
           </h2>
           <div className="dupla-grid">
-            {PERSONAS.map(({ sufijo, etiqueta, clase }) => (
-              <div key={sufijo} className={`dupla-bloque dupla-bloque--${clase}`}>
-                <span className={`etiqueta-rol etiqueta-rol--${clase}`}>{etiqueta}</span>
+            {PERSONAS.map(({ sufijo, etiqueta }) => (
+              <div key={sufijo} className="dupla-bloque">
+                <span className="etiqueta-rol">{etiqueta}</span>
                 <div>
                   <label className="campo-etiqueta" htmlFor={`nombre${sufijo}`}>
                     Nombre

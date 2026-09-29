@@ -113,10 +113,13 @@ export function distribucionValoracion(resumenes) {
  * institución + nombre — una dupla puede cruzar dos instituciones distintas.
  * Devuelve una lista de planes vigentes con sus acciones ordenadas.
  */
+// Los dos integrantes de la dupla se leen y se muestran como "1" y "2",
+// nunca como "experimentado"/"nuevo" — ver la nota en backend/Code.js
+// (PLAN_ACCION_HEADERS). Decisión explícita del usuario.
 export function planesVigentes(filas) {
   const porDupla = new Map();
   filas.forEach((fila) => {
-    const clave = `${normalizar(fila.nombre_experimentado)}|${normalizar(fila.nombre_nuevo)}`;
+    const clave = `${normalizar(fila.nombre_1)}|${normalizar(fila.nombre_2)}`;
     if (!porDupla.has(clave)) porDupla.set(clave, new Map());
     const envios = porDupla.get(clave);
     if (!envios.has(fila.id_envio)) envios.set(fila.id_envio, []);
@@ -134,12 +137,12 @@ export function planesVigentes(filas) {
     vigentes.push({
       idEnvio: elegido.idEnvio,
       fecha: elegido.fecha,
-      institucionExperimentado: primera.institucion_experimentado,
-      nombreExperimentado: primera.nombre_experimentado,
-      correoExperimentado: primera.correo_experimentado,
-      institucionNuevo: primera.institucion_nuevo,
-      nombreNuevo: primera.nombre_nuevo,
-      correoNuevo: primera.correo_nuevo,
+      institucion1: primera.institucion_1,
+      nombre1: primera.nombre_1,
+      correo1: primera.correo_1,
+      institucion2: primera.institucion_2,
+      nombre2: primera.nombre_2,
+      correo2: primera.correo_2,
       compromiso: primera.compromiso,
       acciones: [...elegido.filas].sort((a, b) => a.orden - b.orden),
       totalEnvios: envios.size,
@@ -152,12 +155,12 @@ export function planesVigentes(filas) {
 export function filasParaCSVPlan(planes) {
   return planes.flatMap((plan) =>
     plan.acciones.map((fila) => ({
-      institucion_experimentado: plan.institucionExperimentado,
-      nombre_experimentado: plan.nombreExperimentado,
-      correo_experimentado: plan.correoExperimentado,
-      institucion_nuevo: plan.institucionNuevo,
-      nombre_nuevo: plan.nombreNuevo,
-      correo_nuevo: plan.correoNuevo,
+      institucion_1: plan.institucion1,
+      nombre_1: plan.nombre1,
+      correo_1: plan.correo1,
+      institucion_2: plan.institucion2,
+      nombre_2: plan.nombre2,
+      correo_2: plan.correo2,
       fecha_envio: plan.fecha,
       orden: fila.orden,
       reto: fila.reto,

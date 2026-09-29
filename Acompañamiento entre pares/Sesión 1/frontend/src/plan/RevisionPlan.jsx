@@ -16,11 +16,11 @@ export default function RevisionPlan({ config, datos, enviando, errorEnvio, onEd
     <section className="revision entra" aria-label="Confirmar envío">
       <h2>¿Confirma el envío?</h2>
       <p className="revision-quien">
-        <strong>{limpiarTexto(datos.nombreExperimentado)}</strong> ({limpiarTexto(datos.institucionExperimentado)}) y{' '}
-        <strong>{limpiarTexto(datos.nombreNuevo)}</strong> ({limpiarTexto(datos.institucionNuevo)})
+        <strong>{limpiarTexto(datos.nombre1)}</strong> ({limpiarTexto(datos.institucion1)}) y{' '}
+        <strong>{limpiarTexto(datos.nombre2)}</strong> ({limpiarTexto(datos.institucion2)})
       </p>
       <p className="revision-ayuda">
-        Enviaremos un PDF con este plan a {limpiarTexto(datos.correoExperimentado)} y {limpiarTexto(datos.correoNuevo)}.
+        Enviaremos un PDF con este plan a {limpiarTexto(datos.correo1)} y {limpiarTexto(datos.correo2)}.
         Revise que todo esté correcto antes de confirmar.
       </p>
 

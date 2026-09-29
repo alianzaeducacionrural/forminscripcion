@@ -16,10 +16,11 @@
  *   POST { action: "submitNuevos", idEnvio (opcional), institucion, nombre,
  *          filas: [{ componente, situacion, queAprender, tipoApoyo }] }
  *   POST { action: "submitPlanAccion", idEnvio (opcional),
- *          institucionExperimentado, nombreExperimentado, correoExperimentado,
- *          institucionNuevo, nombreNuevo, correoNuevo, compromiso,
- *          acciones: [{ reto, accion, responsable, fecha, evidencia }, ...] }
- *          (al menos 1 acción; se pueden agregar más)
+ *          institucion1, nombre1, correo1, institucion2, nombre2, correo2,
+ *          compromiso, acciones: [{ reto, accion, responsable, fecha, evidencia }, ...] }
+ *          (al menos 1 acción; se pueden agregar más. Los dos integrantes de
+ *          la dupla van como "1" y "2", sin etiquetar a ninguno como el
+ *          experimentado o el nuevo — ver nota en PLAN_ACCION_HEADERS)
  *
  * Modelo de datos (Experimentados/Nuevos): cada envío es un conjunto de
  * EXACTAMENTE 4 filas (una por componente: Administrativo, Curricular,
@@ -114,12 +115,19 @@ var NUEVOS_HEADERS = [
 // Una fila por acción de acompañamiento (al menos 1, se pueden agregar más).
 // La identificación de la dupla y el compromiso de cierre se repiten en cada
 // fila del mismo envío (igual que institución/nombre en Experimentados/Nuevos).
+//
+// Los dos integrantes de la dupla se guardan como "1" y "2", NUNCA como
+// "experimentado"/"nuevo": es la misma información que ya se diligenció por
+// separado en las otras dos herramientas, y repetirla aquí como una etiqueta
+// sobre la persona (en la Sheet, en el PDF, en el panel) podía leerse como
+// una jerarquía entre los dos rectores de la dupla — decisión explícita del
+// usuario, no un descuido.
 var PLAN_ACCION_CAMPOS = ['reto', 'accion', 'responsable', 'fecha', 'evidencia'];
 
 var PLAN_ACCION_HEADERS = [
   'timestamp', 'id_envio',
-  'institucion_experimentado', 'nombre_experimentado', 'correo_experimentado',
-  'institucion_nuevo', 'nombre_nuevo', 'correo_nuevo',
+  'institucion_1', 'nombre_1', 'correo_1',
+  'institucion_2', 'nombre_2', 'correo_2',
   'orden', 'reto', 'accion', 'responsable', 'fecha', 'evidencia', 'compromiso'
 ];
 
@@ -385,22 +393,24 @@ function submitPlanAccion_(body) {
 }
 
 /** Identificación de los dos integrantes de la dupla; institución de cada
- * uno validada contra la lista cerrada, correos validados por formato. */
+ * uno validada contra la lista cerrada, correos validados por formato. Se
+ * tratan como "1" y "2", sin distinguir cuál es el rector con experiencia y
+ * cuál el nuevo — ver nota en PLAN_ACCION_HEADERS. */
 function validarDupla_(body, errors) {
-  var experimentado = validarPersona_(body, 'Experimentado', errors);
-  var nuevo = validarPersona_(body, 'Nuevo', errors);
+  var persona1 = validarPersona_(body, '1', errors);
+  var persona2 = validarPersona_(body, '2', errors);
   return {
-    institucionExperimentado: experimentado.institucion,
-    nombreExperimentado: experimentado.nombre,
-    correoExperimentado: experimentado.correo,
-    institucionNuevo: nuevo.institucion,
-    nombreNuevo: nuevo.nombre,
-    correoNuevo: nuevo.correo,
+    institucion1: persona1.institucion,
+    nombre1: persona1.nombre,
+    correo1: persona1.correo,
+    institucion2: persona2.institucion,
+    nombre2: persona2.nombre,
+    correo2: persona2.correo,
   };
 }
 
 function validarPersona_(body, sufijo, errors) {
-  var etiqueta = 'Rector' + (sufijo === 'Nuevo' ? ' nuevo' : ' con experiencia');
+  var etiqueta = 'Integrante ' + sufijo;
   var institucion = limpiarTexto_(body['institucion' + sufijo]);
   var nombre = limpiarTexto_(body['nombre' + sufijo]);
   var correo = limpiarTexto_(body['correo' + sufijo]).toLowerCase();
@@ -454,8 +464,8 @@ function guardarPlanAccion_(dupla, filasDatos, idEnvio) {
     var filas = filasDatos.map(function (datos, i) {
       return [
         timestamp, id,
-        dupla.institucionExperimentado, dupla.nombreExperimentado, dupla.correoExperimentado,
-        dupla.institucionNuevo, dupla.nombreNuevo, dupla.correoNuevo,
+        dupla.institucion1, dupla.nombre1, dupla.correo1,
+        dupla.institucion2, dupla.nombre2, dupla.correo2,
         i + 1,
       ].concat(datos);
     });
@@ -482,7 +492,7 @@ function guardarPlanAccion_(dupla, filasDatos, idEnvio) {
  * el correo — no queda como archivo suelto en Drive.
  */
 function enviarPlanPorCorreo_(dupla, acciones, compromiso) {
-  var nombreDoc = 'Plan de acompañamiento — ' + dupla.nombreExperimentado + ' y ' + dupla.nombreNuevo;
+  var nombreDoc = 'Plan de acompañamiento — ' + dupla.nombre1 + ' y ' + dupla.nombre2;
   var doc = DocumentApp.create(nombreDoc);
   var body = doc.getBody();
 
@@ -490,11 +500,14 @@ function enviarPlanPorCorreo_(dupla, acciones, compromiso) {
   body.appendParagraph('Mi primer reto de acompañamiento').setHeading(DocumentApp.ParagraphHeading.HEADING1);
   body.appendParagraph('Microplan de acompañamiento entre pares').setItalic(true);
 
+  // "Integrante 1" / "Integrante 2", nunca "experimentado"/"nuevo": esa
+  // distinción ya vive en las otras dos herramientas; repetirla aquí, sobre
+  // un documento que reciben los dos, podía leerse como jerarquía.
   body.appendParagraph('Dupla').setHeading(DocumentApp.ParagraphHeading.HEADING2);
   body.appendTable([
     ['', 'Nombre', 'Correo', 'Institución'],
-    ['Rector con experiencia', dupla.nombreExperimentado, dupla.correoExperimentado, dupla.institucionExperimentado],
-    ['Rector nuevo', dupla.nombreNuevo, dupla.correoNuevo, dupla.institucionNuevo],
+    ['Integrante 1', dupla.nombre1, dupla.correo1, dupla.institucion1],
+    ['Integrante 2', dupla.nombre2, dupla.correo2, dupla.institucion2],
   ]);
 
   body.appendParagraph('Plan de acción').setHeading(DocumentApp.ParagraphHeading.HEADING2);
@@ -520,10 +533,10 @@ function enviarPlanPorCorreo_(dupla, acciones, compromiso) {
 
   try {
     MailApp.sendEmail({
-      to: dupla.correoExperimentado + ',' + dupla.correoNuevo,
+      to: dupla.correo1 + ',' + dupla.correo2,
       subject: 'Su plan de acompañamiento entre pares — Sesión 1',
       body:
-        'Hola ' + dupla.nombreExperimentado + ' y ' + dupla.nombreNuevo + ',\n\n' +
+        'Hola ' + dupla.nombre1 + ' y ' + dupla.nombre2 + ',\n\n' +
         'Adjunto el plan de acompañamiento que definieron en la Sesión 1 de Acompañamiento entre Pares. ' +
         '¡Éxitos con el reto!\n\nAcompañamiento entre Pares',
       attachments: [pdf],
