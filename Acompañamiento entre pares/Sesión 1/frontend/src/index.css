@@ -1,0 +1,359 @@
+/* =====================================================================
+   Sistema visual — "Acompañamiento entre Pares"
+   Papel cálido + tinta, bordes gruesos, sombras duras (sin blur) y color
+   pleno (mismo lenguaje que los formularios hermanos de la organización).
+   Cada herramienta tiene su propio acento: "Mi capital de experiencia"
+   (rectores experimentados) en ámbar/tierra — un color maduro, de oficio;
+   "Mi mapa de necesidades" (rectores nuevos) en turquesa — fresco, de
+   arranque. El semáforo de valoración (verde/amarillo/azul) es fijo y no
+   cambia con el tema: son sus propios tres colores con significado.
+   ===================================================================== */
+
+:root {
+  --paper: #fff7e8;
+  --paper-2: #ffeed0;
+  --card: #ffffff;
+
+  --ink: #1b1712;
+  --ink-2: #4a4238;
+  --ink-3: #7a6f62;
+  --line: var(--ink);
+  --line-soft: #e6d9bf;
+
+  --blue: #2f55ff;
+  --blue-deep: #1b34c9;
+  --blue-soft: #dfe6ff;
+  --sun: #ffc526;
+  --sun-soft: #fff0b5;
+  --green: #0f9d58;
+  --green-deep: #0a6a3b;
+  --green-soft: #d3f4df;
+  --orange: #ff7d1a;
+  --orange-soft: #ffe4c9;
+  --coral: #ff5c4d;
+  --coral-soft: #ffdcd7;
+  --violet: #7c4dff;
+  --violet-soft: #e6dcff;
+
+  --error: #d92d20;
+  --error-soft: #ffe3df;
+
+  /* Acentos de cada herramienta */
+  --ambar: #d98c0a;
+  --ambar-deep: #a3670a;
+  --ambar-soft: #ffe6b8;
+  --turquesa: #0891b2;
+  --turquesa-deep: #0b6577;
+  --turquesa-soft: #cdf1f7;
+
+  /* Acento activo (Experimentados por defecto; cada página fija data-tema) */
+  --acc: var(--ambar);
+  --acc-deep: var(--ambar-deep);
+  --acc-soft: var(--ambar-soft);
+  --acc2: var(--coral);
+  --acc2-soft: var(--coral-soft);
+  --on-acc: #ffffff;
+
+  --exp: var(--ambar);
+  --exp-soft: var(--ambar-soft);
+  --nue: var(--turquesa);
+  --nue-soft: var(--turquesa-soft);
+
+  /* Semáforo de valoración: fijo, no depende del tema de la página */
+  --val-domina: var(--green);
+  --val-domina-soft: var(--green-soft);
+  --val-fortaleciendo: #c9960a;
+  --val-fortaleciendo-soft: var(--sun-soft);
+  --val-aprender: var(--blue);
+  --val-aprender-soft: var(--blue-soft);
+
+  --font-display: 'Bricolage Grotesque Variable', 'Arial Black', system-ui, sans-serif;
+  --font-body: 'Figtree Variable', system-ui, 'Segoe UI', Roboto, sans-serif;
+
+  /* Escala de texto: mínimo 14px para que se lea bien en pantalla y en móvil */
+  --text-xs: 0.875rem;
+  --text-sm: 1rem;
+  --text-base: 1.0625rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.625rem;
+  --text-xl: 2.125rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+  --radius-pill: 999px;
+
+  --borde: 3px solid var(--ink);
+  --sombra: 5px 5px 0 var(--ink);
+  --sombra-chica: 3px 3px 0 var(--ink);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ancho: 1040px;
+}
+
+/* Rectores nuevos: turquesa + amarillo sol */
+:root[data-tema='turquesa'] {
+  --acc: var(--turquesa);
+  --acc-deep: var(--turquesa-deep);
+  --acc-soft: var(--turquesa-soft);
+  --acc2: var(--sun);
+  --acc2-soft: var(--sun-soft);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  /* Trama de puntos: textura de papel sin imágenes */
+  background-image: radial-gradient(rgba(27, 23, 18, 0.11) 1.2px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--ink);
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--sun);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------------
+   Botones: relieve duro que se "hunde" al presionar
+   --------------------------------------------------------------------- */
+
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-base);
+  padding: 0.8rem 1.6rem;
+  border-radius: var(--radius-pill);
+  border: var(--borde);
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--sombra-chica);
+  cursor: pointer;
+  transition: transform 140ms var(--ease-out), box-shadow 140ms var(--ease-out), background-color 140ms ease;
+}
+
+.boton:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.boton:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.boton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.boton--primario {
+  background: var(--acc);
+  color: var(--on-acc);
+  font-size: var(--text-md);
+  padding: 1rem 2.2rem;
+  box-shadow: var(--sombra);
+}
+
+.boton--primario:hover:not(:disabled) {
+  box-shadow: 8px 8px 0 var(--ink);
+}
+
+.boton--chico {
+  font-size: var(--text-sm);
+  padding: 0.45rem 1rem;
+}
+
+.boton--texto {
+  border: none;
+  background: none;
+  box-shadow: none;
+  padding: var(--space-1) var(--space-2);
+  color: var(--error);
+  font-size: var(--text-sm);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.boton--texto:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  background: var(--error-soft);
+}
+
+.boton--texto:active:not(:disabled) {
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------
+   Campos
+   --------------------------------------------------------------------- */
+
+.campo-etiqueta {
+  display: block;
+  font-weight: 800;
+  font-size: var(--text-sm);
+  color: var(--ink);
+  margin-bottom: var(--space-2);
+}
+
+.campo-opcional {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+.campo-input,
+.campo-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  line-height: 1.45;
+  transition: box-shadow 140ms var(--ease-out), background-color 140ms ease, transform 140ms var(--ease-out);
+}
+
+.campo-input::placeholder {
+  color: var(--ink-3);
+}
+
+.campo-input:focus,
+.campo-select:focus {
+  outline: none;
+  background: var(--card);
+  box-shadow: 4px 4px 0 var(--acc);
+  transform: translate(-2px, -2px);
+}
+
+.campo-textarea {
+  resize: vertical;
+  min-height: 6rem;
+}
+
+.campo-select {
+  appearance: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding-right: 2.6rem;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%),
+    linear-gradient(135deg, var(--ink) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+.campo-input--error {
+  border-color: var(--error);
+  background: var(--error-soft);
+}
+
+.campo-error {
+  color: var(--error);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  margin-top: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------
+   Avisos y animación de entrada
+   --------------------------------------------------------------------- */
+
+.aviso {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  padding: var(--space-3) var(--space-4);
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-4);
+}
+
+.aviso--info {
+  background: var(--sun-soft);
+}
+
+.aviso--advertencia {
+  background: var(--coral-soft);
+}
+
+.entra {
+  animation: entra-arriba 420ms var(--ease-out) both;
+}
+
+@keyframes entra-arriba {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

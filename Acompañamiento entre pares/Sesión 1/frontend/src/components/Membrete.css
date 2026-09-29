@@ -1,0 +1,48 @@
+.membrete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  padding: var(--space-4) var(--space-4);
+  background: var(--card);
+  border-bottom: var(--borde);
+}
+
+.membrete-logo {
+  height: 40px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  display: block;
+}
+
+.membrete-logo--evidencia {
+  height: 46px;
+}
+
+.membrete-separador {
+  width: 2px;
+  height: 32px;
+  background: var(--line-soft);
+  flex-shrink: 0;
+}
+
+@media (max-width: 560px) {
+  .membrete {
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .membrete-logo {
+    height: 30px;
+  }
+
+  .membrete-logo--evidencia {
+    height: 36px;
+  }
+
+  .membrete-separador {
+    height: 24px;
+  }
+}
