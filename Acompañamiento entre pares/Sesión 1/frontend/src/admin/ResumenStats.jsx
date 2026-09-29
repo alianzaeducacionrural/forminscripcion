@@ -4,7 +4,7 @@ export default function ResumenStats({ totales }) {
     {
       clase: 'exp',
       valor: totales.rectoresExperimentados,
-      etiqueta: 'rectores experimentados',
+      etiqueta: 'rectores con experiencia',
       nota: `${totales.componentesExp} ${totales.componentesExp === 1 ? 'componente diligenciado' : 'componentes diligenciados'}`,
     },
     {

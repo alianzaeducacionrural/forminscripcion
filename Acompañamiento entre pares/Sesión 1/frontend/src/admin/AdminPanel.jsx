@@ -49,7 +49,7 @@ export default function AdminPanel() {
           <div>
             <span className="admin-hero-etiqueta">Acompañamiento entre Pares · Sesión 1</span>
             <h1>Panel de coordinación</h1>
-            <p>Rectores experimentados y rectores nuevos, por institución</p>
+            <p>Rectores con experiencia y rectores nuevos, por institución</p>
           </div>
           <button type="button" className="boton" onClick={cargar} disabled={cargando}>
             {cargando ? 'Actualizando…' : '↻ Actualizar'}

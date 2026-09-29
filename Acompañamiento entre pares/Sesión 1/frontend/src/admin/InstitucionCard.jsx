@@ -39,7 +39,7 @@ export default function InstitucionCard({ resumen, indice, onAbrir }) {
       <div className="ies-card-cabecera">
         <span className="ies-card-nombre">{institucion}</span>
       </div>
-      <LineaHerramienta clase="exp" nombre="Experimentados" envios={exp} />
+      <LineaHerramienta clase="exp" nombre="Con experiencia" envios={exp} />
       <LineaHerramienta clase="nue" nombre="Nuevos" envios={nue} />
       <span className="ies-card-personas">{rectores.join(' · ')}</span>
     </button>

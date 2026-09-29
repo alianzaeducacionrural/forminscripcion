@@ -6,7 +6,7 @@ de instituciones educativas rurales de Manizales, más un panel de coordinación
 | Enlace | Qué es |
 |---|---|
 | `…/acompanamiento-pares-sesion-1/` | Landing: elegir la herramienta según el rol |
-| `…/experimentados/` | **"Mi capital de experiencia"** — rectores experimentados: fortaleza + evidencia + posibilidad de transferencia, con semáforo de valoración |
+| `…/experimentados/` | **"Mi capital de experiencia"** — rectores con experiencia: fortaleza + evidencia + posibilidad de transferencia, con semáforo de valoración |
 | `…/nuevos/` | **"Mi mapa de necesidades para acompañar la trayectoria"** — rectores nuevos |
 | `…/admin/` | Panel de coordinación (enlace no listado, sin login, `noindex`) |
 
@@ -34,9 +34,9 @@ Base: `https://alianzaeducacionrural.github.io/forminscripcion/acompanamiento-pa
   institución + nombre. Tras enviar, el botón "Enviar una versión corregida" reabre el
   formulario.
 - **Borrador:** lo escrito se guarda en el navegador (localStorage) hasta que se envía.
-- **Panel:** resumen (instituciones registradas, rectores experimentados/nuevos), tarjeta por
+- **Panel:** resumen (instituciones registradas, rectores con experiencia/nuevos), tarjeta por
   institución (solo aparecen las que ya enviaron algo) con el estado de cada herramienta,
-  semáforo de valoración por componente (consolidado de todos los rectores experimentados),
+  semáforo de valoración por componente (consolidado de todos los rectores con experiencia),
   detalle de cada institución y consolidado de todas, descarga de CSV por herramienta.
 - Diseño: papel cálido + tinta, bordes gruesos y sombras duras, Bricolage Grotesque + Figtree
   (mismo lenguaje visual de los formularios hermanos). "Mi capital de experiencia" en ámbar
