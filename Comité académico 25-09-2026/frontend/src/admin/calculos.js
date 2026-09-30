@@ -1,4 +1,4 @@
-import { MATRIZ_1, MATRIZ_2, VALORACION_OPCIONES, valoracionPorValor } from '../data/catalogos.js';
+import { MATRIZ_1, MATRIZ_2, valoracionPorValor } from '../data/catalogos.js';
 
 /** Clave de comparación: sin tildes, mayúsculas ni espacios de más. "Univ. de  Caldas" ≈ "univ. de caldas". */
 export function normalizar(texto) {
@@ -108,23 +108,39 @@ export function distribucionCategorias(resumenes) {
   return lista.sort((a, b) => b.total - a.total);
 }
 
-/** Cuántas estrategias vigentes hay en cada nivel de la escala de valoración (Matriz 2). */
-export function distribucionValoracion(resumenes) {
-  const conteo = new Map(VALORACION_OPCIONES.map((o) => [o.valor, 0]));
-  let sinValorar = 0;
+/**
+ * Cómo valoraron los docentes cada estrategia de la Matriz 2 (Matriz 2), una entrada
+ * por estrategia con el conteo por nivel de la escala. Los 5 aspectos fijos siempre
+ * aparecen, en su orden, aunque todavía no tengan valoraciones; los aspectos que una
+ * IES haya agregado por su cuenta aparecen después, alfabéticamente.
+ */
+export function distribucionPorEstrategia(resumenes) {
+  const mapa = new Map();
+  const vacio = () => ({ domino: 0, fortaleciendo: 0, inicial: 0 });
+  MATRIZ_2.filasFijas.forEach((aspecto) => mapa.set(aspecto, { aspecto, conteo: vacio(), total: 0 }));
 
   resumenes.forEach((r) => {
     r.m2.forEach((envio) =>
       envio.filas.forEach((fila) => {
-        if (fila.valoracion && conteo.has(fila.valoracion)) conteo.set(fila.valoracion, conteo.get(fila.valoracion) + 1);
-        else sinValorar += 1;
+        const aspecto = fila.aspecto;
+        if (!aspecto) return;
+        if (!mapa.has(aspecto)) mapa.set(aspecto, { aspecto, conteo: vacio(), total: 0 });
+        const entrada = mapa.get(aspecto);
+        if (fila.valoracion && entrada.conteo[fila.valoracion] !== undefined) {
+          entrada.conteo[fila.valoracion] += 1;
+          entrada.total += 1;
+        }
       })
     );
   });
 
-  const lista = VALORACION_OPCIONES.map((o) => ({ valor: o.valor, etiqueta: o.etiqueta, color: o.color, total: conteo.get(o.valor) }));
-  if (sinValorar > 0) lista.push({ valor: '', etiqueta: 'Sin valorar', color: 'gris', total: sinValorar });
-  return lista;
+  const fijos = MATRIZ_2.filasFijas;
+  return [...mapa.values()].sort((a, b) => {
+    const ia = fijos.indexOf(a.aspecto);
+    const ib = fijos.indexOf(b.aspecto);
+    if (ia !== -1 || ib !== -1) return (ia === -1 ? fijos.length : ia) - (ib === -1 ? fijos.length : ib);
+    return a.aspecto.localeCompare(b.aspecto, 'es');
+  });
 }
 
 /** Filas para CSV: institución, quién diligenció, fecha del envío y una columna por campo de la matriz. */
