@@ -155,7 +155,8 @@ textarea {
   top: 0;
   z-index: 5;
   padding: 12px 0 10px;
-  background: linear-gradient(var(--bg) 70%, transparent);
+  background: var(--bg);
+  box-shadow: 0 10px 14px -8px var(--bg);
 }
 .barra {
   position: relative;

@@ -220,7 +220,7 @@ export default function App() {
         {estado !== 'enviado' && id === 'inicio' && <Bienvenida />}
 
         {estado !== 'enviado' && id === 'caracterizacion' && (
-          <Caracterizacion datos={datos} poner={poner} errores={errores} setDatos={setDatos} />
+          <Caracterizacion datos={datos} poner={poner} errores={errores} setDatos={setDatos} setErrores={setErrores} />
         )}
 
         {estado !== 'enviado' && bloque && (
@@ -356,7 +356,7 @@ function Selector({ etiqueta, campo, valor, onChange, opciones, deshabilitado, a
   )
 }
 
-function Caracterizacion({ datos, poner, errores, setDatos }) {
+function Caracterizacion({ datos, poner, errores, setDatos, setErrores }) {
   const esOtra = datos.universidad === OTRA
   const programas = PROGRAMAS_POR_UNIVERSIDAD[datos.universidad] || []
 
@@ -376,7 +376,10 @@ function Caracterizacion({ datos, poner, errores, setDatos }) {
           placeholder="Selecciona tu universidad"
           opciones={[...UNIVERSIDADES, OTRA]}
           error={errores.universidad}
-          onChange={(v) => setDatos((d) => ({ ...d, universidad: v, programa: '', universidadOtra: '' }))}
+          onChange={(v) => {
+            setDatos((d) => ({ ...d, universidad: v, programa: '', universidadOtra: '' }))
+            setErrores((e) => ({ ...e, universidad: undefined, programa: undefined, universidadOtra: undefined }))
+          }}
         />
         {esOtra ? (
           <>
