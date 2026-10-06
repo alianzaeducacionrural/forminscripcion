@@ -8,6 +8,7 @@ on:
       - 'Pretest - Postest/frontend/**'
       - 'Comité académico 25-09-2026/frontend/**'
       - 'Acompañamiento entre pares/Sesión 1/frontend/**'
+      - 'Percepción pertinencia del programa/frontend/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -29,6 +30,8 @@ env:
   SITE_SLUG_3: comite-academico-matrices
   PROJECT_DIR_4: 'Acompañamiento entre pares/Sesión 1/frontend'
   SITE_SLUG_4: acompanamiento-pares-sesion-1
+  PROJECT_DIR_5: 'Percepción pertinencia del programa/frontend'
+  SITE_SLUG_5: percepcion-pertinencia-programa
 
 jobs:
   build:
@@ -47,6 +50,7 @@ jobs:
             ${{ env.PROJECT_DIR_2 }}/package-lock.json
             ${{ env.PROJECT_DIR_3 }}/package-lock.json
             ${{ env.PROJECT_DIR_4 }}/package-lock.json
+            ${{ env.PROJECT_DIR_5 }}/package-lock.json
 
       - name: Instalar dependencias — Metodologías Activas (CEPE)
         working-directory: ${{ env.PROJECT_DIR }}
@@ -88,6 +92,16 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL_ACOMPANAMIENTO_PARES }}
         run: npm run build
 
+      - name: Instalar dependencias — Percepción pertinencia del programa
+        working-directory: ${{ env.PROJECT_DIR_5 }}
+        run: npm ci
+
+      - name: Build — Percepción pertinencia del programa
+        working-directory: ${{ env.PROJECT_DIR_5 }}
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_PERCEPCION_PERTINENCIA }}
+        run: npm run build
+
       - name: Ensamblar sitio
         run: |
           mkdir -p "site/${SITE_SLUG}"
@@ -98,6 +112,8 @@ jobs:
           cp -r "${PROJECT_DIR_3}/dist/." "site/${SITE_SLUG_3}/"
           mkdir -p "site/${SITE_SLUG_4}"
           cp -r "${PROJECT_DIR_4}/dist/." "site/${SITE_SLUG_4}/"
+          mkdir -p "site/${SITE_SLUG_5}"
+          cp -r "${PROJECT_DIR_5}/dist/." "site/${SITE_SLUG_5}/"
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
