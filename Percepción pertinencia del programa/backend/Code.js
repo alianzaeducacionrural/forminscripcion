@@ -61,19 +61,16 @@ var PROGRAMAS_POR_UNIVERSIDAD = {
 var MUNICIPIO = 'Manizales';
 
 var INSTITUCIONES = [
-  'Adolfo Hoyos Ocampo',
   'Giovanni Montini',
   'Granada',
   'José Antonio Galán',
   'La Cabaña',
   'La Linda',
-  'La Palma',
   'La Trinidad',
   'La Violeta',
   'Maltería',
   'María Goretti',
   'Miguel Antonio Caro',
-  'Rafael Pombo',
   'San Peregrino',
   'Seráfico San Antonio de Padua'
 ];
