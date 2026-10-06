@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { getRespuestas } from '../api.js'
-import { ESCALA, PREGUNTAS_ABIERTAS } from '../data/encuesta.js'
+import { BLOQUES, ESCALA, NA, PREGUNTAS_ABIERTAS } from '../data/encuesta.js'
 import {
   agrupar,
   COLOR_ESCALA,
@@ -23,6 +23,8 @@ export default function Admin() {
   const [filtros, setFiltros] = useState({ universidad: '', programa: '', institucion: '' })
   const [pestana, setPestana] = useState(PREGUNTAS_ABIERTAS[0].clave)
   const [busqueda, setBusqueda] = useState('')
+  const [buscarNombre, setBuscarNombre] = useState('')
+  const [detalle, setDetalle] = useState(null)
 
   const [version, setVersion] = useState(0)
 
@@ -86,6 +88,13 @@ export default function Admin() {
       .filter((f) => !q || String(f[pestana]).toLowerCase().includes(q))
       .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))
   }, [visibles, pestana, busqueda])
+
+  const registros = useMemo(() => {
+    const q = buscarNombre.trim().toLowerCase()
+    return [...visibles]
+      .filter((f) => !q || String(f.nombre || '').toLowerCase().includes(q) || String(f.institucion).toLowerCase().includes(q))
+      .sort((x, y) => String(y.timestamp).localeCompare(String(x.timestamp)))
+  }, [visibles, buscarNombre])
 
   const hayFiltro = Object.values(filtros).some(Boolean)
   const maxGlobal = Math.max(1, ...global.map((g) => g.total))
@@ -224,16 +233,51 @@ export default function Admin() {
                     <li key={f.id_envio}>
                       <p>{f[pestana]}</p>
                       <small>
-                        {f.institucion} · {f.programa} · {universidadDe(f)}
+                        {f.nombre || 'Sin nombre'} · {f.institucion} · {f.programa} · {universidadDe(f)}
                       </small>
                     </li>
                   ))}
                 </ul>
               </section>
+
+              <section className="adm-tarjeta">
+                <h2>🗂️ Base de datos individual</h2>
+                <input type="search" className="adm-buscar" placeholder="Buscar por nombre o institución…" value={buscarNombre} onChange={(e) => setBuscarNombre(e.target.value)} />
+                <p className="adm-cuenta">{registros.length} registros · toca una fila para ver todas sus respuestas</p>
+                <div className="adm-tabla-scroll">
+                  <table className="adm-tabla adm-base">
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Universidad</th>
+                        <th>Programa</th>
+                        <th>Institución</th>
+                        <th>Prom.</th>
+                        <th>Global</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {registros.map((f) => (
+                        <tr key={f.id_envio} tabIndex={0} onClick={() => setDetalle(f)} onKeyDown={(e) => e.key === 'Enter' && setDetalle(f)}>
+                          <td>{fechaCorta(f.timestamp)}</td>
+                          <td>{f.nombre || '—'}</td>
+                          <td>{universidadDe(f)}</td>
+                          <td>{f.programa}</td>
+                          <td>{f.institucion}</td>
+                          <td>{fmt(promedioGeneral(resumenBloques([f])))}</td>
+                          <td>{f.valoracion_global}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             </>
           )}
         </>
       ) : null}
+      {detalle && <Detalle f={detalle} onCerrar={() => setDetalle(null)} />}
     </div>
   )
 }
@@ -321,5 +365,75 @@ function Tabla({ titulo, filas }) {
         </tbody>
       </table>
     </section>
+  )
+}
+
+const fechaCorta = (iso) => {
+  const d = new Date(iso)
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+function Detalle({ f, onCerrar }) {
+  useEffect(() => {
+    const cerrar = (e) => e.key === 'Escape' && onCerrar()
+    window.addEventListener('keydown', cerrar)
+    return () => window.removeEventListener('keydown', cerrar)
+  }, [onCerrar])
+
+  const texto = (v) => (v === 'N/A' ? NA.texto : ESCALA.find((e) => e.valor === v)?.texto || '')
+  return (
+    <div className="modal-fondo" onClick={onCerrar} role="presentation">
+      <div className="modal" role="dialog" aria-modal="true" aria-label={`Respuestas de ${f.nombre}`} onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="modal-x" onClick={onCerrar} aria-label="Cerrar">
+          ✕
+        </button>
+        <h2>{f.nombre || 'Sin nombre'}</h2>
+        <p className="modal-meta">
+          {universidadDe(f)} · {f.programa}
+          <br />
+          {f.institucion}, {f.municipio} · {fechaCorta(f.timestamp)}
+        </p>
+        <p className="modal-global">
+          Valoración global: <strong>{f.valoracion_global}</strong>
+        </p>
+        {BLOQUES.map((b) => (
+          <div className="adm-bloque" key={b.id}>
+            <h3>
+              {b.emoji} {b.titulo}
+            </h3>
+            {b.items.map((i) => (
+              <div className="modal-fila" key={i.clave}>
+                <span>{i.texto}</span>
+                <b className={`modal-nota n${f[i.clave] === 'N/A' ? 'a' : f[i.clave]}`} title={texto(f[i.clave])}>
+                  {f[i.clave]}
+                </b>
+              </div>
+            ))}
+          </div>
+        ))}
+        <div className="adm-bloque">
+          <h3>💬 Respuestas abiertas</h3>
+          {PREGUNTAS_ABIERTAS.map((p) => (
+            <div className="modal-abierta" key={p.clave}>
+              <small>{p.texto}</small>
+              <p>{f[p.clave] || '—'}</p>
+            </div>
+          ))}
+        </div>
+        <div className="adm-bloque">
+          <h3>🧭 Situaciones y proyección</h3>
+          <p>
+            <b>Situaciones:</b> {f.factores}
+            {f.factor_otro ? ` (otra: ${f.factor_otro})` : ''}
+          </p>
+          <p>
+            <b>Al terminar espera:</b> {f.proyeccion}
+            {f.proyeccion_otra ? ` (${f.proyeccion_otra})` : ''}
+          </p>
+        </div>
+      </div>
+    </div>
   )
 }

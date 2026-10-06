@@ -8,13 +8,13 @@
  *   GET  ?action=ping
  *   GET  ?action=getRespuestas   (uso del panel admin: todas las filas como objetos con las claves de los encabezados)
  *   POST { action: "submitEncuesta", idEnvio (UUID, opcional), universidad,
- *          universidadOtra, programa, institucion (el municipio se guarda fijo: Manizales),
+ *          nombre, universidadOtra, programa, institucion (el municipio se guarda fijo: Manizales),
  *          respuestas: { p01..p26: 1-5 | 'N/A' },
  *          valoracionGlobal: 'Muy bajo'|'Bajo'|'Medio'|'Alto'|'Muy alto',
  *          fortaleza, dificultad, cambiaria, mantener, apoyo,   (texto libre, opcionales)
  *          factores: [..máx. 3..], factorOtro, proyeccion, proyeccionOtra }
  *
- * Modelo: una fila por encuesta en la hoja "Respuestas". Es anónima (no se pide nombre).
+ * Modelo: una fila por encuesta en la hoja "Respuestas". Se pide el nombre del estudiante (columna `nombre`, agregada al final para no mover las columnas existentes).
  * Idempotencia: si `idEnvio` ya existe, responde éxito SIN volver a escribir.
  * La hoja se crea sola en la primera petición (ensureSetup), no hace falta ejecutar nada.
  * Sin protección por clave, igual que los demás formularios de la organización.
@@ -100,7 +100,7 @@ function headers() {
   var h = ['timestamp', 'id_envio', 'universidad', 'universidad_otra', 'programa', 'municipio', 'institucion'];
   for (var i = 1; i <= NUM_PREGUNTAS; i++) h.push(clavePregunta(i));
   return h.concat(['valoracion_global', 'fortaleza', 'dificultad', 'cambiaria', 'mantener', 'apoyo',
-    'factores', 'factor_otro', 'proyeccion', 'proyeccion_otra']);
+    'factores', 'factor_otro', 'proyeccion', 'proyeccion_otra', 'nombre']);
 }
 
 // ---------------------------------------------------------------------------
@@ -117,6 +117,16 @@ function ensureSetup() {
     hoja.setFrozenRows(1);
     var inicial = ss.getSheetByName('Hoja 1') || ss.getSheetByName('Sheet1');
     if (inicial && ss.getSheets().length > 1) ss.deleteSheet(inicial);
+  }
+  // Migración aditiva: agrega al final los encabezados que falten (p. ej. 'nombre').
+  var esperados = headers();
+  var actuales = hoja.getRange(1, 1, 1, Math.max(hoja.getLastColumn(), 1)).getValues()[0];
+  var faltan = [];
+  for (var k = actuales.length; k < esperados.length; k++) {
+    if (!actuales[k]) faltan.push(esperados[k]);
+  }
+  if (faltan.length) {
+    hoja.getRange(1, actuales.length + 1, 1, faltan.length).setValues([faltan]).setFontWeight('bold');
   }
   return hoja;
 }
@@ -191,6 +201,8 @@ function incluye(lista, valor) {
 }
 
 function submitEncuesta(b) {
+  var nombre = texto(b.nombre, MAX_TEXTO_CORTO);
+  if (nombre.length < 3) return fail('Escribe tu nombre completo.');
   var universidad = texto(b.universidad, MAX_TEXTO_CORTO);
   var universidadOtra = '';
   var programa = texto(b.programa, MAX_TEXTO_CORTO);
@@ -273,7 +285,7 @@ function submitEncuesta(b) {
       valoracionGlobal,
       texto(b.fortaleza, MAX_TEXTO), texto(b.dificultad, MAX_TEXTO), texto(b.cambiaria, MAX_TEXTO),
       texto(b.mantener, MAX_TEXTO), texto(b.apoyo, MAX_TEXTO),
-      factoresLimpios.join('; '), factorOtro, proyeccion, proyeccionOtra
+      factoresLimpios.join('; '), factorOtro, proyeccion, proyeccionOtra, nombre
     ]);
   hoja.getRange(hoja.getLastRow() + 1, 1, 1, registro.length).setValues([registro]);
   return json({ success: true });

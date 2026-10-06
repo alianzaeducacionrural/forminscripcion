@@ -15,7 +15,7 @@ Built. `Encuesta de valoración del Programa Técnico Profesional CEPE.docx` is 
 - Catalog rules (user-requested): no IES CINOC, no Católica "Microcredenciales", Universidad de Manizales
   only "(modalidad combinada)" programs. Source sheet: `1sDwOuJk0x1mO6lxJbzzWTd088SOg7fAWEuXSZEM1Eog`
   (tabs Instituciones, Programas). Municipios/instituciones come from the Instituciones tab (all municipios).
-- Panel admin: `/admin/` (second Vite entry, `src/admin/`); reads `getRespuestas` from the backend, filters + charts + open answers + CSV. Unlisted link, no auth.
+- Panel admin: `/admin/` (second Vite entry, `src/admin/`); reads `getRespuestas` from the backend: filters, charts, open answers, individual records table with detail modal, CSV. The form asks for `nombre` (sheet column added at the end; ensureSetup migrates headers additively). Unlisted link, no auth.
 - Deploy: root workflow slot 5, slug `percepcion-pertinencia-programa`, secret `VITE_API_URL_PERCEPCION_PERTINENCIA`.
 
 The .docx is a real Word file: read it by unzipping and parsing `word/document.xml`

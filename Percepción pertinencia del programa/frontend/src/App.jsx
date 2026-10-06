@@ -23,6 +23,7 @@ const CLAVE_BORRADOR = 'percepcion-pertinencia-borrador'
 const TOTAL_ITEMS = BLOQUES.reduce((n, b) => n + b.items.length, 0)
 
 const INICIAL = {
+  nombre: '',
   universidad: '',
   universidadOtra: '',
   programa: '',
@@ -67,6 +68,7 @@ function validarPaso(paso, d) {
   const e = {}
   const id = PASOS[paso].id
   if (id === 'caracterizacion') {
+    if (d.nombre.trim().length < 3) e.nombre = 'Escribe tu nombre completo.'
     if (!d.universidad) e.universidad = 'Elige tu universidad.'
     if (d.universidad === OTRA && !d.universidadOtra.trim()) e.universidadOtra = 'Escribe el nombre de tu universidad.'
     if (!d.programa.trim()) e.programa = d.universidad === OTRA ? 'Escribe tu programa.' : 'Elige tu programa.'
@@ -152,6 +154,7 @@ export default function App() {
     try {
       await enviarEncuesta({
         idEnvio,
+        nombre: datos.nombre,
         universidad: datos.universidad,
         universidadOtra: datos.universidadOtra,
         programa: datos.programa,
@@ -366,6 +369,11 @@ function Caracterizacion({ datos, poner, errores, setDatos, setErrores }) {
         <span className="titulo-emoji">🪪</span> Cuéntanos de ti
       </h2>
       <p className="ayuda">Elige en orden: cada lista se ajusta según lo que vayas escogiendo.</p>
+
+      <div className="grupo">
+        <div className="grupo-etiqueta">👋 Quién eres</div>
+        <Texto etiqueta="Nombre completo" campo="nombre" valor={datos.nombre} poner={poner} error={errores.nombre} />
+      </div>
 
       <div className="grupo">
         <div className="grupo-etiqueta">🎓 Tu formación</div>
