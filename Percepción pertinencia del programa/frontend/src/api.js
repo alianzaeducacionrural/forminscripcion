@@ -36,3 +36,19 @@ export async function enviarEncuesta(payload) {
     clearTimeout(temporizador)
   }
 }
+
+/** Panel admin: todas las respuestas como objetos con las claves de los encabezados de la hoja. */
+export async function getRespuestas() {
+  if (!API_URL) throw new Error('Falta configurar VITE_API_URL (URL del Web App de Apps Script).')
+  const url = new URL(API_URL)
+  url.searchParams.set('action', 'getRespuestas')
+  let res
+  try {
+    res = await fetch(url)
+  } catch {
+    throw new Error('No hay conexión con el servidor. Revisa tu internet e intenta de nuevo.')
+  }
+  const cuerpo = await res.json().catch(() => null)
+  if (!cuerpo?.success) throw new Error(cuerpo?.error || 'No se pudieron cargar las respuestas.')
+  return cuerpo.data
+}

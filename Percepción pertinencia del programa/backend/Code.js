@@ -6,6 +6,7 @@
  *
  * Endpoints:
  *   GET  ?action=ping
+ *   GET  ?action=getRespuestas   (uso del panel admin: todas las filas como objetos con las claves de los encabezados)
  *   POST { action: "submitEncuesta", idEnvio (UUID, opcional), universidad,
  *          universidadOtra, programa, institucion (el municipio se guarda fijo: Manizales),
  *          respuestas: { p01..p26: 1-5 | 'N/A' },
@@ -131,7 +132,27 @@ function fail(mensaje) {
 function doGet(e) {
   var action = e && e.parameter && e.parameter.action;
   if (action === 'ping') return json({ success: true, data: 'ok' });
+  if (action === 'getRespuestas') return getRespuestas();
   return fail('Acción no válida.');
+}
+
+function getRespuestas() {
+  var hoja = ensureSetup();
+  var ultima = hoja.getLastRow();
+  var h = headers();
+  var filas = [];
+  if (ultima > 1) {
+    var valores = hoja.getRange(2, 1, ultima - 1, h.length).getValues();
+    for (var r = 0; r < valores.length; r++) {
+      var obj = {};
+      for (var c = 0; c < h.length; c++) {
+        var v = valores[r][c];
+        obj[h[c]] = v instanceof Date ? v.toISOString() : v;
+      }
+      filas.push(obj);
+    }
+  }
+  return json({ success: true, data: filas });
 }
 
 function doPost(e) {

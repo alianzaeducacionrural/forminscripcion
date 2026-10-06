@@ -1,0 +1,332 @@
+/* Panel de resultados — reutiliza las variables y el fondo claro de index.css */
+
+.adm {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+}
+
+.adm-cab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.adm-cab h1 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2rem, 6vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 12px 0 6px;
+}
+.adm-cab p {
+  margin: 0;
+  color: var(--texto-2);
+  font-weight: 600;
+}
+.adm-acc {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.adm-btn {
+  padding: 11px 18px;
+  border: 2px solid var(--linea-2);
+  border-bottom-width: 4px;
+  border-radius: 14px;
+  background: #fff;
+  font-weight: 800;
+  color: var(--texto-2);
+  cursor: pointer;
+}
+.adm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.adm-btn-pri {
+  background: var(--grad);
+  border-color: var(--verde-hondo);
+  color: #fff;
+}
+
+.adm-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: var(--sombra);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+}
+.adm-filtro {
+  flex: 1 1 200px;
+  display: grid;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--texto-2);
+}
+.adm-filtro select {
+  padding: 10px 12px;
+  appearance: auto;
+  border-bottom-width: 3px;
+  border-radius: 12px;
+}
+.adm-limpiar {
+  border: 0;
+  background: var(--coral-suave);
+  color: var(--coral);
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adm-vacio {
+  text-align: center;
+  color: var(--texto-2);
+  font-weight: 700;
+  padding: 24px 0;
+}
+
+.adm-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.adm-kpi {
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: var(--sombra);
+  padding: 18px 20px;
+  border-top: 6px solid var(--k);
+  display: grid;
+  gap: 2px;
+}
+.adm-kpi-e {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--texto-2);
+}
+.adm-kpi strong {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.adm-kpi small {
+  color: var(--texto-3);
+  font-weight: 600;
+}
+
+.adm-tarjeta {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: var(--sombra);
+  padding: 22px 20px;
+  margin-bottom: 18px;
+}
+.adm-tarjeta h2 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.adm-dos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
+}
+.adm-dos > .adm-tarjeta {
+  margin-bottom: 0;
+}
+.adm-dos {
+  margin-bottom: 18px;
+}
+
+.adm-barras,
+.adm-citas,
+.adm-leyenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.adm-barras {
+  display: grid;
+  gap: 12px;
+}
+.adm-barra-t,
+.adm-dim-t {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+.adm-barra-t small {
+  color: var(--texto-3);
+}
+.adm-pista {
+  height: 14px;
+  background: var(--bg);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.adm-relleno {
+  height: 100%;
+  background: var(--grad);
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.adm-dims {
+  display: grid;
+  gap: 14px;
+}
+.adm-dim-t strong {
+  color: var(--verde-hondo);
+}
+
+.adm-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--texto-2);
+  margin-bottom: 8px;
+}
+.adm-leyenda i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+.adm-bloque h3 {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  margin: 22px 0 6px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--linea);
+  color: var(--verde-hondo);
+}
+.adm-item {
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--linea-2);
+}
+.adm-item p {
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.adm-item small {
+  display: block;
+  margin-top: 4px;
+  color: var(--texto-3);
+  font-weight: 600;
+}
+.adm-seg {
+  display: flex;
+  height: 26px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.adm-seg span {
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--texto);
+  min-width: 2px;
+}
+
+.adm-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.adm-tabla th {
+  text-align: left;
+  color: var(--texto-3);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.adm-tabla th:nth-child(n + 2),
+.adm-tabla td:nth-child(n + 2) {
+  text-align: right;
+  white-space: nowrap;
+}
+.adm-tabla td,
+.adm-tabla th {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--linea);
+}
+
+.adm-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.adm-tabs button {
+  border: 2px solid var(--linea-2);
+  background: #fff;
+  border-radius: 99px;
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--texto-2);
+  cursor: pointer;
+}
+.adm-tabs button.activa {
+  background: var(--verde);
+  border-color: var(--verde-hondo);
+  color: #fff;
+}
+.adm-pregunta {
+  font-weight: 800;
+  margin: 4px 0 10px;
+}
+.adm-buscar {
+  width: 100%;
+  padding: 11px 14px;
+  border: 2px solid var(--linea-2);
+  border-radius: 14px;
+}
+.adm-cuenta {
+  color: var(--texto-3);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin: 8px 0;
+}
+.adm-citas {
+  display: grid;
+  gap: 10px;
+  max-height: 560px;
+  overflow-y: auto;
+}
+.adm-citas li {
+  background: var(--bg);
+  border-left: 5px solid var(--verde);
+  border-radius: 6px 16px 16px 6px;
+  padding: 10px 14px;
+}
+.adm-citas p {
+  margin: 0 0 4px;
+  white-space: pre-wrap;
+}
+.adm-citas small {
+  color: var(--texto-3);
+  font-weight: 600;
+}
