@@ -410,7 +410,7 @@ function Caracterizacion({ datos, poner, errores, setDatos, setErrores }) {
       </div>
 
       <div className="grupo">
-        <div className="grupo-etiqueta">📍 Tu colegio</div>
+        <div className="grupo-etiqueta">📍 Tu institución educativa</div>
         <Selector
           etiqueta="Institución educativa"
           campo="institucion"

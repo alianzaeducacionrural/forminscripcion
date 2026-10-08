@@ -74,7 +74,7 @@ export const BLOQUES_LIKERT = [
     items: [
       'Me siento motivado(a) para continuar en el programa.',
       'Considero que lo que estoy estudiando vale la pena para mi futuro.',
-      'Las condiciones del programa favorecen mi permanencia.',
+      'El acompañamiento de los padrinos favorece mi permanencia en el programa de formación.',
       'Recomendaría a otros jóvenes de mi territorio participar en La Universidad en el Campo.',
       'Tengo intención de continuar mi trayectoria educativa después de finalizar este programa.',
     ],
