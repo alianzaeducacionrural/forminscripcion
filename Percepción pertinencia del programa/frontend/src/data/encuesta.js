@@ -50,8 +50,8 @@ export const BLOQUES_LIKERT = [
     emoji: '🌉',
     items: [
       'Comprendo cómo mi formación en educación media se relaciona con el programa técnico profesional.',
-      'Reconozco aprendizajes adquiridos en el colegio que son útiles para mi formación técnica profesional.',
-      'La articulación entre el colegio y la universidad facilita mi transición hacia la educación superior.',
+      'Reconozco aprendizajes adquiridos en la institución educativa que son útiles para mi formación técnica profesional.',
+      'La articulación entre la institución educativa y la universidad facilita mi transición hacia la educación superior.',
       'Existe comunicación adecuada entre la institución educativa y la universidad.',
       'Conozco las posibilidades de continuar mi formación después de finalizar el programa técnico profesional.',
     ],
