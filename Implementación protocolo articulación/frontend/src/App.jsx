@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { enviarVisita, prepararArchivo, subirEvidencia } from './api.js'
 import Puente from './components/Puente.jsx'
-import { INSTITUCIONES } from './data/catalogos.js'
+import { INSTITUCIONES, PADRINOS } from './data/catalogos.js'
 import {
   CRITERIOS,
   HALLAZGO,
@@ -34,7 +34,6 @@ const inicial = () => ({
   acompanante: '',
   institucion: '',
   fechaVisita: hoy(),
-  numeroVisita: '1',
   criterios: Object.fromEntries(CRITERIOS.map((c) => [c.clave, { respuesta: '', evidencia: '', archivos: [] }])),
   hallazgos: [],
   nivel: '',
@@ -61,11 +60,9 @@ function leerBorrador() {
 function validar(paso, d) {
   const e = {}
   if (paso === 0) {
-    if (d.acompanante.trim().length < 3) e.acompanante = 'Escribe el nombre del acompañante.'
+    if (!d.acompanante) e.acompanante = 'Elige el padrino.'
     if (!d.institucion) e.institucion = 'Elige la institución educativa.'
     if (!d.fechaVisita) e.fechaVisita = 'Indica la fecha de la visita.'
-    const n = Number(d.numeroVisita)
-    if (!(n >= 1 && n <= 50 && Number.isInteger(n))) e.numeroVisita = 'Escribe un número de visita (1, 2, 3…).'
   } else if (paso >= 1 && paso <= CRITERIOS.length) {
     if (!d.criterios[CRITERIOS[paso - 1].clave].respuesta) e.respuesta = 'Elige una opción para tender esta tabla del puente.'
   } else if (paso === PASO_HALLAZGOS) {
@@ -244,10 +241,9 @@ export default function App() {
     try {
       await enviarVisita({
         idEnvio,
-        acompanante: datos.acompanante.trim(),
+        acompanante: datos.acompanante,
         institucion: datos.institucion,
         fechaVisita: datos.fechaVisita,
-        numeroVisita: Number(datos.numeroVisita),
         criterios: Object.fromEntries(
           CRITERIOS.map((c) => {
             const { respuesta, evidencia, archivos } = datos.criterios[c.clave]
@@ -285,7 +281,7 @@ export default function App() {
           <p className="mono">Visita registrada</p>
           <h1 ref={inicioRef} tabIndex={-1}>El puente quedó tendido</h1>
           <p className="sub">
-            {enviado.datos.institucion} · visita {enviado.datos.numeroVisita} · {enviado.datos.fechaVisita}. Nivel de
+            {enviado.datos.institucion} · {enviado.datos.fechaVisita}. Nivel de
             apropiación: <strong>{enviado.datos.nivel}</strong>.
           </p>
           <div style={{ margin: '20px 0 4px' }}>
@@ -328,25 +324,21 @@ export default function App() {
               Cada criterio que respondas tiende una tabla del puente. Puedes dejar el formulario y volver: se guarda en este teléfono.
             </p>
             <div className="campos">
-              <Campo id="acompanante" etiqueta="Nombre del acompañante" error={errores.acompanante}>
-                <input id="acompanante" value={datos.acompanante} autoComplete="name"
-                  onChange={(e) => cambiar('acompanante', e.target.value)} />
+              <Campo id="acompanante" etiqueta="Padrino" error={errores.acompanante}>
+                <select id="acompanante" value={datos.acompanante} onChange={(e) => cambiar('acompanante', e.target.value)}>
+                  <option value="">Elige tu nombre…</option>
+                  {PADRINOS.map((p) => <option key={p}>{p}</option>)}
+                </select>
               </Campo>
-              <Campo id="institucion" etiqueta="Institución educativa visitada" error={errores.institucion}>
+              <Campo id="institucion" etiqueta="Institución Educativa" error={errores.institucion}>
                 <select id="institucion" value={datos.institucion} onChange={(e) => cambiar('institucion', e.target.value)}>
                   <option value="">Elige una…</option>
                   {INSTITUCIONES.map((i) => <option key={i}>{i}</option>)}
                 </select>
               </Campo>
-              <div className="fila-2">
-                <Campo id="fecha" etiqueta="Fecha de la visita" error={errores.fechaVisita}>
-                  <input id="fecha" type="date" value={datos.fechaVisita} onChange={(e) => cambiar('fechaVisita', e.target.value)} />
-                </Campo>
-                <Campo id="numero" etiqueta="Número de visita" error={errores.numeroVisita}>
-                  <input id="numero" type="number" inputMode="numeric" min="1" max="50" value={datos.numeroVisita}
-                    onChange={(e) => cambiar('numeroVisita', e.target.value)} />
-                </Campo>
-              </div>
+              <Campo id="fecha" etiqueta="Fecha" error={errores.fechaVisita}>
+                <input id="fecha" type="date" value={datos.fechaVisita} onChange={(e) => cambiar('fechaVisita', e.target.value)} />
+              </Campo>
             </div>
           </>
         )}

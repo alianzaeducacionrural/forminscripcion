@@ -16,7 +16,7 @@ whose 14 planks (one per criterion) change shape/colour with the answer; see `PR
   Evidence goes to **private** Drive folders `Evidencias/<IE>/<fecha · id>` next to the Sheet. After the first
   `clasp push`, run `probarPermisos` once in the Apps Script editor to grant Drive access, then redeploy.
 - Deploy: root workflow slot 6, slug `protocolo-articulacion-manizales`, secret `VITE_API_URL_PROTOCOLO_ARTICULACION`.
-- Decisions: visitor (acompañante) fills it in; duplicated "Gestión de acuerdos" row kept once (14 criteria).
+- Decisions: visitor (padrino, select from the Padrinos tab of sheet 1sDwOuJk0x1mO6lxJbzzWTd088SOg7fAWEuXSZEM1Eog) fills it in; duplicated "Gestión de acuerdos" row kept once (14 criteria).
   Admin has no date-range filter (IE filter + "solo vencidas" on compromisos only).
 
 ## The instrument

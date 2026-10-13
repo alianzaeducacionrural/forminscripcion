@@ -8,8 +8,8 @@
  *   GET  ?action=getVisitas      (panel admin: { visitas: [...], hallazgos: [...] })
  *   POST { action: "subirEvidencia", idEnvio, institucion, fechaVisita, criterio: 'c01'..'c14',
  *          nombre, mimeType, base64 }                         → { success, url, nombre }
- *   POST { action: "submitVisita", idEnvio (UUID, opcional), acompanante, institucion,
- *          fechaVisita 'YYYY-MM-DD', numeroVisita,
+ *   POST { action: "submitVisita", idEnvio (UUID, opcional), acompanante (= padrino, de PADRINOS), institucion,
+ *          fechaVisita 'YYYY-MM-DD',   (numero_visita lo calcula el servidor)
  *          criterios: { c01: { respuesta: 'SI'|'PARCIAL'|'NO'|'NA', evidencia, archivos: [{nombre,url}] } },
  *          hallazgos: [{ hallazgo, accion, responsable, fecha }],
  *          nivel: 'Consolidado'|'En desarrollo'|'Inicial'|'No evidenciado' }
@@ -21,8 +21,8 @@
  * Las hojas se crean solas en la primera petición (ensureSetup).
  * Sin protección por clave, igual que los demás formularios de la organización.
  *
- * El catálogo de instituciones está DUPLICADO en frontend/src/data/catalogos.js:
- * si cambia, actualizar ambos y `clasp push`.
+ * El catálogo de instituciones está DUPLICADOS en frontend/src/data/catalogos.js (INSTITUCIONES, PADRINOS):
+ * si cambian, actualizar ambos y `clasp push`.
  */
 
 var SHEET_VISITAS = 'Visitas';
@@ -48,6 +48,28 @@ var INSTITUCIONES = [
   'Miguel Antonio Caro',
   'San Peregrino',
   'Seráfico San Antonio de Padua'
+];
+
+var PADRINOS = [
+  'Alejandro Osorio Loaiza',
+  'Alexander de Jesús Ossa Calvo',
+  'Anderson González Gutiérrez',
+  'Claudia Patricia Herrera Tellez',
+  'Cristian Hely Florez Rodríguez',
+  'David Steven Betancourth Gaitán',
+  'Federico Castillón Salazar',
+  'Jhon Jairo Franco Arenas',
+  'Jonathan Gerardo Orozco Herrera',
+  'José Daniel García Echeverry',
+  'Juan Gabriel Alzate Gallego',
+  'Juan Pablo Bedoya Cañon',
+  'Julian Nieto Soto',
+  'Libardo Andrés Acosta Hurtado',
+  'Lucelly Giraldo Sierra',
+  'Luis Gabriel Suárez Giraldo',
+  'Santiago Ramírez García',
+  'Yeison Suárez Suárez',
+  'Yohan Sebastián Molano Muñoz'
 ];
 
 var RESPUESTAS = ['SI', 'PARCIAL', 'NO', 'NA'];
@@ -239,13 +261,11 @@ function subirEvidencia(b) {
 
 function submitVisita(b) {
   var acompanante = texto(b.acompanante, MAX_TEXTO_CORTO);
-  if (acompanante.length < 3) return fail('Escribe el nombre del acompañante.');
+  if (!incluye(PADRINOS, acompanante)) return fail('Selecciona el padrino.');
   var institucion = texto(b.institucion, MAX_TEXTO_CORTO);
   if (!incluye(INSTITUCIONES, institucion)) return fail('Selecciona una institución válida.');
   var fecha = texto(b.fechaVisita, 10);
   if (!fechaValida(fecha)) return fail('Escribe una fecha de visita válida.');
-  var numeroVisita = Number(b.numeroVisita);
-  if (!(numeroVisita >= 1 && numeroVisita <= 50 && numeroVisita % 1 === 0)) return fail('Número de visita no válido.');
 
   var criterios = b.criterios || {};
   var respuestas = [];
@@ -294,6 +314,13 @@ function submitVisita(b) {
     for (var r2 = 0; r2 < ids.length; r2++) {
       if (ids[r2][0] === idEnvio) return json({ success: true, duplicado: true });
     }
+  }
+
+  // Número de visita: consecutivo por institución (lo calcula el servidor; ya no se pregunta).
+  var numeroVisita = 1;
+  if (ultima > 1) {
+    var insts = hojas.visitas.getRange(2, 4, ultima - 1, 1).getValues();
+    for (var r3 = 0; r3 < insts.length; r3++) if (insts[r3][0] === institucion) numeroVisita++;
   }
 
   var ahora = new Date();

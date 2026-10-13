@@ -15,7 +15,7 @@ monorepo (decidida por el usuario, no delegada).
 
 ## Users
 
-1. **Acompañante / padrino** que visita una de las 12 instituciones educativas (IE) de
+1. **Padrino** que visita una de las 12 instituciones educativas (IE) de
    Manizales y diligencia la lista de chequeo *durante la visita*, de pie, en el teléfono,
    con conectividad irregular. Necesita avanzar rápido, adjuntar fotos/PDF como evidencia y
    no perder lo escrito si se cae la señal.
@@ -52,7 +52,7 @@ criterios × IE y los compromisos vencidos.
 
 - La fila "Gestión de acuerdos" duplicada en el Word se deja una sola vez: 14 criterios
   (decisión del usuario).
-- Identificación: acompañante, IE, fecha de visita, número de visita.
+- Identificación: padrino (select de los 19 padrinos), IE, fecha de visita, número de visita.
 - Envío idempotente por `idEnvio`; borrador en localStorage (incluye enlaces de archivos).
 - Los archivos se suben al instante al elegirlos; se reduce el tamaño de imágenes en el
   cliente. Límite ~8 MB, solo jpeg/png/webp/heic/pdf.
