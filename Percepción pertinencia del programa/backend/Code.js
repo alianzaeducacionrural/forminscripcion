@@ -8,7 +8,7 @@
  *   GET  ?action=ping
  *   GET  ?action=getRespuestas   (uso del panel admin: todas las filas como objetos con las claves de los encabezados)
  *   POST { action: "submitEncuesta", idEnvio (UUID, opcional), universidad,
- *          nombre, universidadOtra, programa, institucion (el municipio se guarda fijo: Manizales),
+ *          nombre, universidadOtra, programa, municipio, institucion,
  *          respuestas: { p01..p26: 1-5 | 'N/A' },
  *          valoracionGlobal: 'Muy bajo'|'Bajo'|'Medio'|'Alto'|'Muy alto',
  *          fortaleza, dificultad, cambiaria, mantener, apoyo,   (texto libre, opcionales)
@@ -19,7 +19,7 @@
  * La hoja se crea sola en la primera petición (ensureSetup), no hace falta ejecutar nada.
  * Sin protección por clave, igual que los demás formularios de la organización.
  *
- * Los catálogos (universidad→programas, instituciones de Manizales) están DUPLICADOS en
+ * Los catálogos (universidad→programas, municipio→instituciones de Caldas) están DUPLICADOS en
  * frontend/src/data/catalogos.js: si cambian, actualizar ambos y `clasp push`.
  */
 
@@ -59,22 +59,170 @@ var PROGRAMAS_POR_UNIVERSIDAD = {
   ]
 };
 
-var MUNICIPIO = 'Manizales';
-
-var INSTITUCIONES = [
-  'Giovanni Montini',
-  'Granada',
-  'José Antonio Galán',
-  'La Cabaña',
-  'La Linda',
-  'La Trinidad',
-  'La Violeta',
-  'Maltería',
-  'María Goretti',
-  'Miguel Antonio Caro',
-  'San Peregrino',
-  'Seráfico San Antonio de Padua'
-];
+var INSTITUCIONES_POR_MUNICIPIO = {
+  'Aguadas': [
+    'El Edén',
+    'Encimadas',
+    'La Mermita',
+    'Rioarriba',
+    'San Antonio de Arma',
+    'Viboral'
+  ],
+  'Anserma': [
+    'Alto Nubia',
+    'El Horro',
+    'Gómez Fernandez',
+    'Jerónimo de Tejelo',
+    'Juan XXIII',
+    'Ocuzca',
+    'San Pedro'
+  ],
+  'Aranzazu': [
+    'Alegrías',
+    'Juan Crisóstomo Osorio',
+    'Pío XI'
+  ],
+  'Belalcázar': [
+    'El Águila',
+    'El Madroño',
+    'San Isidro'
+  ],
+  'Chinchiná': [
+    'Eduardo Gómez Arrubla',
+    'El Trébol',
+    'Naranjal'
+  ],
+  'Filadelfia': [
+    'Antonio Nariño',
+    'Crisanto Luque',
+    'Filadelfia'
+  ],
+  'La Dorada': [
+    'Buenavista',
+    'El Japón',
+    'Guarinocito',
+    'Purnio'
+  ],
+  'La Merced': [
+    'La Felisa',
+    'Llanadas'
+  ],
+  'Manizales': [
+    'Giovanni Montini',
+    'Granada',
+    'José Antonio Galán',
+    'La Cabaña',
+    'La Linda',
+    'La Trinidad',
+    'La Violeta',
+    'Maltería',
+    'María Goretti',
+    'Miguel Antonio Caro',
+    'San Peregrino',
+    'Seráfico San Antonio de Padua'
+  ],
+  'Manzanares': [
+    'Aguabonita',
+    'Gregorio Gutiérrez González',
+    'José Antonio Galán',
+    'Llanadas',
+    'Manzanares',
+    'Romeral'
+  ],
+  'Marmato': [
+    'Cabras',
+    'El Llano',
+    'General Ramón Marín',
+    'Marmato',
+    'Rafael Pombo'
+  ],
+  'Marquetalia': [
+    'Antonio María Hincapié',
+    'El Placer',
+    'La Quiebra',
+    'Patio Bonito'
+  ],
+  'Marulanda': [
+    'Efrén Cardona Chica',
+    'Montebonito'
+  ],
+  'Neira': [
+    'Aguacatal',
+    'El Roble',
+    'Llanogrande',
+    'Pío XII',
+    'Pueblo Rico',
+    'San Luis'
+  ],
+  'Norcasia': [
+    'La Estrella'
+  ],
+  'Pácora': [
+    'Francisco José de Caldas',
+    'La Milagrosa',
+    'Las Coles',
+    'Mariscal Robledo'
+  ],
+  'Palestina': [
+    'Cartagena',
+    'José María Carbonell',
+    'Santágueda'
+  ],
+  'Pensilvania': [
+    'Camilo Olimpo Cardona',
+    'Daniel María López Rodríguez',
+    'Francisco Julian Olaya',
+    'Guacas',
+    'John F. Kennedy',
+    'La Rioja',
+    'Pablo VI',
+    'Santa Rita'
+  ],
+  'Riosucio': [
+    'Florencia',
+    'Nuestra Señora de Fátima'
+  ],
+  'Risaralda': [
+    'Francisco José de Caldas',
+    'Gabriel García Márquez',
+    'Quiebra de Santa Barbara'
+  ],
+  'Salamina': [
+    'El Perro',
+    'Luis Felipe Gutiérrez Loaiza',
+    'San Félix'
+  ],
+  'Samaná': [
+    'Dulce Nombre',
+    'El Bosque',
+    'El Silencio',
+    'Encimadas',
+    'Félix Naranjo',
+    'Pío XII',
+    'Rancho Largo'
+  ],
+  'San José': [
+    'La Libertad'
+  ],
+  'Supía': [
+    'Hojas Anchas',
+    'Obispo',
+    'Supía'
+  ],
+  'Victoria': [
+    'Cañaveral',
+    'Isaza'
+  ],
+  'Villamaría': [
+    'Colombia',
+    'Fortunato Gaviria Botero',
+    'Partidas',
+    'Pío XII'
+  ],
+  'Viterbo': [
+    'El Socorro'
+  ]
+};
 
 var NUM_PREGUNTAS = 26;
 var VALORACION_GLOBAL = ['Muy bajo', 'Bajo', 'Medio', 'Alto', 'Muy alto'];
@@ -217,9 +365,11 @@ function submitEncuesta(b) {
     if (!incluye(programas, programa)) return fail('Selecciona un programa válido para la universidad.');
   }
 
-  var municipio = MUNICIPIO;
+  var municipio = texto(b.municipio, MAX_TEXTO_CORTO);
   var institucion = texto(b.institucion, MAX_TEXTO_CORTO);
-  if (!incluye(INSTITUCIONES, institucion)) return fail('Selecciona una institución válida.');
+  var instituciones = INSTITUCIONES_POR_MUNICIPIO[municipio];
+  if (!instituciones) return fail('Selecciona un municipio válido.');
+  if (!incluye(instituciones, institucion)) return fail('Selecciona una institución válida para el municipio.');
 
   var respuestas = b.respuestas || {};
   var fila = [];

@@ -20,7 +20,7 @@ export default function Admin() {
   const [filas, setFilas] = useState([])
   const [estado, setEstado] = useState('cargando')
   const [error, setError] = useState('')
-  const [filtros, setFiltros] = useState({ universidad: '', programa: '', institucion: '' })
+  const [filtros, setFiltros] = useState({ universidad: '', programa: '', municipio: '', institucion: '' })
   const [pestana, setPestana] = useState(PREGUNTAS_ABIERTAS[0].clave)
   const [busqueda, setBusqueda] = useState('')
   const [buscarNombre, setBuscarNombre] = useState('')
@@ -54,9 +54,10 @@ export default function Admin() {
   const opciones = useMemo(() => {
     const u = [...new Set(filas.map(universidadDe))].sort()
     const p = [...new Set(filas.filter((f) => !filtros.universidad || universidadDe(f) === filtros.universidad).map((f) => f.programa))].sort()
-    const i = [...new Set(filas.map((f) => f.institucion))].sort()
-    return { u, p, i }
-  }, [filas, filtros.universidad])
+    const mu = [...new Set(filas.map((f) => f.municipio))].sort()
+    const i = [...new Set(filas.filter((f) => !filtros.municipio || f.municipio === filtros.municipio).map((f) => f.institucion))].sort()
+    return { u, p, mu, i }
+  }, [filas, filtros.universidad, filtros.municipio])
 
   const visibles = useMemo(
     () =>
@@ -64,6 +65,7 @@ export default function Admin() {
         (f) =>
           (!filtros.universidad || universidadDe(f) === filtros.universidad) &&
           (!filtros.programa || f.programa === filtros.programa) &&
+          (!filtros.municipio || f.municipio === filtros.municipio) &&
           (!filtros.institucion || f.institucion === filtros.institucion),
       ),
     [filas, filtros],
@@ -75,7 +77,7 @@ export default function Admin() {
   const factores = useMemo(() => conteoFactores(visibles), [visibles])
   const proyeccion = useMemo(() => conteoProyeccion(visibles), [visibles])
   const porUniversidad = useMemo(() => agrupar(visibles.map((f) => ({ ...f, universidad: universidadDe(f) })), 'universidad'), [visibles])
-  const porInstitucion = useMemo(() => agrupar(visibles, 'institucion'), [visibles])
+  const porInstitucion = useMemo(() => agrupar(visibles.map((f) => ({ ...f, institucion: `${f.institucion} (${f.municipio})` })), 'institucion'), [visibles])
 
   const altoMuyAlto = global.filter((g) => g.valor === 'Alto' || g.valor === 'Muy alto').reduce((s, g) => s + g.total, 0)
   const continuar = bloques.flatMap((b) => b.items).find((i) => i.clave === 'p26')
@@ -125,11 +127,12 @@ export default function Admin() {
       {estado !== 'cargando' || filas.length ? (
         <>
           <section className="adm-filtros" aria-label="Filtros">
-            <Filtro etiqueta="Universidad" valor={filtros.universidad} opciones={opciones.u} onChange={(v) => setFiltros({ universidad: v, programa: '', institucion: filtros.institucion })} />
+            <Filtro etiqueta="Universidad" valor={filtros.universidad} opciones={opciones.u} onChange={(v) => setFiltros({ ...filtros, universidad: v, programa: '' })} />
             <Filtro etiqueta="Programa" valor={filtros.programa} opciones={opciones.p} onChange={(v) => setFiltros({ ...filtros, programa: v })} />
+            <Filtro etiqueta="Municipio" valor={filtros.municipio} opciones={opciones.mu} onChange={(v) => setFiltros({ ...filtros, municipio: v, institucion: '' })} />
             <Filtro etiqueta="Institución" valor={filtros.institucion} opciones={opciones.i} onChange={(v) => setFiltros({ ...filtros, institucion: v })} />
             {hayFiltro && (
-              <button type="button" className="adm-limpiar" onClick={() => setFiltros({ universidad: '', programa: '', institucion: '' })}>
+              <button type="button" className="adm-limpiar" onClick={() => setFiltros({ universidad: '', programa: '', municipio: '', institucion: '' })}>
                 Quitar filtros
               </button>
             )}
@@ -248,7 +251,6 @@ export default function Admin() {
                   <table className="adm-tabla adm-base">
                     <thead>
                       <tr>
-                        <th>Fecha</th>
                         <th>Nombre</th>
                         <th>Universidad</th>
                         <th>Programa</th>
@@ -260,11 +262,10 @@ export default function Admin() {
                     <tbody>
                       {registros.map((f) => (
                         <tr key={f.id_envio} tabIndex={0} onClick={() => setDetalle(f)} onKeyDown={(e) => e.key === 'Enter' && setDetalle(f)}>
-                          <td>{fechaCorta(f.timestamp)}</td>
                           <td>{f.nombre || '—'}</td>
                           <td>{universidadDe(f)}</td>
                           <td>{f.programa}</td>
-                          <td>{f.institucion}</td>
+                          <td>{f.institucion} ({f.municipio})</td>
                           <td>{fmt(promedioGeneral(resumenBloques([f])))}</td>
                           <td>{f.valoracion_global}</td>
                         </tr>

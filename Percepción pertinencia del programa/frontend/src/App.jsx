@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { enviarEncuesta } from './api.js'
 import {
-  INSTITUCIONES,
+  INSTITUCIONES_POR_MUNICIPIO,
+  MUNICIPIOS,
   PROGRAMAS_POR_UNIVERSIDAD,
   UNIVERSIDADES,
 } from './data/catalogos.js'
@@ -27,6 +28,7 @@ const INICIAL = {
   universidad: '',
   universidadOtra: '',
   programa: '',
+  municipio: '',
   institucion: '',
   respuestas: {},
   valoracionGlobal: '',
@@ -72,6 +74,7 @@ function validarPaso(paso, d) {
     if (!d.universidad) e.universidad = 'Elige tu universidad.'
     if (d.universidad === OTRA && !d.universidadOtra.trim()) e.universidadOtra = 'Escribe el nombre de tu universidad.'
     if (!d.programa.trim()) e.programa = d.universidad === OTRA ? 'Escribe tu programa.' : 'Elige tu programa.'
+    if (!d.municipio) e.municipio = 'Elige tu municipio.'
     if (!d.institucion) e.institucion = 'Elige tu institución educativa.'
   }
   const bloque = BLOQUES.find((b) => b.id === id)
@@ -158,6 +161,7 @@ export default function App() {
         universidad: datos.universidad,
         universidadOtra: datos.universidadOtra,
         programa: datos.programa,
+        municipio: datos.municipio,
         institucion: datos.institucion,
         respuestas: datos.respuestas,
         valoracionGlobal: datos.valoracionGlobal,
@@ -412,11 +416,25 @@ function Caracterizacion({ datos, poner, errores, setDatos, setErrores }) {
       <div className="grupo">
         <div className="grupo-etiqueta">📍 Tu institución educativa</div>
         <Selector
+          etiqueta="Municipio"
+          campo="municipio"
+          valor={datos.municipio}
+          placeholder="Selecciona tu municipio"
+          opciones={MUNICIPIOS}
+          error={errores.municipio}
+          onChange={(v) => {
+            setDatos((d) => ({ ...d, municipio: v, institucion: '' }))
+            setErrores((e) => ({ ...e, municipio: undefined, institucion: undefined }))
+          }}
+        />
+        <Selector
           etiqueta="Institución educativa"
           campo="institucion"
           valor={datos.institucion}
           placeholder="Selecciona tu institución"
-          opciones={INSTITUCIONES}
+          ayuda="Primero elige tu municipio"
+          deshabilitado={!datos.municipio}
+          opciones={INSTITUCIONES_POR_MUNICIPIO[datos.municipio] || []}
           error={errores.institucion}
           onChange={(v) => poner('institucion', v)}
         />

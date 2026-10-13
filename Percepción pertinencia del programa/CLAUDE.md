@@ -8,7 +8,7 @@ Built. `Encuesta de valoración del Programa Técnico Profesional CEPE.docx` is 
 
 - `frontend/`: Vite + React 19 single-page wizard (`src/App.jsx`; survey copy in `src/data/encuesta.js`;
   catalogs in `src/data/catalogos.js`). Commands: `npm run dev|build|lint`. Draft saved in localStorage;
-  `idEnvio` UUID makes submits idempotent. Cascading selects: Universidad→Programa, Municipio→Institución.
+  `idEnvio` UUID makes submits idempotent. Cascading selects: Universidad→Programa, Municipio→Institución (all Caldas; Manizales limited to 12 approved institutions).
 - `backend/`: Apps Script bound to a Sheet in the Drive folder `1YR2JruHCSf7kmgFI0sbnytCcCTUfuEfn`
   (`clasp push -f`, `clasp create-deployment`). `Code.js` self-creates the `Respuestas` sheet on first
   request and validates against catalogs duplicated from the frontend. Questions are keys p01..p26.

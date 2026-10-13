@@ -1,7 +1,7 @@
 /* Panel de resultados — reutiliza las variables y el fondo claro de index.css */
 
 .adm {
-  max-width: 1040px;
+  max-width: none;
   margin: 0 auto;
   padding: 28px 16px 56px;
 }
@@ -337,19 +337,19 @@
   max-height: 620px;
 }
 .adm-base {
-  min-width: 820px;
+  min-width: 720px;
 }
 .adm-base th {
   position: sticky;
   top: 0;
   background: #fff;
 }
-.adm-base th:nth-child(n + 2),
-.adm-base td:nth-child(n + 2) {
+.adm-base th,
+.adm-base td {
   text-align: left;
 }
-.adm-base th:nth-child(6),
-.adm-base td:nth-child(6) {
+.adm-base th:nth-child(5),
+.adm-base td:nth-child(5) {
   text-align: right;
 }
 .adm-base tbody tr {
@@ -360,7 +360,7 @@
   background: var(--verde-suave);
   outline: none;
 }
-.adm-base td:nth-child(2) {
+.adm-base td:nth-child(1) {
   font-weight: 800;
 }
 
