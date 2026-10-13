@@ -9,6 +9,7 @@ on:
       - 'Comité académico 25-09-2026/frontend/**'
       - 'Acompañamiento entre pares/Sesión 1/frontend/**'
       - 'Percepción pertinencia del programa/frontend/**'
+      - 'Implementación protocolo articulación/frontend/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -32,6 +33,8 @@ env:
   SITE_SLUG_4: acompanamiento-pares-sesion-1
   PROJECT_DIR_5: 'Percepción pertinencia del programa/frontend'
   SITE_SLUG_5: percepcion-pertinencia-programa
+  PROJECT_DIR_6: 'Implementación protocolo articulación/frontend'
+  SITE_SLUG_6: protocolo-articulacion-manizales
 
 jobs:
   build:
@@ -51,6 +54,7 @@ jobs:
             ${{ env.PROJECT_DIR_3 }}/package-lock.json
             ${{ env.PROJECT_DIR_4 }}/package-lock.json
             ${{ env.PROJECT_DIR_5 }}/package-lock.json
+            ${{ env.PROJECT_DIR_6 }}/package-lock.json
 
       - name: Instalar dependencias — Metodologías Activas (CEPE)
         working-directory: ${{ env.PROJECT_DIR }}
@@ -102,6 +106,16 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL_PERCEPCION_PERTINENCIA }}
         run: npm run build
 
+      - name: Instalar dependencias — Protocolo de articulación
+        working-directory: ${{ env.PROJECT_DIR_6 }}
+        run: npm ci
+
+      - name: Build — Protocolo de articulación
+        working-directory: ${{ env.PROJECT_DIR_6 }}
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_PROTOCOLO_ARTICULACION }}
+        run: npm run build
+
       - name: Ensamblar sitio
         run: |
           mkdir -p "site/${SITE_SLUG}"
@@ -114,6 +128,8 @@ jobs:
           cp -r "${PROJECT_DIR_4}/dist/." "site/${SITE_SLUG_4}/"
           mkdir -p "site/${SITE_SLUG_5}"
           cp -r "${PROJECT_DIR_5}/dist/." "site/${SITE_SLUG_5}/"
+          mkdir -p "site/${SITE_SLUG_6}"
+          cp -r "${PROJECT_DIR_6}/dist/." "site/${SITE_SLUG_6}/"
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
