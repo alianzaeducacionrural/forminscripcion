@@ -105,7 +105,7 @@ textarea {
 .pie {
   position: relative;
   z-index: 1;
-  max-width: none;
+  max-width: 760px;
   margin-inline: auto;
 }
 
