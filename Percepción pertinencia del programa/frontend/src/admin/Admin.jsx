@@ -21,8 +21,6 @@ export default function Admin() {
   const [estado, setEstado] = useState('cargando')
   const [error, setError] = useState('')
   const [filtros, setFiltros] = useState({ universidad: '', programa: '', municipio: '', institucion: '' })
-  const [pestana, setPestana] = useState(PREGUNTAS_ABIERTAS[0].clave)
-  const [busqueda, setBusqueda] = useState('')
   const [buscarNombre, setBuscarNombre] = useState('')
   const [detalle, setDetalle] = useState(null)
 
@@ -78,18 +76,11 @@ export default function Admin() {
   const proyeccion = useMemo(() => conteoProyeccion(visibles), [visibles])
   const porUniversidad = useMemo(() => agrupar(visibles.map((f) => ({ ...f, universidad: universidadDe(f) })), 'universidad'), [visibles])
   const porInstitucion = useMemo(() => agrupar(visibles.map((f) => ({ ...f, institucion: `${f.institucion} (${f.municipio})` })), 'institucion'), [visibles])
+  const porMunicipio = useMemo(() => agrupar(visibles, 'municipio'), [visibles])
 
   const altoMuyAlto = global.filter((g) => g.valor === 'Alto' || g.valor === 'Muy alto').reduce((s, g) => s + g.total, 0)
   const continuar = bloques.flatMap((b) => b.items).find((i) => i.clave === 'p26')
   const continuarPct = continuar ? pct(continuar.conteo[4] + continuar.conteo[5], continuar.n) : 0
-
-  const abiertas = useMemo(() => {
-    const q = busqueda.trim().toLowerCase()
-    return visibles
-      .filter((f) => String(f[pestana] || '').trim())
-      .filter((f) => !q || String(f[pestana]).toLowerCase().includes(q))
-      .sort((a, b) => String(b.timestamp).localeCompare(String(a.timestamp)))
-  }, [visibles, pestana, busqueda])
 
   const registros = useMemo(() => {
     const q = buscarNombre.trim().toLowerCase()
@@ -219,28 +210,8 @@ export default function Admin() {
               </div>
 
               <section className="adm-tarjeta">
-                <h2>💬 Respuestas abiertas</h2>
-                <div className="adm-tabs" role="tablist">
-                  {PREGUNTAS_ABIERTAS.map((p) => (
-                    <button key={p.clave} type="button" role="tab" aria-selected={pestana === p.clave} className={pestana === p.clave ? 'activa' : ''} onClick={() => setPestana(p.clave)}>
-                      {p.texto.replace(/^¿/, '').split(',')[0].slice(0, 42)}
-                      {p.texto.length > 42 ? '…' : ''}
-                    </button>
-                  ))}
-                </div>
-                <p className="adm-pregunta">{PREGUNTAS_ABIERTAS.find((p) => p.clave === pestana).texto}</p>
-                <input type="search" className="adm-buscar" placeholder="Buscar en las respuestas…" value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
-                <p className="adm-cuenta">{abiertas.length} respuestas</p>
-                <ul className="adm-citas">
-                  {abiertas.map((f) => (
-                    <li key={f.id_envio}>
-                      <p>{f[pestana]}</p>
-                      <small>
-                        {f.nombre || 'Sin nombre'} · {f.institucion} · {f.programa} · {universidadDe(f)}
-                      </small>
-                    </li>
-                  ))}
-                </ul>
+                <h2>📍 Respuestas por municipio</h2>
+                <Barras filas={porMunicipio} max={Math.max(1, ...porMunicipio.map((m) => m.total))} total={visibles.length} />
               </section>
 
               <section className="adm-tarjeta">
