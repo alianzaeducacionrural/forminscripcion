@@ -736,3 +736,22 @@ h3 {
     display: none;
   }
 }
+
+/* ---------- Acompañamiento anterior ---------- */
+.previo {
+  margin: -6px 0 16px;
+  padding: 8px 12px;
+  border-left: 4px solid var(--cafe);
+  border-radius: var(--r-sm);
+  background: var(--paper);
+  font-size: 0.93rem;
+}
+
+.previo--lista ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+
+.previo--lista p {
+  margin: 4px 0 0;
+}

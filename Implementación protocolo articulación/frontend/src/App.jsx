@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { enviarVisita, prepararArchivo, subirEvidencia } from './api.js'
+import { enviarVisita, getContexto, prepararArchivo, subirEvidencia } from './api.js'
 import Puente from './components/Puente.jsx'
 import { INSTITUCIONES, PADRINOS } from './data/catalogos.js'
 import {
@@ -111,6 +111,7 @@ export default function App() {
   const [enviando, setEnviando] = useState(false)
   const [errorEnvio, setErrorEnvio] = useState('')
   const [enviado, setEnviado] = useState(null)
+  const [contexto, setContexto] = useState(null) // último acompañamiento por institución (null = aún no cargó)
   const inicioRef = useRef(null)
 
   useEffect(() => {
@@ -123,6 +124,10 @@ export default function App() {
   }, [datos, paso, idEnvio, enviado])
 
   useEffect(() => {
+    getContexto().then(setContexto).catch(() => {}) // sin contexto el formulario igual funciona
+  }, [])
+
+  useEffect(() => {
     inicioRef.current?.focus({ preventScroll: true })
     window.scrollTo({ top: 0 })
   }, [paso, enviado])
@@ -133,6 +138,8 @@ export default function App() {
   )
   const respondidos = CRITERIOS.filter((c) => respuestas[c.clave]).length
   const subiendo = Object.values(subidas).some((l) => l.some((s) => s.estado === 'subiendo'))
+  const previo = contexto && datos.institucion ? contexto[datos.institucion] : null
+  const numeroAcomp = contexto && datos.institucion ? (previo?.numero || 0) + 1 : null
   const criterioActual = paso >= 1 && paso <= CRITERIOS.length ? CRITERIOS[paso - 1] : null
 
   const cambiar = (campo, valor) => {
@@ -239,7 +246,7 @@ export default function App() {
     setEnviando(true)
     setErrorEnvio('')
     try {
-      await enviarVisita({
+      const r = await enviarVisita({
         idEnvio,
         acompanante: datos.acompanante,
         institucion: datos.institucion,
@@ -256,7 +263,7 @@ export default function App() {
         nivel: datos.nivel,
       })
       localStorage.removeItem(CLAVE_BORRADOR)
-      setEnviado({ datos, respuestas })
+      setEnviado({ datos, respuestas, numero: r.numeroVisita })
     } catch (err) {
       setErrorEnvio(err.message)
     } finally {
@@ -281,7 +288,7 @@ export default function App() {
           <p className="mono">Visita registrada</p>
           <h1 ref={inicioRef} tabIndex={-1}>El puente quedó tendido</h1>
           <p className="sub">
-            {enviado.datos.institucion} · {enviado.datos.fechaVisita}. Nivel de
+            {enviado.datos.institucion} · Acompañamiento {enviado.numero} · {enviado.datos.fechaVisita}. Nivel de
             apropiación: <strong>{enviado.datos.nivel}</strong>.
           </p>
           <div style={{ margin: '20px 0 4px' }}>
@@ -303,7 +310,7 @@ export default function App() {
     <div className="app">
       <header className="cabecera">
         <div className="cabecera__fila">
-          <span className="cabecera__titulo">El puente de la articulación</span>
+          <span className="cabecera__titulo">{numeroAcomp ? `Acompañamiento ${numeroAcomp} · ${datos.institucion}` : 'El puente de la articulación'}</span>
           <span className="cabecera__cuenta" aria-live="polite">{respondidos}/{CRITERIOS.length} tablas</span>
         </div>
         <Puente respuestas={respuestas} actual={criterioActual?.clave} onElegir={irACriterio} mini={false} />
@@ -336,6 +343,14 @@ export default function App() {
                   {INSTITUCIONES.map((i) => <option key={i}>{i}</option>)}
                 </select>
               </Campo>
+              {datos.institucion && contexto && (
+                <p className="aviso aviso--ok" style={{ margin: 0 }}>
+                  <strong>Acompañamiento {numeroAcomp}.</strong>{' '}
+                  {previo
+                    ? `El anterior fue el ${previo.fecha} (nivel: ${previo.nivel}). Verás sus respuestas en cada criterio y sus compromisos en «Gestión de acuerdos».`
+                    : 'Es el primero de esta institución.'}
+                </p>
+              )}
               <Campo id="fecha" etiqueta="Fecha" error={errores.fechaVisita}>
                 <input id="fecha" type="date" value={datos.fechaVisita} onChange={(e) => cambiar('fechaVisita', e.target.value)} />
               </Campo>
@@ -351,6 +366,25 @@ export default function App() {
             </div>
             <h2 ref={inicioRef} tabIndex={-1}>{criterioActual.componente}</h2>
             <p className="criterio__texto">{criterioActual.criterio}</p>
+            {previo?.respuestas?.[criterioActual.clave] && (
+              <p className="previo">
+                Acompañamiento {previo.numero}: <strong>{RESPUESTAS.find((r) => r.valor === previo.respuestas[criterioActual.clave])?.etiqueta}</strong>
+              </p>
+            )}
+            {criterioActual.clave === 'c12' && previo && (
+              <div className="previo previo--lista">
+                <strong>Compromisos del acompañamiento {previo.numero} ({previo.fecha})</strong>
+                {previo.hallazgos.length === 0 ? <p>No dejó acciones de mejora registradas.</p> : (
+                  <ul>
+                    {previo.hallazgos.map((h) => (
+                      <li key={`${h.hallazgo}-${h.accion}`}>
+                        {h.accion} <span className="mono">— {h.responsable || 'sin responsable'}{h.fecha ? `, verificar ${h.fecha}` : ''}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
 
             <div role="radiogroup" aria-label="Respuesta" className="respuestas">
               {RESPUESTAS.map((r) => (

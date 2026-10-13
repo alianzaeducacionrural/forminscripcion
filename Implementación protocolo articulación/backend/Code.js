@@ -5,6 +5,7 @@
  *
  * Endpoints:
  *   GET  ?action=ping
+ *   GET  ?action=getContexto     (formulario: último acompañamiento y compromisos por institución)
  *   GET  ?action=getVisitas      (panel admin: { visitas: [...], hallazgos: [...] })
  *   POST { action: "subirEvidencia", idEnvio, institucion, fechaVisita, criterio: 'c01'..'c14',
  *          nombre, mimeType, base64 }                         → { success, url, nombre }
@@ -140,6 +141,7 @@ function doGet(e) {
   var action = e && e.parameter && e.parameter.action;
   if (action === 'ping') return json({ success: true, data: 'ok' });
   if (action === 'getVisitas') return getVisitas();
+  if (action === 'getContexto') return getContexto();
   return fail('Acción no válida.');
 }
 
@@ -168,6 +170,34 @@ function getVisitas() {
       hallazgos: leerHoja(hojas.hallazgos, HEADERS_HALLAZGOS)
     }
   });
+}
+
+/**
+ * Para el formulario: por institución, el último acompañamiento (número, fecha, nivel, respuestas por
+ * criterio) y los compromisos que dejó, de modo que la visita siguiente los revise.
+ * { "La Linda": { numero, fecha, nivel, respuestas: { c01.. }, hallazgos: [{hallazgo, accion, responsable, fecha}] } }
+ */
+function getContexto() {
+  var hojas = ensureSetup();
+  var h = headersVisitas();
+  var ctx = {};
+  leerHoja(hojas.visitas, h).forEach(function (f) {
+    var n = Number(f.numero_visita) || 0;
+    var previo = ctx[f.institucion];
+    if (previo && previo.numero >= n) return;
+    var respuestas = {};
+    for (var i = 1; i <= NUM_CRITERIOS; i++) respuestas[clave(i)] = f[clave(i)];
+    ctx[f.institucion] = { numero: n, id: f.id_envio, fecha: String(f.fecha_visita).slice(0, 10),
+      nivel: f.nivel_apropiacion, respuestas: respuestas, hallazgos: [] };
+  });
+  leerHoja(hojas.hallazgos, HEADERS_HALLAZGOS).forEach(function (f) {
+    var c = ctx[f.institucion];
+    if (c && c.id === f.id_envio) {
+      c.hallazgos.push({ hallazgo: f.hallazgo, accion: f.accion, responsable: f.responsable,
+        fecha: String(f.fecha_verificacion).slice(0, 10) });
+    }
+  });
+  return json({ success: true, data: ctx });
 }
 
 function doPost(e) {
@@ -308,19 +338,15 @@ function submitVisita(b) {
   if (!idValido(idEnvio)) idEnvio = Utilities.getUuid();
 
   // Idempotencia: ya recibido => éxito sin duplicar.
+  // Además calcula el número de acompañamiento: consecutivo por institución (máximo + 1).
   var ultima = hojas.visitas.getLastRow();
-  if (ultima > 1) {
-    var ids = hojas.visitas.getRange(2, 2, ultima - 1, 1).getValues();
-    for (var r2 = 0; r2 < ids.length; r2++) {
-      if (ids[r2][0] === idEnvio) return json({ success: true, duplicado: true });
-    }
-  }
-
-  // Número de visita: consecutivo por institución (lo calcula el servidor; ya no se pregunta).
   var numeroVisita = 1;
   if (ultima > 1) {
-    var insts = hojas.visitas.getRange(2, 4, ultima - 1, 1).getValues();
-    for (var r3 = 0; r3 < insts.length; r3++) if (insts[r3][0] === institucion) numeroVisita++;
+    var previas = hojas.visitas.getRange(2, 2, ultima - 1, 5).getValues(); // id, acompañante, IE, fecha, número
+    for (var r2 = 0; r2 < previas.length; r2++) {
+      if (previas[r2][0] === idEnvio) return json({ success: true, duplicado: true, numeroVisita: Number(previas[r2][4]) });
+      if (previas[r2][2] === institucion) numeroVisita = Math.max(numeroVisita, (Number(previas[r2][4]) || 0) + 1);
+    }
   }
 
   var ahora = new Date();
@@ -339,7 +365,7 @@ function submitVisita(b) {
     hojas.hallazgos.getRange(filaH, 3, filasH.length, HEADERS_HALLAZGOS.length - 2).setNumberFormat('@');
     hojas.hallazgos.getRange(filaH, 1, filasH.length, HEADERS_HALLAZGOS.length).setValues(filasH);
   }
-  return json({ success: true });
+  return json({ success: true, numeroVisita: numeroVisita });
 }
 
 /**

@@ -46,7 +46,7 @@ function normalizarVisita(fila) {
 }
 
 const orden = (a, b) =>
-  b.fecha.localeCompare(a.fecha) || b.numero - a.numero || String(b.timestamp).localeCompare(String(a.timestamp))
+  b.numero - a.numero || b.fecha.localeCompare(a.fecha) || String(b.timestamp).localeCompare(String(a.timestamp))
 
 /** Avance 0–100: Sí = 1, Parcial = 0,5, No = 0; "No aplica" no cuenta. */
 export function indice(respuestas) {
@@ -54,7 +54,8 @@ export function indice(respuestas) {
   return vals.length ? Math.round((vals.reduce((s, r) => s + PESO[r], 0) / vals.length) * 100) : null
 }
 
-export function construirModelo(datos) {
+/** `sel`: 'ultimo' o el número de acompañamiento a mostrar en tarjetas, mapa y distribución. */
+export function construirModelo(datos, sel = 'ultimo') {
   const visitas = (datos?.visitas || []).map(normalizarVisita).sort(orden)
   const hoy = hoyISO()
   const hallazgos = (datos?.hallazgos || []).map((h) => ({
@@ -68,13 +69,18 @@ export function construirModelo(datos) {
     vencido: !!h.fecha_verificacion && String(h.fecha_verificacion).slice(0, 10) < hoy,
   }))
   const porIE = INSTITUCIONES.map((nombre) => {
-    const suyas = visitas.filter((v) => v.institucion === nombre)
-    const ultima = suyas[0] || null
+    // Más reciente primero; cada visita lleva su avance y la diferencia con la anterior.
+    const suyas = visitas.filter((v) => v.institucion === nombre).map((v) => ({ ...v, indice: indice(v.respuestas) }))
+    suyas.forEach((v, i) => {
+      const previa = suyas[i + 1]
+      v.cambio = previa && v.indice != null && previa.indice != null ? v.indice - previa.indice : null
+    })
+    const ultima = sel === 'ultimo' ? suyas[0] || null : suyas.find((v) => v.numero === sel) || null
     return {
       nombre,
       visitas: suyas,
       ultima,
-      indice: ultima ? indice(ultima.respuestas) : null,
+      indice: ultima ? ultima.indice : null,
       hallazgos: hallazgos.filter((h) => h.institucion === nombre),
     }
   })
@@ -84,5 +90,6 @@ export function construirModelo(datos) {
     for (const ie of porIE) if (ie.ultima && ie.ultima.respuestas[c.clave]) cuenta[ie.ultima.respuestas[c.clave]] += 1
     return { ...c, cuenta, total: Object.values(cuenta).reduce((a, b) => a + b, 0) }
   })
-  return { visitas, hallazgos, porIE, porCriterio }
+  const maxNumero = visitas.reduce((m, v) => Math.max(m, v.numero), 0)
+  return { visitas, hallazgos, porIE, porCriterio, maxNumero }
 }

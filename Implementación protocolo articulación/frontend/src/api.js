@@ -40,6 +40,16 @@ async function post(payload) {
 export const enviarVisita = (payload) => post({ action: 'submitVisita', ...payload })
 export const subirEvidencia = (payload) => post({ action: 'subirEvidencia', ...payload })
 
+/** Formulario: { [institución]: { numero, fecha, nivel, respuestas, hallazgos } } del último acompañamiento. */
+export async function getContexto() {
+  if (!API_URL) throw new Error('Falta configurar VITE_API_URL.')
+  const url = new URL(API_URL)
+  url.searchParams.set('action', 'getContexto')
+  const cuerpo = await fetch(url).then((r) => r.json())
+  if (!cuerpo?.success) throw new Error(cuerpo?.error || 'No se pudo cargar el contexto.')
+  return cuerpo.data
+}
+
 /** Panel admin: { visitas, hallazgos } con las claves de los encabezados de la hoja. */
 export async function getVisitas() {
   if (!API_URL) throw new Error('Falta configurar VITE_API_URL (URL del Web App de Apps Script).')

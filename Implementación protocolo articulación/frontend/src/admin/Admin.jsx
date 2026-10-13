@@ -38,8 +38,8 @@ function Resumen({ modelo, onAbrir }) {
   return (
     <>
       <div className="kpis">
-        <div className="kpi"><b>{visitadas}/{modelo.porIE.length}</b><span>IE visitadas</span></div>
-        <div className="kpi"><b>{modelo.visitas.length}</b><span>visitas registradas</span></div>
+        <div className="kpi"><b>{visitadas}/{modelo.porIE.length}</b><span>IE con acompañamiento</span></div>
+        <div className="kpi"><b>{modelo.visitas.length}</b><span>acompañamientos registrados</span></div>
         <div className="kpi"><b>{modelo.hallazgos.length}</b><span>acciones de mejora</span></div>
         <div className={`kpi${vencidos ? ' kpi--alerta' : ''}`}><b>{vencidos}</b><span>acciones vencidas</span></div>
       </div>
@@ -51,10 +51,12 @@ function Resumen({ modelo, onAbrir }) {
             {ie.ultima ? (
               <span className="tarjeta-ie__pie">
                 <strong>{ie.ultima.nivel}</strong>
-                <span className="mono">{ie.indice ?? '—'}% · {ie.visitas.length} visita{ie.visitas.length === 1 ? '' : 's'} · {ie.ultima.fecha}</span>
+                <span className="mono">
+                  Acompañamiento {ie.ultima.numero} · {ie.indice ?? '—'}%{ie.ultima.cambio != null ? ` (${ie.ultima.cambio >= 0 ? '▲ +' : '▼ '}${ie.ultima.cambio})` : ''} · {ie.ultima.fecha}
+                </span>
               </span>
             ) : (
-              <span className="tarjeta-ie__pie"><strong>Sin visita</strong><span className="mono">pendiente</span></span>
+              <span className="tarjeta-ie__pie"><strong>Sin acompañamiento</strong><span className="mono">pendiente</span></span>
             )}
           </button>
         ))}
@@ -67,7 +69,7 @@ function Mapa({ modelo, onAbrir }) {
   return (
     <div className="tabla-scroll">
       <table className="mapa">
-        <caption className="sr-only">Respuesta de la última visita, por criterio e institución</caption>
+        <caption className="sr-only">Respuesta del acompañamiento elegido, por criterio e institución</caption>
         <thead>
           <tr>
             <th scope="col">Criterio</th>
@@ -129,7 +131,7 @@ function Compromisos({ modelo }) {
         <label className="check"><input type="checkbox" checked={soloVencidos} onChange={(e) => setSoloVencidos(e.target.checked)} /> Solo vencidas</label>
         <button type="button" className="btn btn--suave btn--chico" disabled={!filas.length}
           onClick={() => descargarCSV('compromisos.csv', [
-            ['Institución', 'Fecha de visita', 'Hallazgo', 'Acción de mejora', 'Responsable', 'Fecha de verificación'],
+            ['Institución', 'Fecha del acompañamiento', 'Hallazgo', 'Acción de mejora', 'Responsable', 'Fecha de verificación'],
             ...filas.map((h) => [h.institucion, h.fechaVisita, h.hallazgo, h.accion, h.responsable, h.fecha]),
           ])}>
           Descargar CSV
@@ -139,7 +141,7 @@ function Compromisos({ modelo }) {
         <ul className="compromisos">
           {filas.map((h, i) => (
             <li key={`${h.id}-${i}`} className={h.vencido ? 'compromiso compromiso--vencido' : 'compromiso'}>
-              <span className="mono">{h.institucion} · visita del {h.fechaVisita}</span>
+              <span className="mono">{h.institucion} · acompañamiento del {h.fechaVisita}</span>
               <p><strong>Hallazgo:</strong> {h.hallazgo}</p>
               <p><strong>Acción:</strong> {h.accion}</p>
               <p className="mono">
@@ -158,14 +160,17 @@ function Detalle({ ie, onVolver }) {
     <section>
       <button type="button" className="btn btn--suave btn--chico" onClick={onVolver}>← Todas las instituciones</button>
       <h2 style={{ margin: '16px 0 4px' }}>{ie.nombre}</h2>
-      {ie.visitas.length === 0 && <p className="vacio">Aún no tiene visitas registradas.</p>}
+      {ie.visitas.length === 0 && <p className="vacio">Aún no tiene acompañamientos registrados.</p>}
       {ie.visitas.map((v) => (
         <article key={v.id} className="visita">
           <header>
-            <h3>Visita {v.numero} · {v.fecha}</h3>
-            <p className="mono">{v.acompanante} · {v.nivel} · avance {ie.visitas[0] === v ? ie.indice : '—'}%</p>
+            <h3>Acompañamiento {v.numero} · {v.fecha}</h3>
+            <p className="mono">
+              Padrino: {v.acompanante} · {v.nivel} · avance {v.indice ?? '—'}%
+              {v.cambio != null && ` (${v.cambio >= 0 ? '▲ +' : '▼ '}${v.cambio} pts frente al anterior)`}
+            </p>
           </header>
-          <Puente respuestas={v.respuestas} titulo={`Puente de la visita ${v.numero}`} />
+          <Puente respuestas={v.respuestas} titulo={`Puente del acompañamiento ${v.numero}`} />
           <details>
             <summary>Evidencias por criterio</summary>
             <ul className="evid">
@@ -200,6 +205,7 @@ export default function Admin() {
   const [error, setError] = useState('')
   const [vista, setVista] = useState('resumen')
   const [abierta, setAbierta] = useState('')
+  const [sel, setSel] = useState('ultimo')
 
   const cargar = () => {
     setError('')
@@ -209,7 +215,7 @@ export default function Admin() {
     getVisitas().then(setDatos).catch((e) => setError(e.message))
   }, [])
 
-  const modelo = useMemo(() => (datos ? construirModelo(datos) : null), [datos])
+  const modelo = useMemo(() => (datos ? construirModelo(datos, sel) : null), [datos, sel])
   const ie = modelo?.porIE.find((x) => x.nombre === abierta)
 
   return (
@@ -227,6 +233,17 @@ export default function Admin() {
 
       {modelo && (
         <>
+          {!ie && (vista === 'resumen' || vista === 'mapa' || vista === 'criterios') && (
+            <label className="filtros">
+              Mostrar
+              <select value={sel} onChange={(e) => setSel(e.target.value === 'ultimo' ? 'ultimo' : Number(e.target.value))}>
+                <option value="ultimo">Último acompañamiento de cada IE</option>
+                {Array.from({ length: modelo.maxNumero }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>Acompañamiento {i + 1}</option>
+                ))}
+              </select>
+            </label>
+          )}
           {!ie && (
             <nav className="pestanas" aria-label="Vistas">
               {VISTAS.map(([id, nombre]) => (
