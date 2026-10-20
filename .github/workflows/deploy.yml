@@ -10,6 +10,7 @@ on:
       - 'Acompañamiento entre pares/Sesión 1/frontend/**'
       - 'Percepción pertinencia del programa/frontend/**'
       - 'Implementación protocolo articulación/frontend/**'
+      - 'Postest taller 3 - docentes universitarios/frontend/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -35,6 +36,8 @@ env:
   SITE_SLUG_5: percepcion-pertinencia-programa
   PROJECT_DIR_6: 'Implementación protocolo articulación/frontend'
   SITE_SLUG_6: protocolo-articulacion-manizales
+  PROJECT_DIR_7: 'Postest taller 3 - docentes universitarios/frontend'
+  SITE_SLUG_7: postest-taller-3-docentes-universitarios
 
 jobs:
   build:
@@ -55,6 +58,7 @@ jobs:
             ${{ env.PROJECT_DIR_4 }}/package-lock.json
             ${{ env.PROJECT_DIR_5 }}/package-lock.json
             ${{ env.PROJECT_DIR_6 }}/package-lock.json
+            ${{ env.PROJECT_DIR_7 }}/package-lock.json
 
       - name: Instalar dependencias — Metodologías Activas (CEPE)
         working-directory: ${{ env.PROJECT_DIR }}
@@ -116,6 +120,16 @@ jobs:
           VITE_API_URL: ${{ secrets.VITE_API_URL_PROTOCOLO_ARTICULACION }}
         run: npm run build
 
+      - name: Instalar dependencias — Postest taller 3 (docentes universitarios)
+        working-directory: ${{ env.PROJECT_DIR_7 }}
+        run: npm ci
+
+      - name: Build — Postest taller 3 (docentes universitarios)
+        working-directory: ${{ env.PROJECT_DIR_7 }}
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL_POSTEST_TALLER3_DOCENTES }}
+        run: npm run build
+
       - name: Ensamblar sitio
         run: |
           mkdir -p "site/${SITE_SLUG}"
@@ -130,6 +144,8 @@ jobs:
           cp -r "${PROJECT_DIR_5}/dist/." "site/${SITE_SLUG_5}/"
           mkdir -p "site/${SITE_SLUG_6}"
           cp -r "${PROJECT_DIR_6}/dist/." "site/${SITE_SLUG_6}/"
+          mkdir -p "site/${SITE_SLUG_7}"
+          cp -r "${PROJECT_DIR_7}/dist/." "site/${SITE_SLUG_7}/"
 
       - name: Configurar Pages
         uses: actions/configure-pages@v5
