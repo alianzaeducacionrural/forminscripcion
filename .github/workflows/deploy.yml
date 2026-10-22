@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - 'Taller de capacitación Manizales - CEPE/frontend/**'
-      - 'Pretest - Postest/frontend/**'
+      - 'Pretest - Postest Educación Media/frontend/**'
       - 'Comité académico 25-09-2026/frontend/**'
       - 'Acompañamiento entre pares/Sesión 1/frontend/**'
       - 'Percepción pertinencia del programa/frontend/**'
@@ -26,7 +26,7 @@ concurrency:
 env:
   PROJECT_DIR: 'Taller de capacitación Manizales - CEPE/frontend'
   SITE_SLUG: metodologias-activas-manizales
-  PROJECT_DIR_2: 'Pretest - Postest/frontend'
+  PROJECT_DIR_2: 'Pretest - Postest Educación Media/frontend'
   SITE_SLUG_2: pretest-postest-metodologias-activas
   PROJECT_DIR_3: 'Comité académico 25-09-2026/frontend'
   SITE_SLUG_3: comite-academico-matrices
